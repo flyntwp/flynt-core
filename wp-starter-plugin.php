@@ -11,3 +11,5 @@
  *
  * @package         Wp_Starter_Plugin
  */
+
+require_once __DIR__ . '/lib/WPStarter/ConstructionPlan.php';
