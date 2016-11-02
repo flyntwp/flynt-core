@@ -13,6 +13,8 @@ use PHPUnit\Framework\TestCase;
 use WPStarter\ConstructionPlan;
 use WP_Mock;
 
+require_once 'TestHelper.php';
+
 class ConstructionPlanTest extends TestCase {
 
   /**
@@ -23,12 +25,10 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testSingleModuleNoData() {
-    $cp = ConstructionPlan::fromConfig([
-      'name' => 'ModuleA',
-      'areas' => []
-    ]);
+    $module = TestHelper::getCustomModule('ModuleNoData', ['name', 'areas']);
+    $cp = ConstructionPlan::fromConfig($module);
     $this->assertEquals($cp, [
-      'name' => 'ModuleA',
+      'name' => 'ModuleNoData',
       'data' => []
     ]);
   }
@@ -39,7 +39,7 @@ class ConstructionPlanTest extends TestCase {
     // this simulates add_filter with return data:
     WP_Mock::userFunction('apply_filters_ref_array', [
       'args' => [
-        'WPStarter/DataFilters/A/foo', [[]]
+        'WPStarter/DataFilters/ModuleWithDataFilter/foo', [[]]
       ],
       'times' => 1,
       'return' => [
@@ -47,14 +47,11 @@ class ConstructionPlanTest extends TestCase {
       ]
     ]);
 
-    $cp = ConstructionPlan::fromConfig([
-      'name' => 'ModuleA',
-      'dataFilter' => 'WPStarter/DataFilters/A/foo',
-      'areas' => []
-    ]);
+    $module = TestHelper::getCustomModule('ModuleWithDataFilter', ['name', 'dataFilter', 'areas']);
+    $cp = ConstructionPlan::fromConfig($module);
 
     $this->assertEquals($cp, [
-      'name' => 'ModuleA',
+      'name' => 'ModuleWithDataFilter',
       'data' => [
         'test' => 'result'
       ]
@@ -67,10 +64,11 @@ class ConstructionPlanTest extends TestCase {
     // this simulates add_filter with return data:
     WP_Mock::userFunction('apply_filters_ref_array', [
       'args' => [
-        'WPStarter/DataFilters/A/foo',
+        'WPStarter/DataFilters/ModuleWithDataFilterArgs/foo',
         [
           [],
-          'post'
+          'post',
+          'page'
         ]
       ],
       'times' => 1,
@@ -79,17 +77,11 @@ class ConstructionPlanTest extends TestCase {
       ]
     ]);
 
-    $cp = ConstructionPlan::fromConfig([
-      'name' => 'ModuleA',
-      'dataFilter' => 'WPStarter/DataFilters/A/foo',
-      'dataFilterArgs' => [
-        'post'
-      ],
-      'areas' => []
-    ]);
+    $module = TestHelper::getCustomModule('ModuleWithDataFilterArgs', ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
+    $cp = ConstructionPlan::fromConfig($module);
 
     $this->assertEquals($cp, [
-      'name' => 'ModuleA',
+      'name' => 'ModuleWithDataFilterArgs',
       'data' => [
         'test' => 'result'
       ]
@@ -98,26 +90,18 @@ class ConstructionPlanTest extends TestCase {
 
   function testSingleModuleWithCustomData() {
     // this simulates add_filter with return data:
-    $cp = ConstructionPlan::fromConfig([
-      'name' => 'ModuleA',
-      'customData' => [
-        'test0' => 0,
-        'test1' => 'string',
-        'test2' => [
-          'something strange'
-        ]
-      ],
-      'areas' => []
-    ]);
+    $module = TestHelper::getCustomModule('ModuleWithCustomData', ['name', 'customData', 'areas']);
+    $cp = ConstructionPlan::fromConfig($module);
 
     $this->assertEquals($cp, [
-      'name' => 'ModuleA',
+      'name' => 'ModuleWithCustomData',
       'data' => [
         'test0' => 0,
         'test1' => 'string',
         'test2' => [
           'something strange'
-        ]
+        ],
+        'duplicate' => 'newValue'
       ]
     ]);
   }
@@ -128,7 +112,7 @@ class ConstructionPlanTest extends TestCase {
     // this simulates add_filter with return data:
     WP_Mock::userFunction('apply_filters_ref_array', [
       'args' => [
-        'WPStarter/DataFilters/A/foo', [[]]
+        'WPStarter/DataFilters/ModuleWithDataFilterAndCustomData/foo', [[]]
       ],
       'times' => 1,
       'return' => [
@@ -137,23 +121,18 @@ class ConstructionPlanTest extends TestCase {
       ]
     ]);
 
-    $cp = ConstructionPlan::fromConfig([
-      'name' => 'ModuleA',
-      'dataFilter' => 'WPStarter/DataFilters/A/foo',
-      'customData' => [
-        'myData' => 1,
-        'otherData' => 'test',
-        'duplicate' => 'newValue'
-      ],
-      'areas' => []
-    ]);
+    $module = TestHelper::getCustomModule('ModuleWithDataFilterAndCustomData', ['name', 'dataFilter', 'customData', 'areas']);
+    $cp = ConstructionPlan::fromConfig($module);
 
     $this->assertEquals($cp, [
-      'name' => 'ModuleA',
+      'name' => 'ModuleWithDataFilterAndCustomData',
       'data' => [
         'test' => 'result',
-        'myData' => 1,
-        'otherData' => 'test',
+        'test0' => 0,
+        'test1' => 'string',
+        'test2' => [
+          'something strange'
+        ],
         'duplicate' => 'newValue'
       ]
     ]);
