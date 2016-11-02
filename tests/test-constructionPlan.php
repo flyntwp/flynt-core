@@ -138,8 +138,52 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  //
-  // function testNestedModules() {}
+  function testNestedModules() {
+    WP_Mock::userFunction('apply_filters_ref_array', [
+      'args' => [
+        'WPStarter/DataFilters/ModuleNestedChild/foo', [[], 'post', 'page']
+      ],
+      'times' => 1,
+      'return' => [
+        'test' => 'result',
+        'duplicate' => 'previousValue'
+      ]
+    ]);
+
+    $module = TestHelper::getCustomModule('ModuleNestedParent', ['name', 'areas']);
+
+    $module['areas'] = [
+      'Area51' => [
+        TestHelper::getCompleteModule('ModuleNestedChild')
+      ]
+    ];
+
+    $cp = ConstructionPlan::fromConfig($module);
+
+    $this->assertEquals($cp, [
+      'name' => 'ModuleNestedParent',
+      'data' => [],
+      'areas' => [
+        'Area51' => [
+          [
+            'name' => 'ModuleNestedChild',
+            'data' => [
+              'test' => 'result',
+              'test0' => 0,
+              'test1' => 'string',
+              'test2' => [
+                'something strange'
+              ],
+              'duplicate' => 'newValue'
+            ]
+          ]
+        ]
+      ]
+    ]);
+  }
+
+  // TODO write test with parent data
+
   //
   // function testDeeplyNestedModules() {}
   //

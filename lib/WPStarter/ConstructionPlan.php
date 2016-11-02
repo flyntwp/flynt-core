@@ -25,10 +25,22 @@ class ConstructionPlan {
       $config['data'] = array_merge($config['data'], $config['customData']);
     }
 
+    // iterate areas and recursively map child module data
+    if (array_key_exists('areas', $config) && !empty($config['areas'])) {
+      $config['areas'] = array_map(function($modules) {
+        return array_map(function($module) {
+          return self::fromConfig($module);
+        }, $modules);
+      }, $config['areas']);
+    }
+
     unset($config['dataFilter']);
     unset($config['dataFilterArgs']);
     unset($config['customData']);
-    unset($config['areas']);
+
+    if (empty($config['areas'])) {
+      unset($config['areas']);
+    }
 
     return $config;
   }
