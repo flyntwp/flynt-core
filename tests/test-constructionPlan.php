@@ -9,29 +9,51 @@
  * Construction plan test case.
  */
 
+use PHPUnit\Framework\TestCase;
 use WPStarter\ConstructionPlan;
 
-class ConstructionPlanTest extends WP_UnitTestCase {
+class ConstructionPlanTest extends TestCase {
 
   /**
-   * A single example test.
+   * @expectedException Exception
    */
   function testEmptyConfig() {
     $cp = ConstructionPlan::fromConfig([]);
-    $this->assertEquals($cp->toArray(), []);
   }
 
-  function testSingleModule() {}
-
-  function testNestedModules() {}
-
-  function testDeeplyNestedModules() {}
-
-  function testDynamicSubmodules() {}
-
-  function testObjectAsArgument() {
-    $cp = ConstructionPlan::fromConfig(new StdClass());
-    $this->assertErrorThrown();
+  function testSingleModuleNoData() {
+    $cp = ConstructionPlan::fromConfig([
+      'name' => 'ModuleA'
+    ]);
+    $this->assertEquals($cp, [
+      'name' => 'ModuleA',
+      'data' => [],
+      'areaHtml' => []
+    ]);
   }
+
+  function testSingleModule() {
+    // expect apply_filters to be called with 'WPStarter/DataFilters/A/foo'
+    $cp = ConstructionPlan::fromConfig([
+      'name' => 'ModuleA',
+      'dataFilter' => 'WPStarter/DataFilters/A/foo'
+    ]);
+    $this->assertEquals($cp, [
+      'name' => 'ModuleA',
+      'data' => [],
+      'areaHtml' => []
+    ]);
+  }
+  //
+  // function testNestedModules() {}
+  //
+  // function testDeeplyNestedModules() {}
+  //
+  // function testDynamicSubmodules() {}
+  //
+  // function testObjectAsArgument() {
+  //   $cp = ConstructionPlan::fromConfig(new StdClass());
+  //   $this->assertErrorThrown();
+  // }
 
 }

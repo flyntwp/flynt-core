@@ -5,21 +5,15 @@
  * @package Wp_Starter_Plugin
  */
 
-$_tests_dir = getenv( 'WP_TESTS_DIR' );
-if ( ! $_tests_dir ) {
-	$_tests_dir = '/tmp/wordpress-tests-lib';
-}
 
-// Give access to tests_add_filter() function.
-require_once $_tests_dir . '/includes/functions.php';
+// First we need to load the composer autoloader so we can use WP Mock
+require_once dirname( __DIR__ ) . '/vendor/autoload.php';
+
+// Now call the bootstrap method of WP Mock
+WP_Mock::bootstrap();
 
 /**
- * Manually load the plugin being tested.
- */
-function _manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/wp-starter-plugin.php';
-}
-tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
-
-// Start up the WP testing environment.
-require $_tests_dir . '/includes/bootstrap.php';
+* Now we include any plugin files that we need to be able to run the tests. This
+* should be files that define the functions and classes you're going to test.
+*/
+require dirname( __DIR__ ) . '/wp-starter-plugin.php';
