@@ -4,31 +4,33 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "bffd77488ade48c2347ac666d762535a",
-    "content-hash": "1514361a6e822ec81cf6a9fe061280bd",
+    "hash": "31e0af5352d5ac6e98da1150f77253a9",
+    "content-hash": "e1056d3d6d59e3e45d035beccaade0a6",
     "packages": [],
     "packages-dev": [
         {
             "name": "10up/wp_mock",
-            "version": "dev-master",
+            "version": "dev-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wp_mock.git",
-                "reference": "994e0ad5b15a4b539ca77d377c198b1c43b1b7f5"
+                "reference": "98fe07d2e7be8ed9aa6ea357d5a3ac1eab8fe23f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wp_mock/zipball/994e0ad5b15a4b539ca77d377c198b1c43b1b7f5",
-                "reference": "994e0ad5b15a4b539ca77d377c198b1c43b1b7f5",
+                "url": "https://api.github.com/repos/10up/wp_mock/zipball/98fe07d2e7be8ed9aa6ea357d5a3ac1eab8fe23f",
+                "reference": "98fe07d2e7be8ed9aa6ea357d5a3ac1eab8fe23f",
                 "shasum": ""
             },
             "require": {
                 "antecedent/patchwork": "~1.2",
-                "mockery/mockery": "~0.8",
-                "php": ">=5.3.2"
+                "mockery/mockery": "^0.9.5",
+                "php": ">=5.3.2",
+                "phpunit/phpunit": ">=3.7"
             },
             "require-dev": {
-                "phpunit/phpunit": "~3.7"
+                "behat/behat": "^3.0",
+                "phpunit/phpunit": ">=4.0"
             },
             "type": "library",
             "extra": {
@@ -37,11 +39,11 @@
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "WP_Mock\\": "./"
+                "psr-4": {
+                    "WP_Mock\\": "./php/WP_Mock"
                 },
                 "classmap": [
-                    "WP_Mock.php"
+                    "php/WP_Mock.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -49,7 +51,7 @@
                 "GPL-2.0+"
             ],
             "description": "A mocking library to take the pain out of unit testing for WordPress",
-            "time": "2016-09-20 15:24:58"
+            "time": "2016-10-31 21:23:17"
         },
         {
             "name": "antecedent/patchwork",
