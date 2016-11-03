@@ -13,6 +13,14 @@ use PHPUnit\Framework\TestCase;
 use function WPStarter\Helpers\extractNestedDataFromArray;
 
 class HelpersTest extends TestCase {
+  function setUp() {
+    WP_Mock::setUp();
+  }
+
+  function tearDown() {
+    WP_Mock::tearDown();
+  }
+
   function testExtractNestedDataFromArray() {
     $bar = 'baz';
     $foo = [
