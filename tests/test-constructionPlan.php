@@ -9,18 +9,10 @@
  * Construction plan test case.
  */
 
-use PHPUnit\Framework\TestCase;
+use WPStarter\TestCase;
 use WPStarter\ConstructionPlan;
 
 class ConstructionPlanTest extends TestCase {
-
-  function setUp() {
-    WP_Mock::setUp();
-  }
-
-  function tearDown() {
-    WP_Mock::setUp();
-  }
 
   /**
    * @expectedException Exception

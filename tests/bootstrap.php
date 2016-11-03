@@ -10,11 +10,7 @@
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 
 require_once __DIR__. '/TestHelper.php';
-
-// prevent using mocks from previous tests
-WP_Mock::activateStrictMode();
-// Now call the bootstrap method of WP Mock
-WP_Mock::bootstrap();
+require_once __DIR__. '/TestCase.php';
 
 /**
 * Now we include any plugin files that we need to be able to run the tests. This

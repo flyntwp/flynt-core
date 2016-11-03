@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "31e0af5352d5ac6e98da1150f77253a9",
-    "content-hash": "e1056d3d6d59e3e45d035beccaade0a6",
+    "hash": "0e9136c04ffddb0860661390b2fb390d",
+    "content-hash": "ef27a1fd4d56e87cb7a5bd1a2f7f4ac7",
     "packages": [],
     "packages-dev": [
         {
@@ -92,6 +92,65 @@
                 "testing"
             ],
             "time": "2016-07-02 04:25:33"
+        },
+        {
+            "name": "brain/monkey",
+            "version": "1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Brain-WP/BrainMonkey.git",
+                "reference": "f4515ccaa5457a3c3e35ea6d4c3da46efb809336"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Brain-WP/BrainMonkey/zipball/f4515ccaa5457a3c3e35ea6d4c3da46efb809336",
+                "reference": "f4515ccaa5457a3c3e35ea6d4c3da46efb809336",
+                "shasum": ""
+            },
+            "require": {
+                "antecedent/patchwork": "*",
+                "mockery/mockery": "*"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Brain\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Giuseppe Mazzapica",
+                    "email": "giuseppe.mazzapica@gmail.com",
+                    "homepage": "http://gm.zoomlab.it",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Mocking utility for PHP functions and WordPress plugin API",
+            "keywords": [
+                "Monkey Patching",
+                "interception",
+                "mock",
+                "mock functions",
+                "mockery",
+                "patchwork",
+                "redefinition",
+                "runkit",
+                "test",
+                "testing"
+            ],
+            "time": "2015-07-12 23:36:21"
         },
         {
             "name": "doctrine/instantiator",

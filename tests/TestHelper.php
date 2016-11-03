@@ -1,4 +1,7 @@
 <?php
+
+use Brain\Monkey\WP\Filters;
+
 class TestHelper {
   public static function getCompleteModule($moduleName = 'ModuleName') {
     return [
@@ -40,26 +43,25 @@ class TestHelper {
     }
 
     // expect apply_filters to be called with 'WPStarter/DataFilters/ModuleName/foo'
-    WP_Mock::userFunction('apply_filters_ref_array', [
-      'args' => [
-        'WPStarter/DataFilters/' . $moduleName . '/foo', $filterArgs
-      ],
-      'times' => 1,
-      'return' => $return
-    ]);
+    $filterMock = Filters::expectApplied('WPStarter/DataFilters/' . $moduleName . '/foo')
+    ->once()
+    ->withArgs($filterArgs)
+    ->andReturn($return);
   }
 
-  public static function registerRenderModuleFilter($data, $return = '') {
+  public static function registerRenderModuleFilter($data, $return = '', $times = 1) {
     $filterName = 'WPStarter/Renderer/renderModule';
-    WP_Mock::onFilter($filterName)
+    Filters::expectApplied($filterName)
+    ->times($times)
     ->with('', $data)
-    ->reply($return);
+    ->andReturn($return);
   }
 
   public static function registerRenderSpecificModuleFilter($data, $module = 'Module', $prevOutput = '', $return = '') {
     $filterName = 'WPStarter/Renderer/renderModule?name=' . $module;
-    WP_Mock::onFilter($filterName)
+    Filters::expectApplied($filterName)
+    ->once()
     ->with($prevOutput, $data)
-    ->reply($return);
+    ->andReturn($return);
   }
 }

@@ -9,20 +9,15 @@
  * Construction plan test case.
  */
 
-use PHPUnit\Framework\TestCase;
+use WPStarter\TestCase;
 use WPStarter\Renderer;
+use Brain\Monkey\WP\Filters;
 
 class RendererTest extends TestCase {
   function setUp() {
-    WP_Mock::setUp();
-
-    WP_Mock::onFilter('WPStarter/defaultModulesPath')
+    Filters::expectApplied('WPStarter/defaultModulesPath')
     ->with('')
-    ->reply(__DIR__ . '/assets/src/');
-  }
-
-  function tearDown() {
-    WP_Mock::tearDown();
+    ->andReturn(__DIR__ . '/assets/src/');
   }
 
   /**
@@ -57,7 +52,7 @@ class RendererTest extends TestCase {
       'test' => 'result'
     ];
 
-    TestHelper::registerRenderModuleFilter($moduleData);
+    TestHelper::registerRenderModuleFilter($moduleData, null, 2);
     TestHelper::registerRenderSpecificModuleFilter($moduleData, $parentModuleName);
     TestHelper::registerRenderSpecificModuleFilter($moduleData, $childModuleName);
 
@@ -122,7 +117,7 @@ class RendererTest extends TestCase {
     $shouldBeHtml = "<div>{$parentModuleName} result" . $shouldBeChildOutput . "</div>\n";
 
     // General Filter renderModule
-    TestHelper::registerRenderModuleFilter($moduleData);
+    TestHelper::registerRenderModuleFilter($moduleData, null, 2);
 
     // Specific Filters renderModule?name=SingleModule for example
     TestHelper::registerRenderSpecificModuleFilter($moduleData, $parentModuleName);
