@@ -27,7 +27,7 @@ class TestHelper {
     }, ARRAY_FILTER_USE_KEY);
   }
 
-  public static function registerFilter($moduleName = 'Module', $hasFilterArgs = false, $returnDuplicate = false) {
+  public static function registerDataFilter($moduleName = 'Module', $hasFilterArgs = false, $returnDuplicate = false) {
     $filterArgs = [[]];
     $return = [ 'test' => 'result' ];
 

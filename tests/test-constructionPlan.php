@@ -11,9 +11,16 @@
 
 use PHPUnit\Framework\TestCase;
 use WPStarter\ConstructionPlan;
-use WP_Mock;
 
 class ConstructionPlanTest extends TestCase {
+
+  function setUp() {
+    WP_Mock::setUp();
+  }
+
+  function tearDown() {
+    WP_Mock::setUp();
+  }
 
   /**
    * @expectedException Exception
@@ -35,7 +42,7 @@ class ConstructionPlanTest extends TestCase {
     $moduleName = 'ModuleWithDataFilter';
 
     // Params: ModuleName, hasFilterArgs = false, returnDuplicate = false
-    TestHelper::registerFilter($moduleName);
+    TestHelper::registerDataFilter($moduleName);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
@@ -52,7 +59,7 @@ class ConstructionPlanTest extends TestCase {
     $moduleName = 'ModuleWithDataFilterArgs';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerFilter($moduleName, true, false);
+    TestHelper::registerDataFilter($moduleName, true, false);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
@@ -89,7 +96,7 @@ class ConstructionPlanTest extends TestCase {
     $moduleName = 'ModuleWithDataFilterAndCustomData';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerFilter($moduleName, false, true);
+    TestHelper::registerDataFilter($moduleName, false, true);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'customData', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
@@ -112,7 +119,7 @@ class ConstructionPlanTest extends TestCase {
     $childModuleName = 'ModuleNestedChild';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerFilter($childModuleName, true, true);
+    TestHelper::registerDataFilter($childModuleName, true, true);
 
     $module = TestHelper::getCustomModule('ModuleNestedParent', ['name', 'areas']);
 
@@ -151,7 +158,7 @@ class ConstructionPlanTest extends TestCase {
     $childModuleName = 'ModuleNestedChild';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerFilter($parentModuleName, false, false);
+    TestHelper::registerDataFilter($parentModuleName, false, false);
 
     $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
 
