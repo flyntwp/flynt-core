@@ -8,7 +8,7 @@ use function WPStarter\Helpers\extractNestedDataFromArray;
 class Renderer {
   public static function fromConstructionPlan($constructionPlan) {
     if (empty($constructionPlan)) {
-      throw new Exception('No Module specified.');
+      throw new Exception('Empty Construction Plan!');
     }
     $areaHtml = [];
     if(array_key_exists('areas', $constructionPlan)) {
@@ -16,10 +16,16 @@ class Renderer {
         return self::joinAreaModules($areaModules);
       }, $constructionPlan['areas']);
     }
-    $moduleName = $constructionPlan['name'];
     $data = $constructionPlan['data'];
-    $filePath = apply_filters('WPStarter/defaultModulesPath', '') . $moduleName . '/index.php';
-    return self::renderFile($data, $areaHtml, $filePath);
+
+    $output = apply_filters('WPStarter/Renderer/renderModule', '', $data);
+
+    if (empty($output)) {
+      $moduleName = $constructionPlan['name'];
+      $filePath = apply_filters('WPStarter/defaultModulesPath', '') . $moduleName . '/index.php';
+      return self::renderFile($data, $areaHtml, $filePath);
+    }
+    return $output;
   }
 
   protected static function renderFile($moduleData, $areaHtml, $filePath) {

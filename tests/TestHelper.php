@@ -48,4 +48,10 @@ class TestHelper {
       'return' => $return
     ]);
   }
+
+  public static function registerRenderModuleFilter($data, $return = '') {
+    WP_Mock::onFilter('WPStarter/Renderer/renderModule')
+    ->with('', $data)
+    ->reply($return);
+  }
 }
