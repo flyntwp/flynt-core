@@ -146,7 +146,38 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  // TODO write test with parent data
+  function testNestedModulesWithParentDataOnly() {
+    $parentModuleName = 'ModuleNestedParent';
+    $childModuleName = 'ModuleNestedChild';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerFilter($parentModuleName, false, false);
+
+    $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+
+    $module['areas'] = [
+      'Area51' => [
+        TestHelper::getCustomModule($childModuleName, ['name'])
+      ]
+    ];
+
+    $cp = ConstructionPlan::fromConfig($module);
+
+    $this->assertEquals($cp, [
+      'name' => $parentModuleName,
+      'data' => [
+        'test' => 'result',
+      ],
+      'areas' => [
+        'Area51' => [
+          [
+            'name' => $childModuleName,
+            'data' => []
+          ]
+        ]
+      ]
+    ]);
+  }
 
   //
   // function testDeeplyNestedModules() {}
