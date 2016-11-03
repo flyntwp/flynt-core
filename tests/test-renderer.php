@@ -33,13 +33,14 @@ class RendererTest extends TestCase {
   }
 
   function testSingleModule() {
+    $moduleName = 'SingleModule';
     $moduleData = [
       'test' => 'result'
     ];
 
     TestHelper::registerRenderModuleFilter($moduleData);
+    TestHelper::registerRenderSpecificModuleFilter($moduleData, $moduleName);
 
-    $moduleName = 'SingleModule';
     $cp = [
       'name' => $moduleName,
       'data' => $moduleData
@@ -50,14 +51,16 @@ class RendererTest extends TestCase {
   }
 
   function testNestedModules() {
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
     $moduleData = [
       'test' => 'result'
     ];
 
     TestHelper::registerRenderModuleFilter($moduleData);
+    TestHelper::registerRenderSpecificModuleFilter($moduleData, $parentModuleName);
+    TestHelper::registerRenderSpecificModuleFilter($moduleData, $childModuleName);
 
-    $parentModuleName = 'ModuleWithArea';
-    $childModuleName = 'SingleModule';
     $cp = [
       'name' => $parentModuleName,
       'data' => $moduleData,
@@ -79,14 +82,51 @@ class RendererTest extends TestCase {
   function testCustomHtmlHook() {
     // test whether custom html can be used
     $moduleName = 'SingleModule';
+    $moduleData = [];
     $cp = [
       'name' => $moduleName,
-      'data' => []
+      'data' => $moduleData
     ];
 
     $shouldBeHtml = "<div>{$moduleName} After Filter Hook</div>\n";
 
-    TestHelper::registerRenderModuleFilter($cp['data'], $shouldBeHtml);
+    TestHelper::registerRenderModuleFilter($moduleData, $shouldBeHtml);
+    TestHelper::registerRenderSpecificModuleFilter($moduleData, $moduleName, $shouldBeHtml, $shouldBeHtml);
+
+    $html = Renderer::fromConstructionPlan($cp);
+    $this->assertEquals($html, $shouldBeHtml);
+  }
+
+  function testCustomHtmlHookSingleModule() {
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
+    $moduleData = [
+      'test' => 'result'
+    ];
+
+    // test whether custom html can be used
+    $cp = [
+      'name' => $parentModuleName,
+      'data' => $moduleData,
+      'areas' => [
+        'area51' => [
+          [
+            'name' => $childModuleName,
+            'data' => $moduleData
+          ]
+        ]
+      ]
+    ];
+
+    $shouldBeChildOutput = "<div>{$childModuleName} After Filter Hook</div>\n";
+    $shouldBeHtml = "<div>{$parentModuleName} result" . $shouldBeChildOutput . "</div>\n";
+
+    // General Filter renderModule
+    TestHelper::registerRenderModuleFilter($moduleData);
+
+    // Specific Filters renderModule?name=SingleModule for example
+    TestHelper::registerRenderSpecificModuleFilter($moduleData, $parentModuleName);
+    TestHelper::registerRenderSpecificModuleFilter($moduleData, $childModuleName, '', $shouldBeChildOutput);
 
     $html = Renderer::fromConstructionPlan($cp);
     $this->assertEquals($html, $shouldBeHtml);

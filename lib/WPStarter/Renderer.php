@@ -17,12 +17,13 @@ class Renderer {
       }, $constructionPlan['areas']);
     }
     $data = $constructionPlan['data'];
+    $moduleName = $constructionPlan['name'];
 
     $output = apply_filters('WPStarter/Renderer/renderModule', '', $data);
+    $output = apply_filters("WPStarter/Renderer/renderModule?name={$moduleName}", $output, $data);
 
     if (empty($output)) {
-      $moduleName = $constructionPlan['name'];
-      $filePath = apply_filters('WPStarter/defaultModulesPath', '') . $moduleName . '/index.php';
+      $filePath = apply_filters('WPStarter/defaultModulesPath', '') . "{$moduleName}/index.php";
       return self::renderFile($data, $areaHtml, $filePath);
     }
     return $output;
@@ -39,6 +40,10 @@ class Renderer {
       array_unshift($args, $moduleData);
       return extractNestedDataFromArray($args);
     };
+
+    // TODO throw error when file not found instead of $output = '';
+    // TODO also, add a test for that
+
     if(file_exists($filePath)) {
       ob_start();
       require $filePath;

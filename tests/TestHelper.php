@@ -20,8 +20,8 @@ class TestHelper {
     ];
   }
 
-  // how to use: TestHelper::getCustomModule('ModuleA', ['name', 'dataFilter'])
-  public static function getCustomModule($moduleName = 'ModuleName', $config = []) {
+  // how to use: TestHelper::getCustomModule('Module', ['name', 'dataFilter'])
+  public static function getCustomModule($moduleName = 'Module', $config = []) {
     return array_filter(self::getCompleteModule($moduleName), function ($key) use ($config) {
       return in_array($key, $config);
     }, ARRAY_FILTER_USE_KEY);
@@ -50,8 +50,16 @@ class TestHelper {
   }
 
   public static function registerRenderModuleFilter($data, $return = '') {
-    WP_Mock::onFilter('WPStarter/Renderer/renderModule')
+    $filterName = 'WPStarter/Renderer/renderModule';
+    WP_Mock::onFilter($filterName)
     ->with('', $data)
+    ->reply($return);
+  }
+
+  public static function registerRenderSpecificModuleFilter($data, $module = 'Module', $prevOutput = '', $return = '') {
+    $filterName = 'WPStarter/Renderer/renderModule?name=' . $module;
+    WP_Mock::onFilter($filterName)
+    ->with($prevOutput, $data)
     ->reply($return);
   }
 }
