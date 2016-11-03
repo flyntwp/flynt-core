@@ -13,8 +13,6 @@ use PHPUnit\Framework\TestCase;
 use WPStarter\ConstructionPlan;
 use WP_Mock;
 
-require_once 'TestHelper.php';
-
 class ConstructionPlanTest extends TestCase {
 
   /**
@@ -34,24 +32,16 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testSingleModuleWithDataFilter() {
-    // expect apply_filters to be called with 'WPStarter/DataFilters/A/foo'
+    $moduleName = 'ModuleWithDataFilter';
 
-    // this simulates add_filter with return data:
-    WP_Mock::userFunction('apply_filters_ref_array', [
-      'args' => [
-        'WPStarter/DataFilters/ModuleWithDataFilter/foo', [[]]
-      ],
-      'times' => 1,
-      'return' => [
-        'test' => 'result'
-      ]
-    ]);
+    // Params: ModuleName, hasFilterArgs = false, returnDuplicate = false
+    TestHelper::registerFilter($moduleName);
 
-    $module = TestHelper::getCustomModule('ModuleWithDataFilter', ['name', 'dataFilter', 'areas']);
+    $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
 
     $this->assertEquals($cp, [
-      'name' => 'ModuleWithDataFilter',
+      'name' => $moduleName,
       'data' => [
         'test' => 'result'
       ]
@@ -59,29 +49,16 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testSingleModuleWithDataFilterArgs() {
-    // expect apply_filters to be called with 'WPStarter/DataFilters/A/foo'
+    $moduleName = 'ModuleWithDataFilterArgs';
 
-    // this simulates add_filter with return data:
-    WP_Mock::userFunction('apply_filters_ref_array', [
-      'args' => [
-        'WPStarter/DataFilters/ModuleWithDataFilterArgs/foo',
-        [
-          [],
-          'post',
-          'page'
-        ]
-      ],
-      'times' => 1,
-      'return' => [
-        'test' => 'result'
-      ]
-    ]);
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerFilter($moduleName, true, false);
 
-    $module = TestHelper::getCustomModule('ModuleWithDataFilterArgs', ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
+    $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
 
     $this->assertEquals($cp, [
-      'name' => 'ModuleWithDataFilterArgs',
+      'name' => $moduleName,
       'data' => [
         'test' => 'result'
       ]
@@ -89,12 +66,14 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testSingleModuleWithCustomData() {
+    $moduleName = 'ModuleWithCustomData';
+
     // this simulates add_filter with return data:
-    $module = TestHelper::getCustomModule('ModuleWithCustomData', ['name', 'customData', 'areas']);
+    $module = TestHelper::getCustomModule($moduleName, ['name', 'customData', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
 
     $this->assertEquals($cp, [
-      'name' => 'ModuleWithCustomData',
+      'name' => $moduleName,
       'data' => [
         'test0' => 0,
         'test1' => 'string',
@@ -107,25 +86,16 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testSingleModuleWithDataFilterAndCustomData() {
-    // expect apply_filters to be called with 'WPStarter/DataFilters/A/foo'
+    $moduleName = 'ModuleWithDataFilterAndCustomData';
 
-    // this simulates add_filter with return data:
-    WP_Mock::userFunction('apply_filters_ref_array', [
-      'args' => [
-        'WPStarter/DataFilters/ModuleWithDataFilterAndCustomData/foo', [[]]
-      ],
-      'times' => 1,
-      'return' => [
-        'test' => 'result',
-        'duplicate' => 'previousValue'
-      ]
-    ]);
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerFilter($moduleName, false, true);
 
-    $module = TestHelper::getCustomModule('ModuleWithDataFilterAndCustomData', ['name', 'dataFilter', 'customData', 'areas']);
+    $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'customData', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
 
     $this->assertEquals($cp, [
-      'name' => 'ModuleWithDataFilterAndCustomData',
+      'name' => $moduleName,
       'data' => [
         'test' => 'result',
         'test0' => 0,
@@ -139,22 +109,16 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testNestedModules() {
-    WP_Mock::userFunction('apply_filters_ref_array', [
-      'args' => [
-        'WPStarter/DataFilters/ModuleNestedChild/foo', [[], 'post', 'page']
-      ],
-      'times' => 1,
-      'return' => [
-        'test' => 'result',
-        'duplicate' => 'previousValue'
-      ]
-    ]);
+    $childModuleName = 'ModuleNestedChild';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerFilter($childModuleName, true, true);
 
     $module = TestHelper::getCustomModule('ModuleNestedParent', ['name', 'areas']);
 
     $module['areas'] = [
       'Area51' => [
-        TestHelper::getCompleteModule('ModuleNestedChild')
+        TestHelper::getCompleteModule($childModuleName)
       ]
     ];
 
@@ -166,7 +130,7 @@ class ConstructionPlanTest extends TestCase {
       'areas' => [
         'Area51' => [
           [
-            'name' => 'ModuleNestedChild',
+            'name' => $childModuleName,
             'data' => [
               'test' => 'result',
               'test0' => 0,
