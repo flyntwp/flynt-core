@@ -14,3 +14,4 @@
 
 require_once __DIR__ . '/lib/WPStarter/Helpers.php';
 require_once __DIR__ . '/lib/WPStarter/ConstructionPlan.php';
+require_once __DIR__ . '/lib/WPStarter/Renderer.php';
