@@ -249,9 +249,8 @@ class ConstructionPlanTest extends TestCase {
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
     $dynamicModule = TestHelper::getCustomModule($dynamicModuleName, ['name']);
 
-    // TODO change filter name to something that doesn't suck
     Filters::expectApplied("WPStarter/dynamicSubmodules?name={$moduleName}")
-    ->with($module['areas'],  ['test' => 'result'])
+    ->with([],  ['test' => 'result'], [])
     ->once()
     ->andReturn(['area51' => [ $dynamicModule ]]);
 
@@ -267,6 +266,66 @@ class ConstructionPlanTest extends TestCase {
           [
             'name' => $dynamicModuleName,
             'data' => []
+          ]
+        ]
+      ]
+    ]);
+  }
+
+  function testNestedDynamicSubmodulesData() {
+    $parentModuleName = 'ModuleNestedParent';
+    $childModuleName = 'ModuleNestedChild';
+    $childSubmoduleName = 'SubmoduleNestedChild';
+    $dynamicModuleName = 'ModuleNestedDynamicChild';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName, false, false);
+
+    $parentModule = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+    $childModule = TestHelper::getCustomModule($childModuleName, ['name']);
+    $childSubmodule = TestHelper::getCustomModule($childSubmoduleName, ['name']);
+    $dynamicModule = TestHelper::getCustomModule($dynamicModuleName, ['name']);
+
+    $childModule['areas'] = [
+      'childArea' => [ $childSubmodule ]
+    ];
+    $parentModule['areas'] = [
+      'parentArea' => [ $childModule ]
+    ];
+
+    Filters::expectApplied("WPStarter/dynamicSubmodules?name={$childSubmoduleName}")
+    ->with([],  [], ['test' => 'result'])
+    ->once()
+    ->andReturn(['area51' => [ $dynamicModule ]]);
+
+    $cp = ConstructionPlan::fromConfig($parentModule);
+
+    $this->assertEquals($cp, [
+      'name' => $parentModuleName,
+      'data' => [
+        'test' => 'result'
+      ],
+      'areas' => [
+        'parentArea' => [
+          [
+            'name' => $childModuleName,
+            'data' => [],
+            'areas' => [
+              'childArea' => [
+                [
+                  'name' => $childSubmoduleName,
+                  'data' => [],
+                  'areas' => [
+                    'area51' => [
+                      [
+                        'name' => $dynamicModuleName,
+                        'data' => []
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
           ]
         ]
       ]

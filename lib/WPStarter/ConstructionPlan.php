@@ -5,7 +5,7 @@ namespace WPStarter;
 use Exception;
 
 class ConstructionPlan {
-  public static function fromConfig($config) {
+  public static function fromConfig($config, $parentData = []) {
     if (!array_key_exists('name', $config)) {
       throw new Exception('No Module specified.');
     }
@@ -32,12 +32,15 @@ class ConstructionPlan {
     } else {
       $areas = [];
     }
-    $config['areas'] = apply_filters("WPStarter/dynamicSubmodules?name={$moduleName}", $areas, $config['data']);
+
+    $config['areas'] = apply_filters("WPStarter/dynamicSubmodules?name={$moduleName}", $areas, $config['data'], $parentData);
+
     // iterate areas and recursively map child module data
     if (array_key_exists('areas', $config) && !empty($config['areas'])) {
-      $config['areas'] = array_map(function($modules) {
-        return array_map(function($module) {
-          return self::fromConfig($module);
+      $config['areas'] = array_map(function($modules) use ($config, $parentData) {
+        return array_map(function($module) use ($config, $parentData) {
+          $data = empty($config['data']) ? $parentData : $config['data'];
+          return self::fromConfig($module, $data);
         }, $modules);
       }, $config['areas']);
     }
