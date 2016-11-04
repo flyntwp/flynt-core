@@ -55,11 +55,13 @@ class ConstructionPlan {
 
     return $config;
   }
-  //
-  // public static function fromConfigFile($configName) {
-  //   $configPath = apply_filters('WPStarter/configPath', $configName);
-  //   $config = json_decode(file_get_contents($configPath), true);
-  //   return new self($config);
-  // }
-  //
+
+  public static function fromConfigFile($configName) {
+    $configPath = apply_filters('WPStarter/configPath', $configName);
+    if (!is_file($configPath)) {
+      throw new Exception('Config file not found:' . $configPath);
+    }
+    $config = json_decode(file_get_contents($configPath), true);
+    return self::fromConfig($config);
+  }
 }

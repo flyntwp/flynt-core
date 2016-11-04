@@ -1,0 +1,14 @@
+{
+  "name": "ModuleInConfigFile",
+  "dataFilter": "FilterName",
+  "customData": {
+    "test": "test"
+  },
+  "areas": {
+    "area51": {
+      "0": {
+        "name": "ChildModuleInConfigFile"
+      }
+    }
+  }
+}

@@ -20,6 +20,39 @@ class ConstructionPlanTest extends TestCase {
     $cp = ConstructionPlan::fromConfig([]);
   }
 
+  // TODO add test for default paths?
+  function testFromConfigFile() {
+    Filters::expectApplied('WPStarter/configPath')
+    ->with('exampleConfig.json')
+    ->andReturn(__DIR__ . '/assets/exampleConfig.json');
+
+    $cp = ConstructionPlan::fromConfigFile('exampleConfig.json');
+    $this->assertEquals($cp, [
+      'name' => 'ModuleInConfigFile',
+      'data' => [
+        'test' => 'test'
+      ],
+      'areas' => [
+        'area51' => [
+          0 => [
+            'name' => 'ChildModuleInConfigFile',
+            'data' => []
+          ]
+        ]
+      ]
+    ]);
+  }
+
+  function testFromConfigFileNoFileFoundError() {
+    Filters::expectApplied('WPStarter/configPath')
+    ->with('exceptionTest.json')
+    ->andReturn('/not/a/real/file.json');
+
+    $this->expectException(Exception::class);
+
+    $cp = ConstructionPlan::fromConfigFile('exceptionTest.json');
+  }
+
   function testSingleModuleNoData() {
     $module = TestHelper::getCustomModule('ModuleNoData', ['name', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
