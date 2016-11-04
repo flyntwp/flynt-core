@@ -15,17 +15,35 @@ use Brain\Monkey\WP\Filters;
 
 class ConstructionPlanTest extends TestCase {
 
-  function testEmptyConfig() {
+  function setUp() {
+    parent::setUp();
+
+    Filters::expectApplied('WPStarter/configPath')
+    ->andReturnUsing(['TestHelper', 'setConfigPath']);
+  }
+
+  function testConfigIsEmpty() {
     $this->expectException(Exception::class);
     $cp = ConstructionPlan::fromConfig([]);
   }
 
-  // TODO add test for default paths?
-  function testFromConfigFile() {
-    Filters::expectApplied('WPStarter/configPath')
-    ->with('exampleConfig.json')
-    ->andReturn(__DIR__ . '/assets/exampleConfig.json');
+  function testConfigIsAnObject() {
+    $this->expectException(Exception::class);
+    $cp = ConstructionPlan::fromConfig(new StdClass());
+  }
 
+  function testConfigIsAString() {
+    $this->expectException(Exception::class);
+    $cp = ConstructionPlan::fromConfig('string');
+  }
+
+  function testConfigIsANumber() {
+    $this->expectException(Exception::class);
+    $cp = ConstructionPlan::fromConfig(0);
+  }
+
+  // TODO add test for default paths?
+  function testLoadConfigFromFile() {
     $cp = ConstructionPlan::fromConfigFile('exampleConfig.json');
     $this->assertEquals($cp, [
       'name' => 'ModuleInConfigFile',
@@ -41,6 +59,15 @@ class ConstructionPlanTest extends TestCase {
         ]
       ]
     ]);
+  }
+
+  function testFromConfigFileLoaderFilter() {
+    Filters::expectApplied('WPStarter/configFileLoader')
+    ->with(null, TestHelper::setConfigPath('exampleConfig.yml'))
+    ->once()
+    ->andReturn(['name' => 'Module']);
+
+    $cp = ConstructionPlan::fromConfigFile('exampleConfig.yml');
   }
 
   function testFromConfigFileNoFileFoundError() {
@@ -364,10 +391,4 @@ class ConstructionPlanTest extends TestCase {
       ]
     ]);
   }
-
-  // function testObjectAsArgument() {
-  //   $cp = ConstructionPlan::fromConfig(new StdClass());
-  //   $this->assertErrorThrown();
-  // }
-
 }

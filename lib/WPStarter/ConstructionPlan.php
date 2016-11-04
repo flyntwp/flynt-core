@@ -6,6 +6,10 @@ use Exception;
 
 class ConstructionPlan {
   public static function fromConfig($config, $parentData = []) {
+    if(!is_array($config)) {
+      throw new Exception('Config needs to be an array! ' . gettype($config) . ' given.');
+    }
+
     if (!array_key_exists('name', $config)) {
       throw new Exception('No Module specified.');
     }
@@ -59,9 +63,12 @@ class ConstructionPlan {
   public static function fromConfigFile($configName) {
     $configPath = apply_filters('WPStarter/configPath', $configName);
     if (!is_file($configPath)) {
-      throw new Exception('Config file not found:' . $configPath);
+      throw new Exception('Config file not found: ' . $configPath);
     }
-    $config = json_decode(file_get_contents($configPath), true);
+    $config = apply_filters('WPStarter/configFileLoader', null, $configPath);
+    if (is_null($config)) {
+      $config = json_decode(file_get_contents($configPath), true);
+    }
     return self::fromConfig($config);
   }
 }
