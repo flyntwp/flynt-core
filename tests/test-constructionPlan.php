@@ -11,6 +11,7 @@
 
 use WPStarter\TestCase;
 use WPStarter\ConstructionPlan;
+use Brain\Monkey\WP\Filters;
 
 class ConstructionPlanTest extends TestCase {
 
@@ -238,8 +239,44 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  // function testDynamicSubmodules() {}
-  //
+  function testDynamicSubmodules() {
+    $parentModuleName = 'ModuleNestedParent';
+    $childModuleName = 'ModuleNestedChild';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName, false, false);
+
+    $parentModule = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+    $childModule = TestHelper::getCustomModule($childModuleName, ['name']);
+
+    $parentModule['areas'] = [
+      'area51' => []
+    ];
+
+    // TODO change filter name to something that doesn't suck
+    Filters::expectApplied("WPStarter/dynamicSubmodules?name={$parentModuleName}")
+    ->with($parentModule['areas'],  ['test' => 'result'])
+    ->once()
+    ->andReturn(['area51' => [ $childModule ]]);
+
+    $cp = ConstructionPlan::fromConfig($parentModule);
+
+    $this->assertEquals($cp, [
+      'name' => $parentModuleName,
+      'data' => [
+        'test' => 'result'
+      ],
+      'areas' => [
+        'area51' => [
+          [
+            'name' => $childModuleName,
+            'data' => []
+          ]
+        ]
+      ]
+    ]);
+  }
+
   // function testObjectAsArgument() {
   //   $cp = ConstructionPlan::fromConfig(new StdClass());
   //   $this->assertErrorThrown();
