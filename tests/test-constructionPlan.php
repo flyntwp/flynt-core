@@ -9,16 +9,13 @@
  * Construction plan test case.
  */
 
-use PHPUnit\Framework\TestCase;
+use WPStarter\TestCase;
 use WPStarter\ConstructionPlan;
-use WP_Mock;
 
 class ConstructionPlanTest extends TestCase {
 
-  /**
-   * @expectedException Exception
-   */
   function testEmptyConfig() {
+    $this->expectException(Exception::class);
     $cp = ConstructionPlan::fromConfig([]);
   }
 
@@ -35,7 +32,7 @@ class ConstructionPlanTest extends TestCase {
     $moduleName = 'ModuleWithDataFilter';
 
     // Params: ModuleName, hasFilterArgs = false, returnDuplicate = false
-    TestHelper::registerFilter($moduleName);
+    TestHelper::registerDataFilter($moduleName);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
@@ -52,7 +49,7 @@ class ConstructionPlanTest extends TestCase {
     $moduleName = 'ModuleWithDataFilterArgs';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerFilter($moduleName, true, false);
+    TestHelper::registerDataFilter($moduleName, true, false);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
@@ -89,7 +86,7 @@ class ConstructionPlanTest extends TestCase {
     $moduleName = 'ModuleWithDataFilterAndCustomData';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerFilter($moduleName, false, true);
+    TestHelper::registerDataFilter($moduleName, false, true);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'customData', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
@@ -112,7 +109,7 @@ class ConstructionPlanTest extends TestCase {
     $childModuleName = 'ModuleNestedChild';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerFilter($childModuleName, true, true);
+    TestHelper::registerDataFilter($childModuleName, true, true);
 
     $module = TestHelper::getCustomModule('ModuleNestedParent', ['name', 'areas']);
 
@@ -151,12 +148,12 @@ class ConstructionPlanTest extends TestCase {
     $childModuleName = 'ModuleNestedChild';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerFilter($parentModuleName, false, false);
+    TestHelper::registerDataFilter($parentModuleName, false, false);
 
     $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
 
     $module['areas'] = [
-      'Area51' => [
+      'area51' => [
         TestHelper::getCustomModule($childModuleName, ['name'])
       ]
     ];
@@ -169,7 +166,7 @@ class ConstructionPlanTest extends TestCase {
         'test' => 'result',
       ],
       'areas' => [
-        'Area51' => [
+        'area51' => [
           [
             'name' => $childModuleName,
             'data' => []
@@ -179,9 +176,68 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  //
-  // function testDeeplyNestedModules() {}
-  //
+  function testDeeplyNestedModules() {
+    $parentModuleName = 'ModuleNestedParent';
+    $childModuleName = 'ModuleNestedChild';
+    $grandChildModuleName = 'ModuleNestedGrandChild';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName, false, false);
+
+    $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+
+    $module['areas'] = [
+      'area51' => [
+        TestHelper::getCustomModule($childModuleName, ['name', 'areas'])
+      ]
+    ];
+
+    $module['areas']['area51'][0]['areas'] = [
+      'district9' => [
+        TestHelper::getCustomModule($grandChildModuleName, ['name'])
+      ],
+      'alderaan' => [
+        TestHelper::getCustomModule($grandChildModuleName . '2', ['name']),
+        TestHelper::getCustomModule($grandChildModuleName . '3', ['name'])
+      ]
+    ];
+
+    $cp = ConstructionPlan::fromConfig($module);
+
+    $this->assertEquals($cp, [
+      'name' => $parentModuleName,
+      'data' => [
+        'test' => 'result',
+      ],
+      'areas' => [
+        'area51' => [
+          [
+            'name' => $childModuleName,
+            'data' => [],
+            'areas' => [
+              'district9' => [
+                [
+                  'name' => $grandChildModuleName,
+                  'data' => []
+                ]
+              ],
+              'alderaan' => [
+                [
+                  'name' => $grandChildModuleName . '2',
+                  'data' => []
+                ],
+                [
+                  'name' => $grandChildModuleName . '3',
+                  'data' => []
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]);
+  }
+
   // function testDynamicSubmodules() {}
   //
   // function testObjectAsArgument() {
