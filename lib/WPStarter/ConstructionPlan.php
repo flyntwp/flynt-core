@@ -27,9 +27,14 @@ class ConstructionPlan {
 
     $moduleName = $config['name'];
 
+    if (array_key_exists('areas', $config)) {
+      $areas = $config['areas'];
+    } else {
+      $areas = [];
+    }
+    $config['areas'] = apply_filters("WPStarter/dynamicSubmodules?name={$moduleName}", $areas, $config['data']);
     // iterate areas and recursively map child module data
     if (array_key_exists('areas', $config) && !empty($config['areas'])) {
-      $config['areas'] = apply_filters("WPStarter/dynamicSubmodules?name={$moduleName}", $config['areas'], $config['data']);
       $config['areas'] = array_map(function($modules) {
         return array_map(function($module) {
           return self::fromConfig($module);

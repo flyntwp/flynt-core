@@ -240,36 +240,32 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testDynamicSubmodules() {
-    $parentModuleName = 'ModuleNestedParent';
-    $childModuleName = 'ModuleNestedChild';
+    $moduleName = 'ModuleNestedParent';
+    $dynamicModuleName = 'ModuleNestedChild';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentModuleName, false, false);
+    TestHelper::registerDataFilter($moduleName, false, false);
 
-    $parentModule = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
-    $childModule = TestHelper::getCustomModule($childModuleName, ['name']);
-
-    $parentModule['areas'] = [
-      'area51' => []
-    ];
+    $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
+    $dynamicModule = TestHelper::getCustomModule($dynamicModuleName, ['name']);
 
     // TODO change filter name to something that doesn't suck
-    Filters::expectApplied("WPStarter/dynamicSubmodules?name={$parentModuleName}")
-    ->with($parentModule['areas'],  ['test' => 'result'])
+    Filters::expectApplied("WPStarter/dynamicSubmodules?name={$moduleName}")
+    ->with($module['areas'],  ['test' => 'result'])
     ->once()
-    ->andReturn(['area51' => [ $childModule ]]);
+    ->andReturn(['area51' => [ $dynamicModule ]]);
 
-    $cp = ConstructionPlan::fromConfig($parentModule);
+    $cp = ConstructionPlan::fromConfig($module);
 
     $this->assertEquals($cp, [
-      'name' => $parentModuleName,
+      'name' => $moduleName,
       'data' => [
         'test' => 'result'
       ],
       'areas' => [
         'area51' => [
           [
-            'name' => $childModuleName,
+            'name' => $dynamicModuleName,
             'data' => []
           ]
         ]
