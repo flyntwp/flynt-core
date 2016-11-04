@@ -153,7 +153,7 @@ class ConstructionPlanTest extends TestCase {
     $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
 
     $module['areas'] = [
-      'Area51' => [
+      'area51' => [
         TestHelper::getCustomModule($childModuleName, ['name'])
       ]
     ];
@@ -166,7 +166,7 @@ class ConstructionPlanTest extends TestCase {
         'test' => 'result',
       ],
       'areas' => [
-        'Area51' => [
+        'area51' => [
           [
             'name' => $childModuleName,
             'data' => []
@@ -176,9 +176,68 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  //
-  // function testDeeplyNestedModules() {}
-  //
+  function testDeeplyNestedModules() {
+    $parentModuleName = 'ModuleNestedParent';
+    $childModuleName = 'ModuleNestedChild';
+    $grandChildModuleName = 'ModuleNestedGrandChild';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName, false, false);
+
+    $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+
+    $module['areas'] = [
+      'area51' => [
+        TestHelper::getCustomModule($childModuleName, ['name', 'areas'])
+      ]
+    ];
+
+    $module['areas']['area51'][0]['areas'] = [
+      'district9' => [
+        TestHelper::getCustomModule($grandChildModuleName, ['name'])
+      ],
+      'alderaan' => [
+        TestHelper::getCustomModule($grandChildModuleName . '2', ['name']),
+        TestHelper::getCustomModule($grandChildModuleName . '3', ['name'])
+      ]
+    ];
+
+    $cp = ConstructionPlan::fromConfig($module);
+
+    $this->assertEquals($cp, [
+      'name' => $parentModuleName,
+      'data' => [
+        'test' => 'result',
+      ],
+      'areas' => [
+        'area51' => [
+          [
+            'name' => $childModuleName,
+            'data' => [],
+            'areas' => [
+              'district9' => [
+                [
+                  'name' => $grandChildModuleName,
+                  'data' => []
+                ]
+              ],
+              'alderaan' => [
+                [
+                  'name' => $grandChildModuleName . '2',
+                  'data' => []
+                ],
+                [
+                  'name' => $grandChildModuleName . '3',
+                  'data' => []
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]);
+  }
+
   // function testDynamicSubmodules() {}
   //
   // function testObjectAsArgument() {
