@@ -22,9 +22,20 @@ class HelpersTest extends TestCase {
     $arr = [
       'foo' => $foo
     ];
+    $value = extractNestedDataFromArray(null);
+    $this->assertEquals($value, '');
+    $value = extractNestedDataFromArray('string');
+    $this->assertEquals($value, '');
+    $value = extractNestedDataFromArray('stringA', 'stringB');
+    $this->assertEquals($value, '');
+    $value = extractNestedDataFromArray('stringA', null, 'stringB');
+    $this->assertEquals($value, '');
+    $value = extractNestedDataFromArray([$arr, 'boo']);
+    $this->assertEquals($value, '');
     $value = extractNestedDataFromArray([$arr, 'foo']);
     $this->assertEquals($value, $foo);
     $value = extractNestedDataFromArray([$arr, 'foo', 'bar']);
     $this->assertEquals($value, $bar);
   }
+
 }
