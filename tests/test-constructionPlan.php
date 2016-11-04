@@ -22,28 +22,28 @@ class ConstructionPlanTest extends TestCase {
     ->andReturnUsing(['TestHelper', 'setConfigPath']);
   }
 
-  function testConfigIsEmpty() {
+  function testThrowErrorOnEmptyConfig() {
     $this->expectException(Exception::class);
     $cp = ConstructionPlan::fromConfig([]);
   }
 
-  function testConfigIsAnObject() {
+  function testThrowErrorIfConfigIsAnObject() {
     $this->expectException(Exception::class);
     $cp = ConstructionPlan::fromConfig(new StdClass());
   }
 
-  function testConfigIsAString() {
+  function testThrowErrorIfConfigIsAString() {
     $this->expectException(Exception::class);
     $cp = ConstructionPlan::fromConfig('string');
   }
 
-  function testConfigIsANumber() {
+  function testThrowErrorIfConfigIsANumber() {
     $this->expectException(Exception::class);
     $cp = ConstructionPlan::fromConfig(0);
   }
 
   // TODO add test for default paths?
-  function testLoadConfigFromFile() {
+  function testConfigCanBeLoadedFromFile() {
     $cp = ConstructionPlan::fromConfigFile('exampleConfig.json');
     $this->assertEquals($cp, [
       'name' => 'ModuleInConfigFile',
@@ -61,16 +61,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testFromConfigFileLoaderFilter() {
-    Filters::expectApplied('WPStarter/configFileLoader')
-    ->with(null, TestHelper::setConfigPath('exampleConfig.yml'))
-    ->once()
-    ->andReturn(['name' => 'Module']);
-
-    $cp = ConstructionPlan::fromConfigFile('exampleConfig.yml');
-  }
-
-  function testFromConfigFileNoFileFoundError() {
+  function testThrowsErrorWhenConfigFileDoesntExist() {
     Filters::expectApplied('WPStarter/configPath')
     ->with('exceptionTest.json')
     ->andReturn('/not/a/real/file.json');
@@ -80,7 +71,16 @@ class ConstructionPlanTest extends TestCase {
     $cp = ConstructionPlan::fromConfigFile('exceptionTest.json');
   }
 
-  function testSingleModuleNoData() {
+  function testConfigFileLoaderUsesFilterHook() {
+    Filters::expectApplied('WPStarter/configFileLoader')
+    ->with(null, TestHelper::setConfigPath('exampleConfig.yml'))
+    ->once()
+    ->andReturn(['name' => 'Module']);
+
+    $cp = ConstructionPlan::fromConfigFile('exampleConfig.yml');
+  }
+
+  function testModuleWithoutDataIsValid() {
     $module = TestHelper::getCustomModule('ModuleNoData', ['name', 'areas']);
     $cp = ConstructionPlan::fromConfig($module);
     $this->assertEquals($cp, [
@@ -89,7 +89,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testSingleModuleWithDataFilter() {
+  function testModuleDataIsFiltered() {
     $moduleName = 'ModuleWithDataFilter';
 
     // Params: ModuleName, hasFilterArgs = false, returnDuplicate = false
@@ -106,7 +106,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testSingleModuleWithDataFilterArgs() {
+  function testDataFilterArgumentsAreUsed() {
     $moduleName = 'ModuleWithDataFilterArgs';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
@@ -123,7 +123,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testSingleModuleWithCustomData() {
+  function testCustomDataIsAddedToModule() {
     $moduleName = 'ModuleWithCustomData';
 
     // this simulates add_filter with return data:
@@ -143,7 +143,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testSingleModuleWithDataFilterAndCustomData() {
+  function testDataIsFilteredAndCustomDataIsAdded() {
     $moduleName = 'ModuleWithDataFilterAndCustomData';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
@@ -166,7 +166,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testNestedModules() {
+  function testNestedModuleIsAddedToArea() {
     $childModuleName = 'ModuleNestedChild';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
@@ -204,7 +204,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testNestedModulesWithParentDataOnly() {
+  function testParentModuleDataIsNotAddedToChildModule() {
     $parentModuleName = 'ModuleNestedParent';
     $childModuleName = 'ModuleNestedChild';
 
@@ -237,7 +237,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testDeeplyNestedModules() {
+  function testDeeplyNestedModulesCreateValidConstructionPlan() {
     $parentModuleName = 'ModuleNestedParent';
     $childModuleName = 'ModuleNestedChild';
     $grandChildModuleName = 'ModuleNestedGrandChild';
@@ -299,7 +299,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testDynamicSubmodules() {
+  function testDynamicSubmodulesCanBeAddedWithAFilter() {
     $moduleName = 'ModuleNestedParent';
     $dynamicModuleName = 'ModuleNestedChild';
 
@@ -332,7 +332,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testNestedDynamicSubmodulesData() {
+  function testDynamicSubmodulesReceiveParentData() {
     $parentModuleName = 'ModuleNestedParent';
     $childModuleName = 'ModuleNestedChild';
     $childSubmoduleName = 'SubmoduleNestedChild';
