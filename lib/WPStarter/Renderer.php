@@ -41,15 +41,14 @@ class Renderer {
       return extractNestedDataFromArray($args);
     };
 
-    // TODO throw error when file not found instead of $output = '';
-    // TODO also, add a test for that
-
-    if(file_exists($filePath)) {
-      ob_start();
-      require $filePath;
-      $output = ob_get_contents();
-      ob_get_clean();
+    if(!file_exists($filePath)) {
+      throw new Exception("Template not found: {$filePath}");
     }
+
+    ob_start();
+    require $filePath;
+    $output = ob_get_contents();
+    ob_get_clean();
 
     return $output;
   }

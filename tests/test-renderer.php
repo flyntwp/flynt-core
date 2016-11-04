@@ -20,11 +20,21 @@ class RendererTest extends TestCase {
     ->andReturn(__DIR__ . '/assets/src/');
   }
 
-  /**
-   * @expectedException Exception
-   */
   function testEmptyConstructionPlan() {
+    $this->expectException(Exception::class);
     $cp = Renderer::fromConstructionPlan([]);
+  }
+
+  function testFileNotFoundError() {
+    Filters::expectApplied('WPStarter/defaultModulesPath')
+    ->andReturn('');
+
+    $this->expectException(Exception::class);
+
+    $cp = Renderer::fromConstructionPlan([
+      'name' => 'Module',
+      'data' => []
+    ]);
   }
 
   function testSingleModule() {
@@ -72,6 +82,10 @@ class RendererTest extends TestCase {
   }
 
   function testCustomHtmlHook() {
+    // disable template path, which we don't use here
+    Filters::expectApplied('WPStarter/defaultModulesPath')
+    ->andReturn('');
+
     // test whether custom html can be used
     $moduleName = 'SingleModule';
     $moduleData = [];
@@ -83,6 +97,7 @@ class RendererTest extends TestCase {
     $shouldBeHtml = "<div>{$moduleName} After Filter Hook</div>\n";
 
     Filters::expectApplied('WPStarter/Renderer/renderModule')
+    ->once()
     ->with('', $moduleData)
     ->andReturn($shouldBeHtml);
 
@@ -116,6 +131,7 @@ class RendererTest extends TestCase {
 
     // Specific Filters renderModule?name=SingleModule for example
     Filters::expectApplied('WPStarter/Renderer/renderModule?name=' . $childModuleName)
+    ->once()
     ->with('', $moduleData)
     ->andReturn($shouldBeChildOutput);
 

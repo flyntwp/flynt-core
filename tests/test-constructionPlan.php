@@ -14,10 +14,8 @@ use WPStarter\ConstructionPlan;
 
 class ConstructionPlanTest extends TestCase {
 
-  /**
-   * @expectedException Exception
-   */
   function testEmptyConfig() {
+    $this->expectException(Exception::class);
     $cp = ConstructionPlan::fromConfig([]);
   }
 
