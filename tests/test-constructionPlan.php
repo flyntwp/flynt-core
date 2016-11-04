@@ -11,6 +11,7 @@
 
 use WPStarter\TestCase;
 use WPStarter\ConstructionPlan;
+use Brain\Monkey\WP\Filters;
 
 class ConstructionPlanTest extends TestCase {
 
@@ -238,8 +239,99 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  // function testDynamicSubmodules() {}
-  //
+  function testDynamicSubmodules() {
+    $moduleName = 'ModuleNestedParent';
+    $dynamicModuleName = 'ModuleNestedChild';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($moduleName, false, false);
+
+    $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
+    $dynamicModule = TestHelper::getCustomModule($dynamicModuleName, ['name']);
+
+    Filters::expectApplied("WPStarter/dynamicSubmodules?name={$moduleName}")
+    ->with([],  ['test' => 'result'], [])
+    ->once()
+    ->andReturn(['area51' => [ $dynamicModule ]]);
+
+    $cp = ConstructionPlan::fromConfig($module);
+
+    $this->assertEquals($cp, [
+      'name' => $moduleName,
+      'data' => [
+        'test' => 'result'
+      ],
+      'areas' => [
+        'area51' => [
+          [
+            'name' => $dynamicModuleName,
+            'data' => []
+          ]
+        ]
+      ]
+    ]);
+  }
+
+  function testNestedDynamicSubmodulesData() {
+    $parentModuleName = 'ModuleNestedParent';
+    $childModuleName = 'ModuleNestedChild';
+    $childSubmoduleName = 'SubmoduleNestedChild';
+    $dynamicModuleName = 'ModuleNestedDynamicChild';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName, false, false);
+
+    $parentModule = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+    $childModule = TestHelper::getCustomModule($childModuleName, ['name']);
+    $childSubmodule = TestHelper::getCustomModule($childSubmoduleName, ['name']);
+    $dynamicModule = TestHelper::getCustomModule($dynamicModuleName, ['name']);
+
+    $childModule['areas'] = [
+      'childArea' => [ $childSubmodule ]
+    ];
+    $parentModule['areas'] = [
+      'parentArea' => [ $childModule ]
+    ];
+
+    Filters::expectApplied("WPStarter/dynamicSubmodules?name={$childSubmoduleName}")
+    ->with([],  [], ['test' => 'result'])
+    ->once()
+    ->andReturn(['area51' => [ $dynamicModule ]]);
+
+    $cp = ConstructionPlan::fromConfig($parentModule);
+
+    $this->assertEquals($cp, [
+      'name' => $parentModuleName,
+      'data' => [
+        'test' => 'result'
+      ],
+      'areas' => [
+        'parentArea' => [
+          [
+            'name' => $childModuleName,
+            'data' => [],
+            'areas' => [
+              'childArea' => [
+                [
+                  'name' => $childSubmoduleName,
+                  'data' => [],
+                  'areas' => [
+                    'area51' => [
+                      [
+                        'name' => $dynamicModuleName,
+                        'data' => []
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]);
+  }
+
   // function testObjectAsArgument() {
   //   $cp = ConstructionPlan::fromConfig(new StdClass());
   //   $this->assertErrorThrown();
