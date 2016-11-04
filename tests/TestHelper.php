@@ -48,20 +48,4 @@ class TestHelper {
     ->withArgs($filterArgs)
     ->andReturn($return);
   }
-
-  public static function registerRenderModuleFilter($data, $return = '', $times = 1) {
-    $filterName = 'WPStarter/Renderer/renderModule';
-    Filters::expectApplied($filterName)
-    ->times($times)
-    ->with('', $data)
-    ->andReturn($return);
-  }
-
-  public static function registerRenderSpecificModuleFilter($data, $module = 'Module', $prevOutput = '', $return = '') {
-    $filterName = 'WPStarter/Renderer/renderModule?name=' . $module;
-    Filters::expectApplied($filterName)
-    ->once()
-    ->with($prevOutput, $data)
-    ->andReturn($return);
-  }
 }

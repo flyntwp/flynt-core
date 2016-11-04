@@ -33,9 +33,6 @@ class RendererTest extends TestCase {
       'test' => 'result'
     ];
 
-    TestHelper::registerRenderModuleFilter($moduleData);
-    TestHelper::registerRenderSpecificModuleFilter($moduleData, $moduleName);
-
     $cp = [
       'name' => $moduleName,
       'data' => $moduleData
@@ -52,9 +49,9 @@ class RendererTest extends TestCase {
       'test' => 'result'
     ];
 
-    TestHelper::registerRenderModuleFilter($moduleData, null, 2);
-    TestHelper::registerRenderSpecificModuleFilter($moduleData, $parentModuleName);
-    TestHelper::registerRenderSpecificModuleFilter($moduleData, $childModuleName);
+    // check if filter ran exactly twice
+    Filters::expectApplied('WPStarter/Renderer/renderModule')
+    ->times(2);
 
     $cp = [
       'name' => $parentModuleName,
@@ -85,8 +82,9 @@ class RendererTest extends TestCase {
 
     $shouldBeHtml = "<div>{$moduleName} After Filter Hook</div>\n";
 
-    TestHelper::registerRenderModuleFilter($moduleData, $shouldBeHtml);
-    TestHelper::registerRenderSpecificModuleFilter($moduleData, $moduleName, $shouldBeHtml, $shouldBeHtml);
+    Filters::expectApplied('WPStarter/Renderer/renderModule')
+    ->with('', $moduleData)
+    ->andReturn($shouldBeHtml);
 
     $html = Renderer::fromConstructionPlan($cp);
     $this->assertEquals($html, $shouldBeHtml);
@@ -116,12 +114,10 @@ class RendererTest extends TestCase {
     $shouldBeChildOutput = "<div>{$childModuleName} After Filter Hook</div>\n";
     $shouldBeHtml = "<div>{$parentModuleName} result" . $shouldBeChildOutput . "</div>\n";
 
-    // General Filter renderModule
-    TestHelper::registerRenderModuleFilter($moduleData, null, 2);
-
     // Specific Filters renderModule?name=SingleModule for example
-    TestHelper::registerRenderSpecificModuleFilter($moduleData, $parentModuleName);
-    TestHelper::registerRenderSpecificModuleFilter($moduleData, $childModuleName, '', $shouldBeChildOutput);
+    Filters::expectApplied('WPStarter/Renderer/renderModule?name=' . $childModuleName)
+    ->with('', $moduleData)
+    ->andReturn($shouldBeChildOutput);
 
     $html = Renderer::fromConstructionPlan($cp);
     $this->assertEquals($html, $shouldBeHtml);
