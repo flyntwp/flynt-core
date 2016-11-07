@@ -18,7 +18,7 @@ class RendererTest extends TestCase {
     parent::setUp();
     Filters::expectApplied('WPStarter/defaultModulesPath')
     ->with('')
-    ->andReturn(__DIR__ . '/assets/src/');
+    ->andReturnUsing(['TestHelper', 'getModulesPath']);
   }
 
   function testThrowsErrorWhenConstructionPlanIsEmpty() {

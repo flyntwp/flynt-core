@@ -19,7 +19,7 @@ class ConstructionPlanTest extends TestCase {
     parent::setUp();
 
     Filters::expectApplied('WPStarter/configPath')
-    ->andReturnUsing(['TestHelper', 'setConfigPath']);
+    ->andReturnUsing(['TestHelper', 'getConfigPath']);
   }
 
   function testThrowErrorOnEmptyConfig() {
@@ -73,7 +73,7 @@ class ConstructionPlanTest extends TestCase {
 
   function testConfigFileLoaderUsesFilterHook() {
     Filters::expectApplied('WPStarter/configFileLoader')
-    ->with(null, TestHelper::setConfigPath('exampleConfig.yml'))
+    ->with(null, TestHelper::getConfigPath('exampleConfig.yml'))
     ->once()
     ->andReturn(['name' => 'Module']);
 
