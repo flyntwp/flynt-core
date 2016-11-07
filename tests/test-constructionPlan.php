@@ -17,9 +17,6 @@ class ConstructionPlanTest extends TestCase {
 
   function setUp() {
     parent::setUp();
-
-    Filters::expectApplied('WPStarter/configPath')
-    ->andReturnUsing(['TestHelper', 'getConfigPath']);
   }
 
   function testThrowErrorOnEmptyConfig() {

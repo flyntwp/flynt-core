@@ -16,9 +16,6 @@ use Brain\Monkey\WP\Filters;
 class RendererTest extends TestCase {
   function setUp() {
     parent::setUp();
-    Filters::expectApplied('WPStarter/defaultModulesPath')
-    ->with('')
-    ->andReturnUsing(['TestHelper', 'getModulesPath']);
   }
 
   function testThrowsErrorWhenConstructionPlanIsEmpty() {
