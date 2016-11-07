@@ -5,7 +5,7 @@ namespace WPStarter;
 use Exception;
 use function WPStarter\Helpers\extractNestedDataFromArray;
 
-class Renderer {
+class Render {
   public static function fromConstructionPlan($constructionPlan) {
     if (empty($constructionPlan)) {
       throw new Exception('Empty Construction Plan!');
@@ -19,8 +19,8 @@ class Renderer {
     $data = $constructionPlan['data'];
     $moduleName = $constructionPlan['name'];
 
-    $output = apply_filters('WPStarter/Renderer/renderModule', '', $data);
-    $output = apply_filters("WPStarter/Renderer/renderModule?name={$moduleName}", $output, $data);
+    $output = apply_filters('WPStarter/Render/renderModule', '', $data);
+    $output = apply_filters("WPStarter/Render/renderModule?name={$moduleName}", $output, $data);
 
     if (empty($output)) {
       $filePath = apply_filters('WPStarter/defaultModulesPath', '') . "{$moduleName}/index.php";

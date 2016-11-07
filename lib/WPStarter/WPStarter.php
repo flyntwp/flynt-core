@@ -3,7 +3,7 @@ namespace WPStarter;
 
 use Exception;
 use WPStarter\ConstructionPlan;
-use WPStarter\Renderer;
+use WPStarter\Render;
 
 class WPStarter {
 
@@ -15,7 +15,7 @@ class WPStarter {
 
   public static function getHtmlFromConfig($config) {
     $cp = ConstructionPlan::fromConfig($config);
-    return Renderer::fromConstructionPlan($cp);
+    return Render::fromConstructionPlan($cp);
   }
 
   public static function echoHtmlFromConfigFile($fileName) {
@@ -24,7 +24,7 @@ class WPStarter {
 
   public static function getHtmlFromConfigFile($fileName) {
     $cp = ConstructionPlan::fromConfigFile($fileName);
-    return Renderer::fromConstructionPlan($cp);
+    return Render::fromConstructionPlan($cp);
   }
 
   public static function registerModule($moduleName) {
