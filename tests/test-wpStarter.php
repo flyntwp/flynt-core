@@ -41,6 +41,15 @@ class WPStarterTest extends TestCase {
     WPStarter::registerModule($moduleName);
   }
 
+  public function testRegisterModuleUsesOptionalPathParameter() {
+    $moduleName = 'ModuleWithArea';
+
+    Filters::expectAdded("WPStarter/DataFilters/SingleModule/foo")
+    ->once();
+
+    WPStarter::registerModule($moduleName, TestHelper::getModulesPath() . 'SingleModule');
+  }
+
   public function testThrowsErrorWhenModuleFolderNotFound() {
     $this->expectException(Exception::class);
     WPStarter::registerModule('NotARealModule');

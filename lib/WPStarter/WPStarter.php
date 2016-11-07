@@ -27,15 +27,17 @@ class WPStarter {
     return Render::fromConstructionPlan($cp);
   }
 
-  public static function registerModule($moduleName) {
+  public static function registerModule($moduleName, $modulePath = null) {
     // check if module already registered
     if(array_key_exists($moduleName, self::$modules)) {
       throw new Exception("Module {$moduleName} is already registered!");
     }
 
     // register module / require functions.php
-    // TODO add get_template_directory() . '/Modules' as default path
-    $modulePath = apply_filters('WPStarter/defaultModulesPath', '') . $moduleName;
+    if(is_null($modulePath)) {
+      // TODO add get_template_directory() . '/Modules' as default path
+      $modulePath = apply_filters('WPStarter/defaultModulesPath', '') . $moduleName;
+    }
 
     if(!is_dir($modulePath)) {
       throw new Exception("Register Module: Folder {$modulePath} not found!");
