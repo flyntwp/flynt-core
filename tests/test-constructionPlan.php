@@ -9,6 +9,8 @@
  * Construction plan test case.
  */
 
+require_once dirname(__DIR__) . '/lib/WPStarter/ConstructionPlan.php';
+
 use WPStarter\TestCase;
 use WPStarter\ConstructionPlan;
 use Brain\Monkey\WP\Filters;
@@ -18,33 +20,42 @@ class ConstructionPlanTest extends TestCase {
   function setUp() {
     parent::setUp();
 
-    Filters::expectApplied('WPStarter/configPath')
-    ->andReturnUsing(['TestHelper', 'setConfigPath']);
+    $this->moduleList = [
+      'DynamicModule' => '',
+      'SingleModule' => '',
+      'ModuleWithArea' => '',
+      'NestedModuleWithArea' => '',
+      'ModuleInConfigFile' => '',
+      'ChildModuleInConfigFile' => '',
+      'GrandChildA' => '',
+      'GrandChildB' => '',
+      'GrandChildC' => ''
+    ];
   }
 
   function testThrowErrorOnEmptyConfig() {
     $this->expectException(Exception::class);
-    $cp = ConstructionPlan::fromConfig([]);
+    $cp = ConstructionPlan::fromConfig([], $this->moduleList);
   }
 
   function testThrowErrorIfConfigIsAnObject() {
     $this->expectException(Exception::class);
-    $cp = ConstructionPlan::fromConfig(new StdClass());
+    $cp = ConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
   }
 
   function testThrowErrorIfConfigIsAString() {
     $this->expectException(Exception::class);
-    $cp = ConstructionPlan::fromConfig('string');
+    $cp = ConstructionPlan::fromConfig('string', $this->moduleList);
   }
 
   function testThrowErrorIfConfigIsANumber() {
     $this->expectException(Exception::class);
-    $cp = ConstructionPlan::fromConfig(0);
+    $cp = ConstructionPlan::fromConfig(0, $this->moduleList);
   }
 
   // TODO add test for default paths?
   function testConfigCanBeLoadedFromFile() {
-    $cp = ConstructionPlan::fromConfigFile('exampleConfig.json');
+    $cp = ConstructionPlan::fromConfigFile('exampleConfig.json', $this->moduleList);
     $this->assertEquals($cp, [
       'name' => 'ModuleInConfigFile',
       'data' => [
@@ -68,35 +79,42 @@ class ConstructionPlanTest extends TestCase {
 
     $this->expectException(Exception::class);
 
-    $cp = ConstructionPlan::fromConfigFile('exceptionTest.json');
+    $cp = ConstructionPlan::fromConfigFile('exceptionTest.json', $this->moduleList);
+  }
+
+  function testThrowsErrorWhenModuleIsNotRegistered() {
+    $this->expectException(Exception::class);
+    ConstructionPlan::fromConfig([
+      'name' => 'ThisModuleIsNotRegistered'
+    ], $this->moduleList);
   }
 
   function testConfigFileLoaderUsesFilterHook() {
     Filters::expectApplied('WPStarter/configFileLoader')
-    ->with(null, TestHelper::setConfigPath('exampleConfig.yml'))
+    ->with(null, TestHelper::getConfigPath('exampleConfig.yml'))
     ->once()
-    ->andReturn(['name' => 'Module']);
+    ->andReturn(['name' => 'SingleModule']);
 
-    $cp = ConstructionPlan::fromConfigFile('exampleConfig.yml');
+    $cp = ConstructionPlan::fromConfigFile('exampleConfig.yml', $this->moduleList);
   }
 
   function testModuleWithoutDataIsValid() {
-    $module = TestHelper::getCustomModule('ModuleNoData', ['name', 'areas']);
-    $cp = ConstructionPlan::fromConfig($module);
+    $module = TestHelper::getCustomModule('SingleModule', ['name', 'areas']);
+    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
     $this->assertEquals($cp, [
-      'name' => 'ModuleNoData',
+      'name' => 'SingleModule',
       'data' => []
     ]);
   }
 
   function testModuleDataIsFiltered() {
-    $moduleName = 'ModuleWithDataFilter';
+    $moduleName = 'SingleModule';
 
     // Params: ModuleName, hasFilterArgs = false, returnDuplicate = false
     TestHelper::registerDataFilter($moduleName);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
-    $cp = ConstructionPlan::fromConfig($module);
+    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $moduleName,
@@ -107,13 +125,13 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testDataFilterArgumentsAreUsed() {
-    $moduleName = 'ModuleWithDataFilterArgs';
+    $moduleName = 'SingleModule';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
     TestHelper::registerDataFilter($moduleName, true, false);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
-    $cp = ConstructionPlan::fromConfig($module);
+    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $moduleName,
@@ -124,11 +142,11 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testCustomDataIsAddedToModule() {
-    $moduleName = 'ModuleWithCustomData';
+    $moduleName = 'SingleModule';
 
     // this simulates add_filter with return data:
     $module = TestHelper::getCustomModule($moduleName, ['name', 'customData', 'areas']);
-    $cp = ConstructionPlan::fromConfig($module);
+    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $moduleName,
@@ -144,13 +162,13 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testDataIsFilteredAndCustomDataIsAdded() {
-    $moduleName = 'ModuleWithDataFilterAndCustomData';
+    $moduleName = 'SingleModule';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
     TestHelper::registerDataFilter($moduleName, false, true);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'customData', 'areas']);
-    $cp = ConstructionPlan::fromConfig($module);
+    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $moduleName,
@@ -167,12 +185,13 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testNestedModuleIsAddedToArea() {
-    $childModuleName = 'ModuleNestedChild';
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
     TestHelper::registerDataFilter($childModuleName, true, true);
 
-    $module = TestHelper::getCustomModule('ModuleNestedParent', ['name', 'areas']);
+    $module = TestHelper::getCustomModule($parentModuleName, ['name', 'areas']);
 
     $module['areas'] = [
       'Area51' => [
@@ -180,10 +199,10 @@ class ConstructionPlanTest extends TestCase {
       ]
     ];
 
-    $cp = ConstructionPlan::fromConfig($module);
+    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
-      'name' => 'ModuleNestedParent',
+      'name' => $parentModuleName,
       'data' => [],
       'areas' => [
         'Area51' => [
@@ -205,8 +224,8 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testParentModuleDataIsNotAddedToChildModule() {
-    $parentModuleName = 'ModuleNestedParent';
-    $childModuleName = 'ModuleNestedChild';
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
     TestHelper::registerDataFilter($parentModuleName, false, false);
@@ -219,7 +238,7 @@ class ConstructionPlanTest extends TestCase {
       ]
     ];
 
-    $cp = ConstructionPlan::fromConfig($module);
+    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $parentModuleName,
@@ -238,9 +257,11 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testDeeplyNestedModulesCreateValidConstructionPlan() {
-    $parentModuleName = 'ModuleNestedParent';
-    $childModuleName = 'ModuleNestedChild';
-    $grandChildModuleName = 'ModuleNestedGrandChild';
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'NestedModuleWithArea';
+    $grandChildModuleNameA = 'GrandChildA';
+    $grandChildModuleNameB = 'GrandChildB';
+    $grandChildModuleNameC = 'GrandChildC';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
     TestHelper::registerDataFilter($parentModuleName, false, false);
@@ -255,15 +276,15 @@ class ConstructionPlanTest extends TestCase {
 
     $module['areas']['area51'][0]['areas'] = [
       'district9' => [
-        TestHelper::getCustomModule($grandChildModuleName, ['name'])
+        TestHelper::getCustomModule($grandChildModuleNameA, ['name'])
       ],
       'alderaan' => [
-        TestHelper::getCustomModule($grandChildModuleName . '2', ['name']),
-        TestHelper::getCustomModule($grandChildModuleName . '3', ['name'])
+        TestHelper::getCustomModule($grandChildModuleNameB, ['name']),
+        TestHelper::getCustomModule($grandChildModuleNameC, ['name'])
       ]
     ];
 
-    $cp = ConstructionPlan::fromConfig($module);
+    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $parentModuleName,
@@ -278,17 +299,17 @@ class ConstructionPlanTest extends TestCase {
             'areas' => [
               'district9' => [
                 [
-                  'name' => $grandChildModuleName,
+                  'name' => $grandChildModuleNameA,
                   'data' => []
                 ]
               ],
               'alderaan' => [
                 [
-                  'name' => $grandChildModuleName . '2',
+                  'name' => $grandChildModuleNameB,
                   'data' => []
                 ],
                 [
-                  'name' => $grandChildModuleName . '3',
+                  'name' => $grandChildModuleNameC,
                   'data' => []
                 ]
               ]
@@ -300,8 +321,8 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testDynamicSubmodulesCanBeAddedWithAFilter() {
-    $moduleName = 'ModuleNestedParent';
-    $dynamicModuleName = 'ModuleNestedChild';
+    $moduleName = 'ModuleWithArea';
+    $dynamicModuleName = 'SingleModule';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
     TestHelper::registerDataFilter($moduleName, false, false);
@@ -314,7 +335,7 @@ class ConstructionPlanTest extends TestCase {
     ->once()
     ->andReturn(['area51' => [ $dynamicModule ]]);
 
-    $cp = ConstructionPlan::fromConfig($module);
+    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $moduleName,
@@ -333,10 +354,10 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testDynamicSubmodulesReceiveParentData() {
-    $parentModuleName = 'ModuleNestedParent';
-    $childModuleName = 'ModuleNestedChild';
-    $childSubmoduleName = 'SubmoduleNestedChild';
-    $dynamicModuleName = 'ModuleNestedDynamicChild';
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'NestedModuleWithArea';
+    $childSubmoduleName = 'SingleModule';
+    $dynamicModuleName = 'DynamicModule';
 
     // Params: ModuleName, hasFilterArgs, returnDuplicate
     TestHelper::registerDataFilter($parentModuleName, false, false);
@@ -358,7 +379,7 @@ class ConstructionPlanTest extends TestCase {
     ->once()
     ->andReturn(['area51' => [ $dynamicModule ]]);
 
-    $cp = ConstructionPlan::fromConfig($parentModule);
+    $cp = ConstructionPlan::fromConfig($parentModule, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $parentModuleName,

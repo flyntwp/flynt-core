@@ -9,36 +9,35 @@
  * Construction plan test case.
  */
 
+require_once dirname(__DIR__) . '/lib/WPStarter/Render.php';
+
 use WPStarter\TestCase;
-use WPStarter\Renderer;
+use WPStarter\Render;
 use Brain\Monkey\WP\Filters;
 
-class RendererTest extends TestCase {
+class RenderTest extends TestCase {
   function setUp() {
     parent::setUp();
-    Filters::expectApplied('WPStarter/defaultModulesPath')
-    ->with('')
-    ->andReturn(__DIR__ . '/assets/src/');
   }
 
-  function testEmptyConstructionPlan() {
+  function testThrowsErrorWhenConstructionPlanIsEmpty() {
     $this->expectException(Exception::class);
-    $cp = Renderer::fromConstructionPlan([]);
+    $cp = Render::fromConstructionPlan([]);
   }
 
-  function testFileNotFoundError() {
-    Filters::expectApplied('WPStarter/defaultModulesPath')
+  function testThrowsErrorWhenModuleFileDoesntExist() {
+    Filters::expectApplied('WPStarter/modulesPath')
     ->andReturn('');
 
     $this->expectException(Exception::class);
 
-    $cp = Renderer::fromConstructionPlan([
+    $cp = Render::fromConstructionPlan([
       'name' => 'Module',
       'data' => []
     ]);
   }
 
-  function testSingleModule() {
+  function testRendersSingleModuleCorrectly() {
     $moduleName = 'SingleModule';
     $moduleData = [
       'test' => 'result'
@@ -49,11 +48,11 @@ class RendererTest extends TestCase {
       'data' => $moduleData
     ];
 
-    $html = Renderer::fromConstructionPlan($cp);
+    $html = Render::fromConstructionPlan($cp);
     $this->assertEquals($html, "<div>{$moduleName} result</div>\n");
   }
 
-  function testNestedModules() {
+  function testRendersNestedModulesCorrectly() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
     $moduleData = [
@@ -61,7 +60,7 @@ class RendererTest extends TestCase {
     ];
 
     // check if filter ran exactly twice
-    Filters::expectApplied('WPStarter/Renderer/renderModule')
+    Filters::expectApplied('WPStarter/renderModule')
     ->times(2);
 
     $cp = [
@@ -77,14 +76,14 @@ class RendererTest extends TestCase {
       ]
     ];
 
-    $html = Renderer::fromConstructionPlan($cp);
+    $html = Render::fromConstructionPlan($cp);
 
     $this->assertEquals($html, "<div>{$parentModuleName} result<div>{$childModuleName} result</div>\n</div>\n");
   }
 
-  function testCustomHtmlHook() {
+  function testAppliesCustomHtmlHook() {
     // disable template path, which we don't use here
-    Filters::expectApplied('WPStarter/defaultModulesPath')
+    Filters::expectApplied('WPStarter/modulesPath')
     ->andReturn('');
 
     // test whether custom html can be used
@@ -97,16 +96,16 @@ class RendererTest extends TestCase {
 
     $shouldBeHtml = "<div>{$moduleName} After Filter Hook</div>\n";
 
-    Filters::expectApplied('WPStarter/Renderer/renderModule')
+    Filters::expectApplied('WPStarter/renderModule')
     ->once()
     ->with('', $moduleData)
     ->andReturn($shouldBeHtml);
 
-    $html = Renderer::fromConstructionPlan($cp);
+    $html = Render::fromConstructionPlan($cp);
     $this->assertEquals($html, $shouldBeHtml);
   }
 
-  function testCustomHtmlHookSingleModule() {
+  function testAppliesCustomHtmlHookToANestedModule() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
     $moduleData = [
@@ -131,12 +130,12 @@ class RendererTest extends TestCase {
     $shouldBeHtml = "<div>{$parentModuleName} result" . $shouldBeChildOutput . "</div>\n";
 
     // Specific Filters renderModule?name=SingleModule for example
-    Filters::expectApplied('WPStarter/Renderer/renderModule?name=' . $childModuleName)
+    Filters::expectApplied('WPStarter/renderModule?name=' . $childModuleName)
     ->once()
     ->with('', $moduleData)
     ->andReturn($shouldBeChildOutput);
 
-    $html = Renderer::fromConstructionPlan($cp);
+    $html = Render::fromConstructionPlan($cp);
     $this->assertEquals($html, $shouldBeHtml);
   }
 }

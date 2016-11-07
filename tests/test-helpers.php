@@ -9,6 +9,8 @@
  * Construction plan test case.
  */
 
+require_once dirname(__DIR__) . '/lib/WPStarter/Helpers.php';
+
 use WPStarter\TestCase;
 use function WPStarter\Helpers\extractNestedDataFromArray;
 

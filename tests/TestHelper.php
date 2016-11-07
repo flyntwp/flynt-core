@@ -49,7 +49,11 @@ class TestHelper {
     ->andReturn($return);
   }
 
-  public static function setConfigPath($configName) {
+  public static function getConfigPath($configName) {
     return __DIR__ . "/assets/{$configName}";
+  }
+
+  public static function getModulesPath() {
+    return __DIR__ . '/assets/src/';
   }
 }

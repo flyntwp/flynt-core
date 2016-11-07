@@ -5,13 +5,24 @@ namespace WPStarter;
 use Exception;
 
 class ConstructionPlan {
-  public static function fromConfig($config, $parentData = []) {
+  private static $moduleList = [];
+
+  public static function fromConfig($config, $moduleList) {
+    self::$moduleList = $moduleList;
+    return self::fromConfigRecursive($config);
+  }
+
+  protected static function fromConfigRecursive($config, $parentData = []) {
     // Check configuration for errors
     if(!is_array($config)) {
       throw new Exception('Config needs to be an array! ' . gettype($config) . ' given.');
     }
-    if (!array_key_exists('name', $config)) {
-      throw new Exception('No Module specified.');
+    if(!array_key_exists('name', $config)) {
+      throw new Exception('No Module specified!');
+    }
+    // check if this module is registered
+    if(!array_key_exists($config['name'], self::$moduleList)) {
+      throw new Exception("Module {$config['name']} is not registered!");
     }
 
     // add data to module
@@ -26,7 +37,7 @@ class ConstructionPlan {
     return self::cleanModule($config);
   }
 
-  public static function fromConfigFile($configName) {
+  public static function fromConfigFile($configName, $moduleList) {
     $configPath = apply_filters('WPStarter/configPath', $configName);
     if (!is_file($configPath)) {
       throw new Exception('Config file not found: ' . $configPath);
@@ -35,7 +46,7 @@ class ConstructionPlan {
     if (is_null($config)) {
       $config = json_decode(file_get_contents($configPath), true);
     }
-    return self::fromConfig($config);
+    return self::fromConfig($config, $moduleList);
   }
 
   protected static function applyDataFilter($config) {
@@ -74,7 +85,7 @@ class ConstructionPlan {
   protected static function mapAreaModules($modules, $config, $parentData) {
     return array_map(function($module) use ($config, $parentData) {
       $data = empty($config['data']) ? $parentData : $config['data'];
-      return self::fromConfig($module, $data);
+      return self::fromConfigRecursive($module, $data);
     }, $modules);
   }
 
