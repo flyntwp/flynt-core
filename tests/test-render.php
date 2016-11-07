@@ -9,6 +9,8 @@
  * Construction plan test case.
  */
 
+require_once dirname(__DIR__) . '/lib/WPStarter/Render.php';
+
 use WPStarter\TestCase;
 use WPStarter\Render;
 use Brain\Monkey\WP\Filters;

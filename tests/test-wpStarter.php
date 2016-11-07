@@ -10,6 +10,8 @@
  * Construction plan test case.
  */
 
+require_once dirname(__DIR__) . '/lib/WPStarter/WPStarter.php';
+
 use WPStarter\TestCase;
 use WPStarter\WPStarter;
 use Brain\Monkey\WP\Filters;
@@ -75,33 +77,68 @@ class WPStarterTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   public function testEchoesHtmlFromConfiguration() {
-    $this->expectOutputString("<div>SingleModule result</div>\n");
-    WPStarter::echoHtmlFromConfig([
+    $config = [
       'name' => 'SingleModule',
       'customData' => [
         'test' => 'result'
       ]
-    ]);
+    ];
+
+    $constructionPlan = [
+      'name' => 'SingleModule',
+      'data' => [
+        'test' => 'result'
+      ]
+    ];
+
+    Mockery::mock('alias:WPStarter\ConstructionPlan')
+    ->shouldReceive('fromConfig')
+    ->once()
+    ->with($config, [])
+    ->andReturn($constructionPlan);
+
+    Mockery::mock('alias:WPStarter\Render')
+    ->shouldReceive('fromConstructionPlan')
+    ->once()
+    ->with($constructionPlan)
+    ->andReturn('test');
+
+    $this->expectOutputString('test');
+    WPStarter::echoHtmlFromConfig($config);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   public function testEchoesHtmlFromConfigurationFile() {
-    $this->expectOutputString("<div>SingleModule result</div>\n");
-    WPStarter::echoHtmlFromConfigFile('exampleConfigWithSingleModule.json');
-  }
+    $configFileName = 'exampleConfigWithSingleModule.json';
 
-  public function testGetsHtmlFromConfiguration() {
-    $html = WPStarter::getHtmlFromConfig([
+    $constructionPlan = [
       'name' => 'SingleModule',
-      'customData' => [
+      'data' => [
         'test' => 'result'
       ]
-    ]);
-    $this->assertEquals($html, "<div>SingleModule result</div>\n");
-  }
+    ];
 
-  public function testGetsHtmlFromConfigurationFile() {
-    $html = WPStarter::getHtmlFromConfigFile('exampleConfigWithSingleModule.json');
-    $this->assertEquals($html, "<div>SingleModule result</div>\n");
+    Mockery::mock('alias:WPStarter\ConstructionPlan')
+    ->shouldReceive('fromConfigFile')
+    ->once()
+    ->with($configFileName, [])
+    ->andReturn($constructionPlan);
+
+    Mockery::mock('alias:WPStarter\Render')
+    ->shouldReceive('fromConstructionPlan')
+    ->once()
+    ->with($constructionPlan)
+    ->andReturn('test');
+
+    $this->expectOutputString('test');
+    WPStarter::echoHtmlFromConfigFile($configFileName);
   }
 }
