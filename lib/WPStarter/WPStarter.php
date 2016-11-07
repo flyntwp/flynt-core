@@ -35,8 +35,7 @@ class WPStarter {
 
     // register module / require functions.php
     if(is_null($modulePath)) {
-      // TODO add get_template_directory() . '/Modules' as default path
-      $modulePath = apply_filters('WPStarter/defaultModulesPath', '') . $moduleName;
+      $modulePath = apply_filters('WPStarter/modulesPath', get_template_directory() . '/Modules/') . $moduleName;
     }
 
     if(!is_dir($modulePath)) {

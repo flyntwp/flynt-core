@@ -16,16 +16,20 @@ use WPStarter\TestCase;
 use WPStarter\WPStarter;
 use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
+use Brain\Monkey\Functions;
 
 class WPStarterTest extends TestCase {
   protected function setUp() {
     parent::setUp();
 
     // reset private static modules array in WPStarter
-    $reflectedClass = new \ReflectionClass(WPStarter::class);
+    $reflectedClass = new ReflectionClass(WPStarter::class);
     $reflectedProperty = $reflectedClass->getProperty('modules');
     $reflectedProperty->setAccessible(true);
     $reflectedProperty = $reflectedProperty->setValue([]);
+
+    Functions::expect('get_template_directory')
+    ->andReturnUsing(['TestHelper', 'getModulesPath']);
   }
 
   protected function tearDown() {

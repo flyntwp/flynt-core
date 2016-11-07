@@ -23,7 +23,7 @@ class Render {
     $output = apply_filters("WPStarter/renderModule?name={$moduleName}", $output, $data);
 
     if (empty($output)) {
-      $filePath = apply_filters('WPStarter/defaultModulesPath', '') . "{$moduleName}/index.php";
+      $filePath = apply_filters('WPStarter/modulesPath', '') . "{$moduleName}/index.php";
       return self::renderFile($data, $areaHtml, $filePath);
     }
     return $output;

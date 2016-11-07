@@ -26,7 +26,7 @@ class RenderTest extends TestCase {
   }
 
   function testThrowsErrorWhenModuleFileDoesntExist() {
-    Filters::expectApplied('WPStarter/defaultModulesPath')
+    Filters::expectApplied('WPStarter/modulesPath')
     ->andReturn('');
 
     $this->expectException(Exception::class);
@@ -83,7 +83,7 @@ class RenderTest extends TestCase {
 
   function testAppliesCustomHtmlHook() {
     // disable template path, which we don't use here
-    Filters::expectApplied('WPStarter/defaultModulesPath')
+    Filters::expectApplied('WPStarter/modulesPath')
     ->andReturn('');
 
     // test whether custom html can be used
