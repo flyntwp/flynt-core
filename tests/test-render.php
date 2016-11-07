@@ -60,7 +60,7 @@ class RenderTest extends TestCase {
     ];
 
     // check if filter ran exactly twice
-    Filters::expectApplied('WPStarter/Render/renderModule')
+    Filters::expectApplied('WPStarter/renderModule')
     ->times(2);
 
     $cp = [
@@ -96,7 +96,7 @@ class RenderTest extends TestCase {
 
     $shouldBeHtml = "<div>{$moduleName} After Filter Hook</div>\n";
 
-    Filters::expectApplied('WPStarter/Render/renderModule')
+    Filters::expectApplied('WPStarter/renderModule')
     ->once()
     ->with('', $moduleData)
     ->andReturn($shouldBeHtml);
@@ -130,7 +130,7 @@ class RenderTest extends TestCase {
     $shouldBeHtml = "<div>{$parentModuleName} result" . $shouldBeChildOutput . "</div>\n";
 
     // Specific Filters renderModule?name=SingleModule for example
-    Filters::expectApplied('WPStarter/Render/renderModule?name=' . $childModuleName)
+    Filters::expectApplied('WPStarter/renderModule?name=' . $childModuleName)
     ->once()
     ->with('', $moduleData)
     ->andReturn($shouldBeChildOutput);

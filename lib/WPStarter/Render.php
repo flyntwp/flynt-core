@@ -19,8 +19,8 @@ class Render {
     $data = $constructionPlan['data'];
     $moduleName = $constructionPlan['name'];
 
-    $output = apply_filters('WPStarter/Render/renderModule', '', $data);
-    $output = apply_filters("WPStarter/Render/renderModule?name={$moduleName}", $output, $data);
+    $output = apply_filters('WPStarter/renderModule', '', $data);
+    $output = apply_filters("WPStarter/renderModule?name={$moduleName}", $output, $data);
 
     if (empty($output)) {
       $filePath = apply_filters('WPStarter/defaultModulesPath', '') . "{$moduleName}/index.php";
