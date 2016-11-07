@@ -21,12 +21,12 @@ class RendererTest extends TestCase {
     ->andReturn(__DIR__ . '/assets/src/');
   }
 
-  function testEmptyConstructionPlan() {
+  function testThrowsErrorWhenConstructionPlanIsEmpty() {
     $this->expectException(Exception::class);
     $cp = Renderer::fromConstructionPlan([]);
   }
 
-  function testFileNotFoundError() {
+  function testThrowsErrorWhenModuleFileDoesntExist() {
     Filters::expectApplied('WPStarter/defaultModulesPath')
     ->andReturn('');
 
@@ -38,7 +38,7 @@ class RendererTest extends TestCase {
     ]);
   }
 
-  function testSingleModule() {
+  function testRendersSingleModuleCorrectly() {
     $moduleName = 'SingleModule';
     $moduleData = [
       'test' => 'result'
@@ -53,7 +53,7 @@ class RendererTest extends TestCase {
     $this->assertEquals($html, "<div>{$moduleName} result</div>\n");
   }
 
-  function testNestedModules() {
+  function testRendersNestedModulesCorrectly() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
     $moduleData = [
@@ -82,7 +82,7 @@ class RendererTest extends TestCase {
     $this->assertEquals($html, "<div>{$parentModuleName} result<div>{$childModuleName} result</div>\n</div>\n");
   }
 
-  function testCustomHtmlHook() {
+  function testAppliesCustomHtmlHook() {
     // disable template path, which we don't use here
     Filters::expectApplied('WPStarter/defaultModulesPath')
     ->andReturn('');
@@ -106,7 +106,7 @@ class RendererTest extends TestCase {
     $this->assertEquals($html, $shouldBeHtml);
   }
 
-  function testCustomHtmlHookSingleModule() {
+  function testAppliesCustomHtmlHookToANestedModule() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
     $moduleData = [
