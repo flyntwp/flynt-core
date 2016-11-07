@@ -41,6 +41,9 @@ class WPStarter {
       throw new Exception("Register Module: Folder {$modulePath} not found!");
     }
 
+    do_action('WPStarter/registerModule', $modulePath);
+    do_action("WPStarter/registerModule?name={$moduleName}", $modulePath);
+
     $filePath = $modulePath . '/functions.php';
     if(file_exists($filePath)) {
       // require_once breaks the tests and is also unnecessary because of the validation above

@@ -14,6 +14,7 @@ require_once dirname(__DIR__) . '/lib/WPStarter/WPStarter.php';
 
 use WPStarter\TestCase;
 use WPStarter\WPStarter;
+use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
 
 class WPStarterTest extends TestCase {
@@ -58,6 +59,19 @@ class WPStarterTest extends TestCase {
     WPStarter::registerModule($moduleName);
 
     $this->expectException(Exception::class);
+    WPStarter::registerModule($moduleName);
+  }
+
+  public function testDoesRegisterModuleAction() {
+    $moduleName = 'SingleModule';
+    $modulePath = TestHelper::getModulesPath() . $moduleName;
+
+    Actions::expectFired('WPStarter/registerModule')
+    ->with($modulePath);
+
+    Actions::expectFired("WPStarter/registerModule?name={$moduleName}")
+    ->with($modulePath);
+
     WPStarter::registerModule($moduleName);
   }
 
