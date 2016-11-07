@@ -48,4 +48,8 @@ class TestHelper {
     ->withArgs($filterArgs)
     ->andReturn($return);
   }
+
+  public static function setConfigPath($configName) {
+    return __DIR__ . "/assets/{$configName}";
+  }
 }
