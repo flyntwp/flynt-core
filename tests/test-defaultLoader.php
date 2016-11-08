@@ -132,4 +132,32 @@ class DefaultLoaderTest extends TestCase {
 
     $this->assertEquals($output, $expectedHTML);
   }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testRendersNestedModulesCorrectly() {
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
+    $moduleData = [
+      'test' => 'result'
+    ];
+
+    Mockery::mock('alias:WPStarter\WPStarter')
+    ->shouldReceive('getModulePath')
+    ->times(2)
+    ->with(Mockery::type('string'))
+    ->andReturnUsing(['TestHelper', 'getModulePath']);
+
+    Functions::expect('WPStarter\Helpers\extractNestedDataFromArray')
+    ->andReturn('result');
+
+    $areaHtml = [
+      'area51' => DefaultLoader::addFilterRenderModule('', $childModuleName, $moduleData, [])
+    ];
+    $output = DefaultLoader::addFilterRenderModule('', $parentModuleName, $moduleData, $areaHtml);
+
+    $this->assertEquals($output, "<div>{$parentModuleName} result<div>{$childModuleName} result</div>\n</div>\n");
+  }
 }
