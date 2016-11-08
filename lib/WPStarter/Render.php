@@ -30,6 +30,10 @@ class Render {
   }
 
   protected static function renderFile($moduleData, $areaHtml, $filePath) {
+    if(!file_exists($filePath)) {
+      throw new Exception("Template not found: {$filePath}");
+    }
+
     $area = function($areaName) use ($areaHtml){
       if (array_key_exists($areaName, $areaHtml)) {
         return $areaHtml[$areaName];
@@ -40,10 +44,6 @@ class Render {
       array_unshift($args, $moduleData);
       return extractNestedDataFromArray($args);
     };
-
-    if(!file_exists($filePath)) {
-      throw new Exception("Template not found: {$filePath}");
-    }
 
     ob_start();
     require $filePath;

@@ -14,16 +14,7 @@ class ConstructionPlan {
 
   protected static function fromConfigRecursive($config, $parentData = []) {
     // Check configuration for errors
-    if(!is_array($config)) {
-      throw new Exception('Config needs to be an array! ' . gettype($config) . ' given.');
-    }
-    if(!array_key_exists('name', $config)) {
-      throw new Exception('No Module specified!');
-    }
-    // check if this module is registered
-    if(!array_key_exists($config['name'], self::$moduleList)) {
-      throw new Exception("Module {$config['name']} is not registered!");
-    }
+    self::validateConfig($config);
 
     // add data to module
     $config['data'] = [];
@@ -37,16 +28,27 @@ class ConstructionPlan {
     return self::cleanModule($config);
   }
 
-  public static function fromConfigFile($configName, $moduleList) {
-    $configPath = apply_filters('WPStarter/configPath', $configName);
-    if (!is_file($configPath)) {
-      throw new Exception('Config file not found: ' . $configPath);
+  public static function fromConfigFile($configFileName, $moduleList) {
+    $configPath = trailingslashit(apply_filters('WPStarter/configPath', null, $configFileName));
+    $configFilePath = $configPath . $configFileName;
+    if (!is_file($configFilePath)) {
+      throw new Exception('Config file not found: ' . $configFilePath);
     }
-    $config = apply_filters('WPStarter/configFileLoader', null, $configPath);
-    if (is_null($config)) {
-      $config = json_decode(file_get_contents($configPath), true);
-    }
+    $config = apply_filters('WPStarter/configFileLoader', null, $configFileName, $configFilePath);
     return self::fromConfig($config, $moduleList);
+  }
+
+  protected static function validateConfig($config) {
+    if(!is_array($config)) {
+      throw new Exception('Config needs to be an array! ' . gettype($config) . ' given.');
+    }
+    if(!array_key_exists('name', $config)) {
+      throw new Exception('No Module specified!');
+    }
+    // check if this module is registered
+    if(!array_key_exists($config['name'], self::$moduleList)) {
+      throw new Exception("Module {$config['name']} is not registered!");
+    }
   }
 
   protected static function applyDataFilter($config) {
