@@ -25,19 +25,11 @@ class RenderTest extends TestCase {
     $cp = Render::fromConstructionPlan([]);
   }
 
-  function testThrowsErrorWhenModuleFileDoesntExist() {
-    Filters::expectApplied('WPStarter/modulesPath')
-    ->andReturn('');
-
-    $this->expectException(Exception::class);
-
-    $cp = Render::fromConstructionPlan([
-      'name' => 'Module',
-      'data' => []
-    ]);
-  }
-
   function testRendersSingleModuleCorrectly() {
+    // TODO do
+    // Filters::expectApplied('WPStarter/renderModule')
+    // ->andReturn('bla');
+
     $moduleName = 'SingleModule';
     $moduleData = [
       'test' => 'result'
