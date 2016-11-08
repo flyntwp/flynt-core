@@ -53,7 +53,6 @@ class ConstructionPlanTest extends TestCase {
     $cp = ConstructionPlan::fromConfig(0, $this->moduleList);
   }
 
-  // TODO add test for default paths?
   function testConfigCanBeLoadedFromFile() {
     $cp = ConstructionPlan::fromConfigFile('exampleConfig.json', $this->moduleList);
     $this->assertEquals($cp, [
@@ -73,13 +72,16 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testThrowsErrorWhenConfigFileDoesntExist() {
+    $fileName = 'exceptionTest.json';
+
     Filters::expectApplied('WPStarter/configPath')
-    ->with('exceptionTest.json')
-    ->andReturn('/not/a/real/file.json');
+    ->once()
+    ->with(TestHelper::getTemplateDirectory() . '/config/', $fileName)
+    ->andReturn('/not/a/real/folder/');
 
     $this->expectException(Exception::class);
 
-    $cp = ConstructionPlan::fromConfigFile('exceptionTest.json', $this->moduleList);
+    $cp = ConstructionPlan::fromConfigFile($fileName, $this->moduleList);
   }
 
   function testThrowsErrorWhenModuleIsNotRegistered() {
@@ -91,7 +93,7 @@ class ConstructionPlanTest extends TestCase {
 
   function testConfigFileLoaderUsesFilterHook() {
     Filters::expectApplied('WPStarter/configFileLoader')
-    ->with(null, TestHelper::getConfigPath('exampleConfig.yml'))
+    ->with(null, TestHelper::getConfigPath() . 'exampleConfig.yml')
     ->once()
     ->andReturn(['name' => 'SingleModule']);
 

@@ -16,7 +16,6 @@ use WPStarter\TestCase;
 use WPStarter\WPStarter;
 use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
-use Brain\Monkey\Functions;
 
 class WPStarterTest extends TestCase {
   protected function setUp() {
@@ -27,9 +26,6 @@ class WPStarterTest extends TestCase {
     $reflectedProperty = $reflectedClass->getProperty('modules');
     $reflectedProperty->setAccessible(true);
     $reflectedProperty = $reflectedProperty->setValue([]);
-
-    Functions::expect('get_template_directory')
-    ->andReturnUsing(['TestHelper', 'getModulesPath']);
   }
 
   protected function tearDown() {

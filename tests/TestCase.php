@@ -5,6 +5,7 @@ namespace WPStarter;
 use PHPUnit\Framework;
 use Brain\Monkey;
 use Brain\Monkey\WP\Filters;
+use Brain\Monkey\Functions;
 
 class TestCase extends Framework\TestCase {
 
@@ -17,6 +18,9 @@ class TestCase extends Framework\TestCase {
 
     Filters::expectApplied('WPStarter/modulesPath')
     ->andReturnUsing(['TestHelper', 'getModulesPath']);
+
+    Functions::expect('get_template_directory')
+    ->andReturnUsing(['TestHelper', 'getTemplateDirectory']);
   }
 
   protected function tearDown() {
