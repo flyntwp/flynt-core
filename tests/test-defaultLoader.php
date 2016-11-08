@@ -123,7 +123,7 @@ class DefaultLoaderTest extends TestCase {
     ->with($moduleName)
     ->andReturn(TestHelper::getModulesPath() . $moduleName . '/index.php');
 
-    Functions::expect('extractNestedDataFromArray')
+    Functions::expect('WPStarter\Helpers\extractNestedDataFromArray')
     ->andReturn('result');
 
     $output = DefaultLoader::addFilterRenderModule('', $moduleName, $moduleData, $areaHtml);

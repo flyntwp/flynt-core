@@ -4,7 +4,7 @@ namespace WPStarter;
 
 use Exception;
 use WPStarter\WPStarter;
-use WPStarter\Helpers\extractNestedDataFromArray;
+use function WPStarter\Helpers\extractNestedDataFromArray;
 
 class DefaultLoader {
   public static function init() {
