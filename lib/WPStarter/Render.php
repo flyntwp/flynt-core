@@ -22,8 +22,6 @@ class Render {
   }
 
   protected static function joinAreaModules($modules) {
-    return join('', array_map(function($module) {
-      return self::fromConstructionPlan($module);
-    }, $modules));
+    return join('', array_map('self::fromConstructionPlan', $modules));
   }
 }
