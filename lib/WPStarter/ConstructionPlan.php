@@ -24,6 +24,8 @@ class ConstructionPlan {
     if(!array_key_exists($config['name'], self::$moduleList)) {
       throw new Exception("Module {$config['name']} is not registered!");
     }
+    // add path to construction plan
+    $config['path'] = self::$moduleList[$config['name']];
 
     // add data to module
     $config['data'] = [];

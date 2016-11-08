@@ -22,8 +22,8 @@ class ConstructionPlanTest extends TestCase {
 
     $this->moduleList = [
       'DynamicModule' => '',
-      'SingleModule' => '',
-      'ModuleWithArea' => '',
+      'SingleModule' => TestHelper::getModulesPath() . 'SingleModule/',
+      'ModuleWithArea' => TestHelper::getModulesPath() . 'ModuleWithArea/',
       'NestedModuleWithArea' => '',
       'ModuleInConfigFile' => '',
       'ChildModuleInConfigFile' => '',
@@ -55,17 +55,22 @@ class ConstructionPlanTest extends TestCase {
 
   // TODO add test for default paths?
   function testConfigCanBeLoadedFromFile() {
+    $parentModuleName = 'ModuleInConfigFile';
+    $childModuleName = 'ChildModuleInConfigFile';
+
     $cp = ConstructionPlan::fromConfigFile('exampleConfig.json', $this->moduleList);
     $this->assertEquals($cp, [
-      'name' => 'ModuleInConfigFile',
+      'name' => $parentModuleName,
       'data' => [
         'test' => 'test'
       ],
+      'path' => $this->moduleList[$parentModuleName],
       'areas' => [
         'area51' => [
           0 => [
-            'name' => 'ChildModuleInConfigFile',
-            'data' => []
+            'name' => $childModuleName,
+            'data' => [],
+            'path' => $this->moduleList[$childModuleName]
           ]
         ]
       ]
@@ -99,11 +104,13 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testModuleWithoutDataIsValid() {
-    $module = TestHelper::getCustomModule('SingleModule', ['name', 'areas']);
+    $moduleName = 'SingleModule';
+    $module = TestHelper::getCustomModule($moduleName, ['name', 'areas']);
     $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
     $this->assertEquals($cp, [
       'name' => 'SingleModule',
-      'data' => []
+      'data' => [],
+      'path' => $this->moduleList[$moduleName]
     ]);
   }
 
@@ -120,7 +127,8 @@ class ConstructionPlanTest extends TestCase {
       'name' => $moduleName,
       'data' => [
         'test' => 'result'
-      ]
+      ],
+      'path' => $this->moduleList[$moduleName]
     ]);
   }
 
@@ -137,7 +145,8 @@ class ConstructionPlanTest extends TestCase {
       'name' => $moduleName,
       'data' => [
         'test' => 'result'
-      ]
+      ],
+      'path' => $this->moduleList[$moduleName]
     ]);
   }
 
@@ -157,7 +166,8 @@ class ConstructionPlanTest extends TestCase {
           'something strange'
         ],
         'duplicate' => 'newValue'
-      ]
+      ],
+      'path' => $this->moduleList[$moduleName]
     ]);
   }
 
@@ -180,7 +190,8 @@ class ConstructionPlanTest extends TestCase {
           'something strange'
         ],
         'duplicate' => 'newValue'
-      ]
+      ],
+      'path' => $this->moduleList[$moduleName]
     ]);
   }
 
@@ -204,6 +215,7 @@ class ConstructionPlanTest extends TestCase {
     $this->assertEquals($cp, [
       'name' => $parentModuleName,
       'data' => [],
+      'path' => $this->moduleList[$parentModuleName],
       'areas' => [
         'Area51' => [
           [
@@ -216,7 +228,8 @@ class ConstructionPlanTest extends TestCase {
                 'something strange'
               ],
               'duplicate' => 'newValue'
-            ]
+            ],
+            'path' => $this->moduleList[$childModuleName]
           ]
         ]
       ]
@@ -245,11 +258,13 @@ class ConstructionPlanTest extends TestCase {
       'data' => [
         'test' => 'result',
       ],
+      'path' => $this->moduleList[$parentModuleName],
       'areas' => [
         'area51' => [
           [
             'name' => $childModuleName,
-            'data' => []
+            'data' => [],
+            'path' => $this->moduleList[$childModuleName]
           ]
         ]
       ]
@@ -291,26 +306,31 @@ class ConstructionPlanTest extends TestCase {
       'data' => [
         'test' => 'result',
       ],
+      'path' => $this->moduleList[$parentModuleName],
       'areas' => [
         'area51' => [
           [
             'name' => $childModuleName,
             'data' => [],
+            'path' => $this->moduleList[$childModuleName],
             'areas' => [
               'district9' => [
                 [
                   'name' => $grandChildModuleNameA,
-                  'data' => []
+                  'data' => [],
+                  'path' => $this->moduleList[$grandChildModuleNameA]
                 ]
               ],
               'alderaan' => [
                 [
                   'name' => $grandChildModuleNameB,
-                  'data' => []
+                  'data' => [],
+                  'path' => $this->moduleList[$grandChildModuleNameB]
                 ],
                 [
                   'name' => $grandChildModuleNameC,
-                  'data' => []
+                  'data' => [],
+                  'path' => $this->moduleList[$grandChildModuleNameC]
                 ]
               ]
             ]
@@ -342,11 +362,13 @@ class ConstructionPlanTest extends TestCase {
       'data' => [
         'test' => 'result'
       ],
+      'path' => $this->moduleList[$moduleName],
       'areas' => [
         'area51' => [
           [
             'name' => $dynamicModuleName,
-            'data' => []
+            'data' => [],
+            'path' => $this->moduleList[$dynamicModuleName]
           ]
         ]
       ]
@@ -386,21 +408,25 @@ class ConstructionPlanTest extends TestCase {
       'data' => [
         'test' => 'result'
       ],
+      'path' => $this->moduleList[$parentModuleName],
       'areas' => [
         'parentArea' => [
           [
             'name' => $childModuleName,
             'data' => [],
+            'path' => $this->moduleList[$childModuleName],
             'areas' => [
               'childArea' => [
                 [
                   'name' => $childSubmoduleName,
                   'data' => [],
+                  'path' => $this->moduleList[$childSubmoduleName],
                   'areas' => [
                     'area51' => [
                       [
                         'name' => $dynamicModuleName,
-                        'data' => []
+                        'data' => [],
+                        'path' => $this->moduleList[$dynamicModuleName]
                       ]
                     ]
                   ]

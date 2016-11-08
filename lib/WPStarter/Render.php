@@ -23,6 +23,7 @@ class Render {
     $output = apply_filters("WPStarter/renderModule?name={$moduleName}", $output, $data);
 
     if (empty($output)) {
+      // TODO should this be removed and module list be passed through the config?
       $filePath = apply_filters('WPStarter/modulesPath', '') . "{$moduleName}/index.php";
       return self::renderFile($data, $areaHtml, $filePath);
     }
