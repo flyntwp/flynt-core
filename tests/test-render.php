@@ -25,15 +25,22 @@ class RenderTest extends TestCase {
     $cp = Render::fromConstructionPlan([]);
   }
 
-  function testThrowsErrorWhenModuleFileDoesntExist() {
-    Filters::expectApplied('WPStarter/modulesPath')
-    ->andReturn('');
-
+  function testThrowsErrorWhenModulePathDoesntExist() {
     $this->expectException(Exception::class);
 
     $cp = Render::fromConstructionPlan([
       'name' => 'Module',
       'data' => []
+    ]);
+  }
+
+  function testThrowsErrorWhenModuleFileDoesntExist() {
+    $this->expectException(Exception::class);
+
+    $cp = Render::fromConstructionPlan([
+      'name' => 'Module',
+      'data' => [],
+      'path' => '/not/a/real/module'
     ]);
   }
 
@@ -45,7 +52,8 @@ class RenderTest extends TestCase {
 
     $cp = [
       'name' => $moduleName,
-      'data' => $moduleData
+      'data' => $moduleData,
+      'path' => TestHelper::getModulesPath() . $moduleName
     ];
 
     $html = Render::fromConstructionPlan($cp);
@@ -66,11 +74,13 @@ class RenderTest extends TestCase {
     $cp = [
       'name' => $parentModuleName,
       'data' => $moduleData,
+      'path' => TestHelper::getModulesPath() . $parentModuleName,
       'areas' => [
         'area51' => [
           [
             'name' => $childModuleName,
-            'data' => $moduleData
+            'data' => $moduleData,
+            'path' => TestHelper::getModulesPath() . $childModuleName
           ]
         ]
       ]
@@ -91,7 +101,8 @@ class RenderTest extends TestCase {
     $moduleData = [];
     $cp = [
       'name' => $moduleName,
-      'data' => $moduleData
+      'data' => $moduleData,
+      'path' => TestHelper::getModulesPath() . $moduleName
     ];
 
     $shouldBeHtml = "<div>{$moduleName} After Filter Hook</div>\n";
@@ -116,11 +127,13 @@ class RenderTest extends TestCase {
     $cp = [
       'name' => $parentModuleName,
       'data' => $moduleData,
+      'path' => TestHelper::getModulesPath() . $parentModuleName,
       'areas' => [
         'area51' => [
           [
             'name' => $childModuleName,
-            'data' => $moduleData
+            'data' => $moduleData,
+            'path' => TestHelper::getModulesPath() . $childModuleName
           ]
         ]
       ]

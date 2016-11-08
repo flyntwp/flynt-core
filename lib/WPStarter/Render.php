@@ -10,6 +10,9 @@ class Render {
     if (empty($constructionPlan)) {
       throw new Exception('Empty Construction Plan!');
     }
+    if(!array_key_exists('path', $constructionPlan)) {
+      throw new Exception('Invalid Construction Plan: \'path\' doesn\'t exist!');
+    }
     $areaHtml = [];
     if(array_key_exists('areas', $constructionPlan)) {
       $areaHtml = array_map(function($areaModules) {
@@ -23,7 +26,7 @@ class Render {
     $output = apply_filters("WPStarter/renderModule?name={$moduleName}", $output, $data);
 
     if (empty($output)) {
-      $filePath = apply_filters('WPStarter/modulesPath', '') . "{$moduleName}/index.php";
+      $filePath = $constructionPlan['path'] . "/index.php";
       return self::renderFile($data, $areaHtml, $filePath);
     }
     return $output;
