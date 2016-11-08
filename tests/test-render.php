@@ -1,12 +1,12 @@
 <?php
 /**
- * Class ConstructionPlanTest
+ * Class RenderTest
  *
  * @package Wp_Starter_Plugin
  */
 
 /**
- * Construction plan test case.
+ * Render test case.
  */
 
 require_once dirname(__DIR__) . '/lib/WPStarter/Render.php';
@@ -25,72 +25,19 @@ class RenderTest extends TestCase {
     $cp = Render::fromConstructionPlan([]);
   }
 
-  function testRendersSingleModuleCorrectly() {
-    // TODO do
-    // Filters::expectApplied('WPStarter/renderModule')
-    // ->andReturn('bla');
-
-    $moduleName = 'SingleModule';
-    $moduleData = [
-      'test' => 'result'
-    ];
-
-    $cp = [
-      'name' => $moduleName,
-      'data' => $moduleData
-    ];
-
-    $html = Render::fromConstructionPlan($cp);
-    $this->assertEquals($html, "<div>{$moduleName} result</div>\n");
-  }
-
-  function testRendersNestedModulesCorrectly() {
-    $parentModuleName = 'ModuleWithArea';
-    $childModuleName = 'SingleModule';
-    $moduleData = [
-      'test' => 'result'
-    ];
-
-    // check if filter ran exactly twice
-    Filters::expectApplied('WPStarter/renderModule')
-    ->times(2);
-
-    $cp = [
-      'name' => $parentModuleName,
-      'data' => $moduleData,
-      'areas' => [
-        'area51' => [
-          [
-            'name' => $childModuleName,
-            'data' => $moduleData
-          ]
-        ]
-      ]
-    ];
-
-    $html = Render::fromConstructionPlan($cp);
-
-    $this->assertEquals($html, "<div>{$parentModuleName} result<div>{$childModuleName} result</div>\n</div>\n");
-  }
-
   function testAppliesCustomHtmlHook() {
-    // disable template path, which we don't use here
-    Filters::expectApplied('WPStarter/modulesPath')
-    ->andReturn('');
-
     // test whether custom html can be used
     $moduleName = 'SingleModule';
-    $moduleData = [];
     $cp = [
       'name' => $moduleName,
-      'data' => $moduleData
+      'data' => []
     ];
 
     $shouldBeHtml = "<div>{$moduleName} After Filter Hook</div>\n";
 
     Filters::expectApplied('WPStarter/renderModule')
     ->once()
-    ->with('', $moduleData)
+    ->with('', Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
     ->andReturn($shouldBeHtml);
 
     $html = Render::fromConstructionPlan($cp);
@@ -100,19 +47,16 @@ class RenderTest extends TestCase {
   function testAppliesCustomHtmlHookToANestedModule() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
-    $moduleData = [
-      'test' => 'result'
-    ];
 
     // test whether custom html can be used
     $cp = [
       'name' => $parentModuleName,
-      'data' => $moduleData,
+      'data' => [],
       'areas' => [
         'area51' => [
           [
             'name' => $childModuleName,
-            'data' => $moduleData
+            'data' => []
           ]
         ]
       ]
@@ -121,10 +65,15 @@ class RenderTest extends TestCase {
     $shouldBeChildOutput = "<div>{$childModuleName} After Filter Hook</div>\n";
     $shouldBeHtml = "<div>{$parentModuleName} result" . $shouldBeChildOutput . "</div>\n";
 
+    Filters::expectApplied('WPStarter/renderModule')
+    ->times(2)
+    ->with('', Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
+    ->andReturn($shouldBeHtml);
+
     // Specific Filters renderModule?name=SingleModule for example
     Filters::expectApplied('WPStarter/renderModule?name=' . $childModuleName)
     ->once()
-    ->with('', $moduleData)
+    ->with(Mockery::type('string'), Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
     ->andReturn($shouldBeChildOutput);
 
     $html = Render::fromConstructionPlan($cp);
