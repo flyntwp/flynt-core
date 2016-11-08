@@ -28,15 +28,13 @@ class ConstructionPlan {
     return self::cleanModule($config);
   }
 
-  public static function fromConfigFile($configFile, $moduleList) {
-    $configPath = apply_filters('WPStarter/configPath', get_template_directory() . '/config/', $configFile) . $configFile;
-    if (!is_file($configPath)) {
-      throw new Exception('Config file not found: ' . $configPath);
+  public static function fromConfigFile($configFileName, $moduleList) {
+    $configPath = trailingslashit(apply_filters('WPStarter/configPath', null, $configFileName));
+    $configFilePath = $configPath . $configFileName;
+    if (!is_file($configFilePath)) {
+      throw new Exception('Config file not found: ' . $configFilePath);
     }
-    $config = apply_filters('WPStarter/configFileLoader', null, $configPath);
-    if (is_null($config)) {
-      $config = json_decode(file_get_contents($configPath), true);
-    }
+    $config = apply_filters('WPStarter/configFileLoader', null, $configFileName, $configFilePath);
     return self::fromConfig($config, $moduleList);
   }
 

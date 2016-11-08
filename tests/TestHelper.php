@@ -60,4 +60,8 @@ class TestHelper {
   public static function getTemplateDirectory() {
     return __DIR__ . "/assets";
   }
+
+  public static function trailingSlashIt($string) {
+    return rtrim($string, '/\\') . '/';
+  }
 }

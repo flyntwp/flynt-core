@@ -54,20 +54,20 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testConfigCanBeLoadedFromFile() {
-    $cp = ConstructionPlan::fromConfigFile('exampleConfig.json', $this->moduleList);
+    $fileName = 'exampleConfig.json';
+    $filePath = TestHelper::getConfigPath() . $fileName;
+
+    Filters::expectApplied('WPStarter/configFileLoader')
+    ->once()
+    ->with(null, $fileName, $filePath)
+    ->andReturn([
+      'name' => 'SingleModule'
+    ]);
+
+    $cp = ConstructionPlan::fromConfigFile($fileName, $this->moduleList);
     $this->assertEquals($cp, [
-      'name' => 'ModuleInConfigFile',
-      'data' => [
-        'test' => 'test'
-      ],
-      'areas' => [
-        'area51' => [
-          0 => [
-            'name' => 'ChildModuleInConfigFile',
-            'data' => []
-          ]
-        ]
-      ]
+      'name' => 'SingleModule',
+      'data' => []
     ]);
   }
 
@@ -76,7 +76,7 @@ class ConstructionPlanTest extends TestCase {
 
     Filters::expectApplied('WPStarter/configPath')
     ->once()
-    ->with(TestHelper::getTemplateDirectory() . '/config/', $fileName)
+    ->with(null, $fileName)
     ->andReturn('/not/a/real/folder/');
 
     $this->expectException(Exception::class);
@@ -89,15 +89,6 @@ class ConstructionPlanTest extends TestCase {
     ConstructionPlan::fromConfig([
       'name' => 'ThisModuleIsNotRegistered'
     ], $this->moduleList);
-  }
-
-  function testConfigFileLoaderUsesFilterHook() {
-    Filters::expectApplied('WPStarter/configFileLoader')
-    ->with(null, TestHelper::getConfigPath() . 'exampleConfig.yml')
-    ->once()
-    ->andReturn(['name' => 'SingleModule']);
-
-    $cp = ConstructionPlan::fromConfigFile('exampleConfig.yml', $this->moduleList);
   }
 
   function testModuleWithoutDataIsValid() {

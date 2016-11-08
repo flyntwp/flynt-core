@@ -21,6 +21,9 @@ class TestCase extends Framework\TestCase {
 
     Functions::expect('get_template_directory')
     ->andReturnUsing(['TestHelper', 'getTemplateDirectory']);
+
+    Functions::expect('trailingslashit')
+    ->andReturnUsing(['TestHelper', 'trailingSlashIt']);
   }
 
   protected function tearDown() {
