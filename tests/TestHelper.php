@@ -49,6 +49,10 @@ class TestHelper {
     ->andReturn($return);
   }
 
+  public static function getModulePath($moduleName) {
+    return self::getModulesPath() . $moduleName . '/index.php';
+  }
+
   public static function getConfigPath() {
     return __DIR__ . "/assets/";
   }

@@ -1,12 +1,12 @@
 <?php
 /**
- * Class ConstructionPlanTest
+ * Class HelpersTest
  *
  * @package Wp_Starter_Plugin
  */
 
 /**
- * Construction plan test case.
+ * Helpers test case.
  */
 
 require_once dirname(__DIR__) . '/lib/WPStarter/Helpers.php';
