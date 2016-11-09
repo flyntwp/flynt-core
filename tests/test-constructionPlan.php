@@ -33,40 +33,46 @@ class ConstructionPlanTest extends TestCase {
     ];
   }
 
-  function testThrowErrorOnEmptyConfig() {
-    $this->expectException(LengthException::class);
+  function testShowWarningOnEmptyConfig() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig([], $this->moduleList);
+    $this->assertEquals($cp, []);
   }
 
-  function testThrowErrorOnMissingNameInConfig() {
-    $this->expectException(InvalidArgumentException::class);
+  function testShowWarningOnMissingNameInConfig() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig([
       'data' => [
         'whatever'
       ]
     ], $this->moduleList);
+    $this->assertEquals($cp, []);
   }
 
-  function testThrowErrorIfConfigIsAnObject() {
-    $this->expectException(InvalidArgumentException::class);
+  function testShowWarningIfConfigIsAnObject() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
+    $this->assertEquals($cp, []);
   }
 
-  function testThrowErrorIfConfigIsAString() {
-    $this->expectException(InvalidArgumentException::class);
+  function testShowWarningIfConfigIsAString() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig('string', $this->moduleList);
+    $this->assertEquals($cp, []);
   }
 
-  function testThrowErrorIfConfigIsANumber() {
-    $this->expectException(InvalidArgumentException::class);
+  function testShowWarningIfConfigIsANumber() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig(0, $this->moduleList);
+    $this->assertEquals($cp, []);
   }
 
-  function testThrowsErrorWhenModuleIsNotRegistered() {
-    $this->expectException(LogicException::class);
+  function testShowWarningWhenModuleIsNotRegistered() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     ConstructionPlan::fromConfig([
       'name' => 'ThisModuleIsNotRegistered'
     ], $this->moduleList);
+    $this->assertEquals($cp, []);
   }
 
   function testConfigCanBeLoadedFromFile() {
@@ -87,7 +93,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testThrowsErrorWhenConfigFileDoesntExist() {
+  function testShowWarningWhenConfigFileDoesntExist() {
     $fileName = 'exceptionTest.json';
 
     Filters::expectApplied('WPStarter/configPath')
@@ -95,9 +101,11 @@ class ConstructionPlanTest extends TestCase {
     ->with(null, $fileName)
     ->andReturn('/not/a/real/folder/');
 
-    $this->expectException(Exception::class);
+    $this->expectException('PHPUnit_Framework_Error_Warning');
 
     $cp = ConstructionPlan::fromConfigFile($fileName, $this->moduleList);
+
+    $this->assertEquals($cp, []);
   }
 
   function testModuleWithoutDataIsValid() {
