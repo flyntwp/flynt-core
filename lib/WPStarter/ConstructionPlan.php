@@ -11,7 +11,6 @@ class ConstructionPlan {
   }
 
   protected static function fromConfigRecursive($config, $parentData = []) {
-
     // Check configuration for errors
     if (false === self::validateConfig($config)) {
       return [];
