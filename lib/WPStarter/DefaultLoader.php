@@ -2,7 +2,6 @@
 
 namespace WPStarter;
 
-use Exception;
 use WPStarter\WPStarter;
 use function WPStarter\Helpers\extractNestedDataFromArray;
 
@@ -12,7 +11,7 @@ class DefaultLoader {
     add_filter('WPStarter/configFileLoader', ['WPStarter\DefaultLoader', 'addFilterConfigFileLoader'], 999, 3);
     add_filter('WPStarter/renderModule', ['WPStarter\DefaultLoader', 'addFilterRenderModule'], 999, 3);
     add_filter('WPStarter/modulePath', ['WPStarter\DefaultLoader', 'addFilterModulePath'], 999, 2);
-    add_action('WPStarter/renderModule', ['WPStarter\DefaultLoader', 'addActionRenderModule']);
+    add_action('WPStarter/registerModule', ['WPStarter\DefaultLoader', 'addActionRegisterModule']);
   }
 
   public static function addFilterConfigPath($configPath) {
@@ -45,9 +44,10 @@ class DefaultLoader {
   }
 
   // this action needs to be removed by the user if they want to overwrite this functionality
-  public static function addActionRenderModule($modulePath) {
+  public static function addActionRegisterModule($modulePath) {
     if(!is_dir($modulePath)) {
-      trigger_error("Render Module: Folder {$modulePath} not found!", E_USER_WARNING);
+      trigger_error("Register Module: Folder {$modulePath} not found!", E_USER_WARNING);
+      return;
     }
     $filePath = $modulePath . '/functions.php';
     if(file_exists($filePath)) {
@@ -59,6 +59,7 @@ class DefaultLoader {
   protected static function renderFile($moduleData, $areaHtml, $filePath) {
     if(!is_file($filePath)) {
       trigger_error("Template not found: {$filePath}", E_USER_WARNING);
+      return '';
     }
 
     $area = function($areaName) use ($areaHtml){
