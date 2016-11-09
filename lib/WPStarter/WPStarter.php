@@ -34,22 +34,10 @@ class WPStarter {
     }
 
     // register module / require functions.php
-    if(is_null($modulePath)) {
-      $modulePath = apply_filters('WPStarter/modulesPath', get_template_directory() . '/Modules/') . $moduleName;
-    }
+    $modulePath = trailingslashit(apply_filters('WPStarter/modulePath', $modulePath, $moduleName));
 
-    if(!is_dir($modulePath)) {
-      throw new Exception("Register Module: Folder {$modulePath} not found!");
-    }
-
-    do_action('WPStarter/registerModule', $modulePath);
+    do_action('WPStarter/registerModule', $modulePath, $moduleName);
     do_action("WPStarter/registerModule?name={$moduleName}", $modulePath);
-
-    $filePath = $modulePath . '/functions.php';
-    if(file_exists($filePath)) {
-      // require_once breaks the tests and is also unnecessary because of the validation above
-      require $filePath;
-    }
 
     // add module to internal list (array)
     self::addModuleToList($moduleName, $modulePath);

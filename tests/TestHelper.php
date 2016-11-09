@@ -49,8 +49,8 @@ class TestHelper {
     ->andReturn($return);
   }
 
-  public static function getModulePath($moduleName) {
-    return self::getModulesPath() . $moduleName . '/index.php';
+  public static function getModuleIndexPath($moduleName) {
+    return self::getModulePath(null, $moduleName) . '/index.php';
   }
 
   public static function getConfigPath() {
@@ -59,6 +59,13 @@ class TestHelper {
 
   public static function getModulesPath() {
     return __DIR__ . '/assets/src/';
+  }
+
+  public static function getModulePath($modulePath, $moduleName) {
+    if(is_null($modulePath)) {
+      return __DIR__ . '/assets/src/' . $moduleName;
+    }
+    return $modulePath;
   }
 
   public static function getTemplateDirectory() {
