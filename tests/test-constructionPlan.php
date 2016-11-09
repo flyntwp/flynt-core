@@ -34,23 +34,39 @@ class ConstructionPlanTest extends TestCase {
   }
 
   function testThrowErrorOnEmptyConfig() {
-    $this->expectException(Exception::class);
+    $this->expectException(LengthException::class);
     $cp = ConstructionPlan::fromConfig([], $this->moduleList);
   }
 
+  function testThrowErrorOnMissingNameInConfig() {
+    $this->expectException(InvalidArgumentException::class);
+    $cp = ConstructionPlan::fromConfig([
+      'data' => [
+        'whatever'
+      ]
+    ], $this->moduleList);
+  }
+
   function testThrowErrorIfConfigIsAnObject() {
-    $this->expectException(Exception::class);
+    $this->expectException(InvalidArgumentException::class);
     $cp = ConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
   }
 
   function testThrowErrorIfConfigIsAString() {
-    $this->expectException(Exception::class);
+    $this->expectException(InvalidArgumentException::class);
     $cp = ConstructionPlan::fromConfig('string', $this->moduleList);
   }
 
   function testThrowErrorIfConfigIsANumber() {
-    $this->expectException(Exception::class);
+    $this->expectException(InvalidArgumentException::class);
     $cp = ConstructionPlan::fromConfig(0, $this->moduleList);
+  }
+
+  function testThrowsErrorWhenModuleIsNotRegistered() {
+    $this->expectException(LogicException::class);
+    ConstructionPlan::fromConfig([
+      'name' => 'ThisModuleIsNotRegistered'
+    ], $this->moduleList);
   }
 
   function testConfigCanBeLoadedFromFile() {
@@ -82,13 +98,6 @@ class ConstructionPlanTest extends TestCase {
     $this->expectException(Exception::class);
 
     $cp = ConstructionPlan::fromConfigFile($fileName, $this->moduleList);
-  }
-
-  function testThrowsErrorWhenModuleIsNotRegistered() {
-    $this->expectException(Exception::class);
-    ConstructionPlan::fromConfig([
-      'name' => 'ThisModuleIsNotRegistered'
-    ], $this->moduleList);
   }
 
   function testModuleWithoutDataIsValid() {
