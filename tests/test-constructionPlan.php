@@ -38,6 +38,11 @@ class ConstructionPlanTest extends TestCase {
     $cp = ConstructionPlan::fromConfig([], $this->moduleList);
   }
 
+  function testReturnsEmptyConstructionPlanOnEmptyConfig() {
+    $cp = @ConstructionPlan::fromConfig([], $this->moduleList);
+    $this->assertEquals($cp, []);
+  }
+
   function testShowWarningOnMissingNameInConfig() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig([
@@ -47,9 +52,23 @@ class ConstructionPlanTest extends TestCase {
     ], $this->moduleList);
   }
 
+  function testReturnsEmptyConstructionPlanOnMissingNameInConfig() {
+    $cp = @ConstructionPlan::fromConfig([
+      'data' => [
+        'whatever'
+      ]
+    ], $this->moduleList);
+    $this->assertEquals($cp, []);
+  }
+
   function testShowWarningIfConfigIsAnObject() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
+  }
+
+  function testReturnsEmptyConstructionPlanIfConfigIsAnObject() {
+    $cp = @ConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
+    $this->assertEquals($cp, []);
   }
 
   function testShowWarningIfConfigIsAString() {
@@ -57,9 +76,19 @@ class ConstructionPlanTest extends TestCase {
     $cp = ConstructionPlan::fromConfig('string', $this->moduleList);
   }
 
+  function testReturnsEmptyConstructionPlanIfConfigIsAString() {
+    $cp = @ConstructionPlan::fromConfig('string', $this->moduleList);
+    $this->assertEquals($cp, []);
+  }
+
   function testShowWarningIfConfigIsANumber() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig(0, $this->moduleList);
+  }
+
+  function testReturnsEmptyConstructionPlanIfConfigIsANumber() {
+    $cp = @ConstructionPlan::fromConfig(0, $this->moduleList);
+    $this->assertEquals($cp, []);
   }
 
   function testShowWarningWhenModuleIsNotRegistered() {
@@ -69,9 +98,10 @@ class ConstructionPlanTest extends TestCase {
     ], $this->moduleList);
   }
 
-  function testReturnsEmptyConstructionPlanOnWarning() {
-    // only doing one test here for sanity
-    $cp = @ConstructionPlan::fromConfig([], $this->moduleList);
+  function testReturnsEmptyConstructionPlanWhenModuleIsNotRegistered() {
+    $cp = @ConstructionPlan::fromConfig([
+      'name' => 'ThisModuleIsNotRegistered'
+    ], $this->moduleList);
     $this->assertEquals($cp, []);
   }
 
@@ -104,7 +134,17 @@ class ConstructionPlanTest extends TestCase {
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
     $cp = ConstructionPlan::fromConfigFile($fileName, $this->moduleList);
+  }
 
+  function testReturnsEmptyConstructionPlanWhenConfigFileDoesntExist() {
+    $fileName = 'exceptionTest.json';
+
+    Filters::expectApplied('WPStarter/configPath')
+    ->once()
+    ->with(null, $fileName)
+    ->andReturn('/not/a/real/folder/');
+
+    $cp = @ConstructionPlan::fromConfigFile($fileName, $this->moduleList);
     $this->assertEquals($cp, []);
   }
 
