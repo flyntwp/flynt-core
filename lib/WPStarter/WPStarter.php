@@ -1,7 +1,6 @@
 <?php
 namespace WPStarter;
 
-use Exception;
 use WPStarter\ConstructionPlan;
 use WPStarter\Render;
 
