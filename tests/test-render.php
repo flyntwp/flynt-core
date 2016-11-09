@@ -23,6 +23,10 @@ class RenderTest extends TestCase {
   function testShowWarningWhenConstructionPlanIsEmpty() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = Render::fromConstructionPlan([]);
+  }
+
+  function testReturnEmptyStringWhenConstructionPlanIsEmpty() {
+    $cp = @Render::fromConstructionPlan([]);
     $this->assertEquals($cp, '');
   }
 

@@ -54,17 +54,23 @@ class WPStarterTest extends TestCase {
     $this->assertEquals($modules, [$moduleName => TestHelper::getModulesPath() . $moduleName . '/']);
   }
 
-  public function testModuleIsOnlyAddedToArrayOnce() {
+  public function testShowsWarningWhenModuleIsAddedMoreThanOnce() {
     $moduleName = 'SingleModule';
     WPStarter::registerModule($moduleName);
 
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
-    // also check if function returns after warning
+    WPStarter::registerModule($moduleName);
+  }
+
+  public function testModuleIsOnlyAddedToArrayOnce() {
+    $moduleName = 'SingleModule';
+    WPStarter::registerModule($moduleName);
+
     Filters::expectApplied('WPStarter/modulePath')
     ->never();
 
-    WPStarter::registerModule($moduleName);
+    @WPStarter::registerModule($moduleName);
   }
 
   public function testDoesRegisterModuleAction() {

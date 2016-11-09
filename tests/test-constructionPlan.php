@@ -36,7 +36,6 @@ class ConstructionPlanTest extends TestCase {
   function testShowWarningOnEmptyConfig() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig([], $this->moduleList);
-    $this->assertEquals($cp, []);
   }
 
   function testShowWarningOnMissingNameInConfig() {
@@ -46,25 +45,21 @@ class ConstructionPlanTest extends TestCase {
         'whatever'
       ]
     ], $this->moduleList);
-    $this->assertEquals($cp, []);
   }
 
   function testShowWarningIfConfigIsAnObject() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
-    $this->assertEquals($cp, []);
   }
 
   function testShowWarningIfConfigIsAString() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig('string', $this->moduleList);
-    $this->assertEquals($cp, []);
   }
 
   function testShowWarningIfConfigIsANumber() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig(0, $this->moduleList);
-    $this->assertEquals($cp, []);
   }
 
   function testShowWarningWhenModuleIsNotRegistered() {
@@ -72,6 +67,11 @@ class ConstructionPlanTest extends TestCase {
     ConstructionPlan::fromConfig([
       'name' => 'ThisModuleIsNotRegistered'
     ], $this->moduleList);
+  }
+
+  function testReturnsEmptyConstructionPlanOnWarning() {
+    // only doing one test here for sanity
+    $cp = @ConstructionPlan::fromConfig([], $this->moduleList);
     $this->assertEquals($cp, []);
   }
 
