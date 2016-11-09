@@ -20,9 +20,10 @@ class RenderTest extends TestCase {
     parent::setUp();
   }
 
-  function testThrowsErrorWhenConstructionPlanIsEmpty() {
-    $this->expectException(Exception::class);
+  function testShowWarningWhenConstructionPlanIsEmpty() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = Render::fromConstructionPlan([]);
+    $this->assertEquals($cp, '');
   }
 
   function testAppliesCustomHtmlHook() {

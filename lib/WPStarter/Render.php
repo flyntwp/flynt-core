@@ -2,7 +2,6 @@
 
 namespace WPStarter;
 
-use Exception;
 use function WPStarter\Helpers\extractNestedDataFromArray;
 
 class Render {
@@ -16,7 +15,7 @@ class Render {
 
   protected static function validateConstructionPlan($constructionPlan) {
     if (empty($constructionPlan)) {
-      throw new Exception('Empty Construction Plan!');
+      trigger_error('Empty Construction Plan!', E_USER_WARNING);
     }
   }
 
