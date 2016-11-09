@@ -47,7 +47,7 @@ class DefaultLoader {
   // this action needs to be removed by the user if they want to overwrite this functionality
   public static function addActionRenderModule($modulePath) {
     if(!is_dir($modulePath)) {
-      throw new Exception("Render Module: Folder {$modulePath} not found!");
+      trigger_error("Render Module: Folder {$modulePath} not found!", E_USER_WARNING);
     }
     $filePath = $modulePath . '/functions.php';
     if(file_exists($filePath)) {
@@ -58,8 +58,7 @@ class DefaultLoader {
 
   protected static function renderFile($moduleData, $areaHtml, $filePath) {
     if(!is_file($filePath)) {
-      // TODO should be a warning
-      throw new Exception("Template not found: {$filePath}");
+      trigger_error("Template not found: {$filePath}", E_USER_WARNING);
     }
 
     $area = function($areaName) use ($areaHtml){

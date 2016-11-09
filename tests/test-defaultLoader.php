@@ -87,12 +87,12 @@ class DefaultLoaderTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testRenderThrowsErrorIfModuleFileIsADirectory() {
+  function testRenderShowsWarningIfModuleFileIsADirectory() {
     $moduleName = 'SingleModule';
     $moduleData = [];
     $areaHtml = [];
 
-    $this->expectException(Exception::class);
+    $this->expectException('PHPUnit_Framework_Error_Warning');
 
     Mockery::mock('alias:WPStarter\WPStarter')
     ->shouldReceive('getModulePath')
@@ -107,12 +107,12 @@ class DefaultLoaderTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testRenderThrowsErrorIfModuleFileDoesntExist() {
+  function testRenderShowsWarningIfModuleFileDoesntExist() {
     $moduleName = 'SomeModuleThatDoesntExist';
     $moduleData = [];
     $areaHtml = [];
 
-    $this->expectException(Exception::class);
+    $this->expectException('PHPUnit_Framework_Error_Warning');
 
     Mockery::mock('alias:WPStarter\WPStarter')
     ->shouldReceive('getModulePath')
@@ -178,8 +178,8 @@ class DefaultLoaderTest extends TestCase {
     $this->assertEquals($output, "<div>{$parentModuleName} result<div>{$childModuleName} result</div>\n</div>\n");
   }
 
-  function testThrowsErrorWhenModuleFolderNotFound() {
-    $this->expectException(Exception::class);
+  function testShowsWarningWhenModuleFolderNotFound() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     DefaultLoader::addActionRenderModule('not/a/real/path');
   }
 
