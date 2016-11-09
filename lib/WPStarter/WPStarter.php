@@ -30,7 +30,8 @@ class WPStarter {
   public static function registerModule($moduleName, $modulePath = null) {
     // check if module already registered
     if(array_key_exists($moduleName, self::$modules)) {
-      throw new Exception("Module {$moduleName} is already registered!");
+      trigger_error("Module {$moduleName} is already registered!", E_USER_WARNING);
+      return;
     }
 
     // register module / require functions.php

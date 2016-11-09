@@ -58,7 +58,12 @@ class WPStarterTest extends TestCase {
     $moduleName = 'SingleModule';
     WPStarter::registerModule($moduleName);
 
-    $this->expectException(Exception::class);
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+
+    // also check if function returns after warning
+    Filters::expectApplied('WPStarter/modulePath')
+    ->never();
+
     WPStarter::registerModule($moduleName);
   }
 
