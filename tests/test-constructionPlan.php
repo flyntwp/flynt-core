@@ -109,6 +109,9 @@ class ConstructionPlanTest extends TestCase {
     $fileName = 'exampleConfig.json';
     $filePath = TestHelper::getConfigPath() . $fileName;
 
+    Filters::expectApplied('WPStarter/configPath')
+    ->andReturnUsing(['TestHelper', 'getConfigPath']);
+
     Filters::expectApplied('WPStarter/configFileLoader')
     ->once()
     ->with(null, $fileName, $filePath)

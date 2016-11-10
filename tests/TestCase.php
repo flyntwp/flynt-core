@@ -4,7 +4,6 @@ namespace WPStarter;
 
 use PHPUnit\Framework;
 use Brain\Monkey;
-use Brain\Monkey\WP\Filters;
 use Brain\Monkey\Functions;
 
 class TestCase extends Framework\TestCase {
@@ -12,9 +11,6 @@ class TestCase extends Framework\TestCase {
   protected function setUp() {
     parent::setUp();
     Monkey::setUpWP();
-
-    Filters::expectApplied('WPStarter/configPath')
-    ->andReturnUsing(['TestHelper', 'getConfigPath']);
 
     Functions::expect('get_template_directory')
     ->andReturnUsing(['TestHelper', 'getTemplateDirectory']);
