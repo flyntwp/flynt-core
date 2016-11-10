@@ -128,7 +128,7 @@ class WPStarterTest extends TestCase {
       ]
     ];
 
-    Mockery::mock('alias:WPStarter\ConstructionPlan')
+    Mockery::mock('alias:WPStarter\BuildConstructionPlan')
     ->shouldReceive('fromConfig')
     ->once()
     ->with($config, [])
@@ -158,7 +158,7 @@ class WPStarterTest extends TestCase {
       ]
     ];
 
-    Mockery::mock('alias:WPStarter\ConstructionPlan')
+    Mockery::mock('alias:WPStarter\BuildConstructionPlan')
     ->shouldReceive('fromConfigFile')
     ->once()
     ->with($configFileName, [])

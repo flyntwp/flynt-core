@@ -1,7 +1,7 @@
 <?php
 namespace WPStarter;
 
-use WPStarter\ConstructionPlan;
+use WPStarter\BuildConstructionPlan;
 use WPStarter\Render;
 
 class WPStarter {
@@ -13,7 +13,7 @@ class WPStarter {
   }
 
   public static function getHtmlFromConfig($config) {
-    $cp = ConstructionPlan::fromConfig($config, self::$modules);
+    $cp = BuildConstructionPlan::fromConfig($config, self::$modules);
     return Render::fromConstructionPlan($cp);
   }
 
@@ -22,7 +22,7 @@ class WPStarter {
   }
 
   public static function getHtmlFromConfigFile($fileName) {
-    $cp = ConstructionPlan::fromConfigFile($fileName, self::$modules);
+    $cp = BuildConstructionPlan::fromConfigFile($fileName, self::$modules);
     return Render::fromConstructionPlan($cp);
   }
 

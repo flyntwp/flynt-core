@@ -2,7 +2,7 @@
 
 namespace WPStarter;
 
-class ConstructionPlan {
+class BuildConstructionPlan {
   private static $moduleList = [];
 
   public static function fromConfig($config, $moduleList) {
