@@ -26,9 +26,6 @@ class WPStarterTest extends TestCase {
     $reflectedProperty = $reflectedClass->getProperty('modules');
     $reflectedProperty->setAccessible(true);
     $reflectedProperty = $reflectedProperty->setValue([]);
-
-    Filters::expectApplied('WPStarter/modulePath')
-    ->andReturnUsing(['TestHelper', 'getModulePath']);
   }
 
   protected function tearDown() {
@@ -48,6 +45,10 @@ class WPStarterTest extends TestCase {
 
   public function testModuleIsAddedToArray() {
     $moduleName = 'SingleModule';
+
+    Filters::expectApplied('WPStarter/modulePath')
+    ->andReturnUsing(['TestHelper', 'getModulePath']);
+
     WPStarter::registerModule($moduleName);
 
     $modules = WPStarter::getModuleList();
@@ -77,6 +78,9 @@ class WPStarterTest extends TestCase {
     $moduleName = 'SingleModule';
     $modulePath = TestHelper::getModulesPath() . $moduleName . '/';
 
+    Filters::expectApplied('WPStarter/modulePath')
+    ->andReturnUsing(['TestHelper', 'getModulePath']);
+
     Actions::expectFired('WPStarter/registerModule')
     ->with($modulePath, $moduleName);
 
@@ -89,6 +93,9 @@ class WPStarterTest extends TestCase {
   public function testReturnsModuleList() {
     $moduleA = 'SingleModule';
     $moduleB = 'ModuleWithArea';
+
+    Filters::expectApplied('WPStarter/modulePath')
+    ->andReturnUsing(['TestHelper', 'getModulePath']);
 
     WPStarter::registerModule($moduleA);
     $this->assertEquals(WPStarter::getModuleList(), [
