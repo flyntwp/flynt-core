@@ -2,8 +2,6 @@
 
 namespace WPStarter;
 
-use Exception;
-
 class ConstructionPlan {
   private static $moduleList = [];
 
@@ -14,7 +12,9 @@ class ConstructionPlan {
 
   protected static function fromConfigRecursive($config, $parentData = []) {
     // Check configuration for errors
-    self::validateConfig($config);
+    if (false === self::validateConfig($config)) {
+      return [];
+    }
 
     // add data to module
     $config['data'] = [];
@@ -32,7 +32,8 @@ class ConstructionPlan {
     $configPath = trailingslashit(apply_filters('WPStarter/configPath', null, $configFileName));
     $configFilePath = $configPath . $configFileName;
     if (!is_file($configFilePath)) {
-      throw new Exception('Config file not found: ' . $configFilePath);
+      trigger_error('Config file not found: ' . $configFilePath, E_USER_WARNING);
+      return [];
     }
     $config = apply_filters('WPStarter/configFileLoader', null, $configFileName, $configFilePath);
     return self::fromConfig($config, $moduleList);
@@ -40,14 +41,21 @@ class ConstructionPlan {
 
   protected static function validateConfig($config) {
     if(!is_array($config)) {
-      throw new Exception('Config needs to be an array! ' . gettype($config) . ' given.');
+      trigger_error('Config needs to be an array! ' . gettype($config) . ' given.', E_USER_WARNING);
+      return false;
+    }
+    if(empty($config)) {
+      trigger_error('Config is empty!', E_USER_WARNING);
+      return false;
     }
     if(!array_key_exists('name', $config)) {
-      throw new Exception('No Module specified!');
+      trigger_error('No module name given! Please make sure every module has at least a \'name\' attribute.', E_USER_WARNING);
+      return false;
     }
     // check if this module is registered
     if(!array_key_exists($config['name'], self::$moduleList)) {
-      throw new Exception("Module {$config['name']} is not registered!");
+      trigger_error("Module '{$config['name']}' could not be found in module list. Did you forget to register the module?", E_USER_WARNING);
+      return false;
     }
   }
 

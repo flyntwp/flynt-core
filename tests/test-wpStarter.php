@@ -7,7 +7,7 @@
  */
 
 /**
- * Construction plan test case.
+ * WPStarter test case.
  */
 
 require_once dirname(__DIR__) . '/lib/WPStarter/WPStarter.php';
@@ -26,33 +26,24 @@ class WPStarterTest extends TestCase {
     $reflectedProperty = $reflectedClass->getProperty('modules');
     $reflectedProperty->setAccessible(true);
     $reflectedProperty = $reflectedProperty->setValue([]);
+
+    Filters::expectApplied('WPStarter/modulePath')
+    ->andReturnUsing(['TestHelper', 'getModulePath']);
   }
 
   protected function tearDown() {
     parent::tearDown();
   }
 
-  public function testLoadsFunctionsPhpOnRegisterModule() {
-    $moduleName = 'SingleModule';
-
-    Filters::expectAdded("WPStarter/DataFilters/{$moduleName}/foo")
-    ->once();
-
-    WPStarter::registerModule($moduleName);
-  }
-
   public function testRegisterModuleUsesOptionalPathParameter() {
     $moduleName = 'ModuleWithArea';
+    $modulePath = TestHelper::getModulesPath() . 'SingleModule';
 
-    Filters::expectAdded("WPStarter/DataFilters/SingleModule/foo")
+    Filters::expectApplied('WPStarter/modulePath')
+    ->with($modulePath, $moduleName)
     ->once();
 
-    WPStarter::registerModule($moduleName, TestHelper::getModulesPath() . 'SingleModule');
-  }
-
-  public function testThrowsErrorWhenModuleFolderNotFound() {
-    $this->expectException(Exception::class);
-    WPStarter::registerModule('NotARealModule');
+    WPStarter::registerModule($moduleName, $modulePath);
   }
 
   public function testModuleIsAddedToArray() {
@@ -60,23 +51,34 @@ class WPStarterTest extends TestCase {
     WPStarter::registerModule($moduleName);
 
     $modules = WPStarter::getModuleList();
-    $this->assertEquals($modules, [$moduleName => TestHelper::getModulesPath() . $moduleName]);
+    $this->assertEquals($modules, [$moduleName => TestHelper::getModulesPath() . $moduleName . '/']);
+  }
+
+  public function testShowsWarningWhenModuleIsAddedMoreThanOnce() {
+    $moduleName = 'SingleModule';
+    WPStarter::registerModule($moduleName);
+
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+
+    WPStarter::registerModule($moduleName);
   }
 
   public function testModuleIsOnlyAddedToArrayOnce() {
     $moduleName = 'SingleModule';
     WPStarter::registerModule($moduleName);
 
-    $this->expectException(Exception::class);
-    WPStarter::registerModule($moduleName);
+    Filters::expectApplied('WPStarter/modulePath')
+    ->never();
+
+    @WPStarter::registerModule($moduleName);
   }
 
   public function testDoesRegisterModuleAction() {
     $moduleName = 'SingleModule';
-    $modulePath = TestHelper::getModulesPath() . $moduleName;
+    $modulePath = TestHelper::getModulesPath() . $moduleName . '/';
 
     Actions::expectFired('WPStarter/registerModule')
-    ->with($modulePath);
+    ->with($modulePath, $moduleName);
 
     Actions::expectFired("WPStarter/registerModule?name={$moduleName}")
     ->with($modulePath);
@@ -90,13 +92,13 @@ class WPStarterTest extends TestCase {
 
     WPStarter::registerModule($moduleA);
     $this->assertEquals(WPStarter::getModuleList(), [
-      'SingleModule' => TestHelper::getModulesPath() . $moduleA
+      'SingleModule' => TestHelper::getModulesPath() . $moduleA . '/'
     ]);
 
     WPStarter::registerModule($moduleB);
     $this->assertEquals(WPStarter::getModuleList(), [
-      'SingleModule' => TestHelper::getModulesPath() . $moduleA,
-      'ModuleWithArea' => TestHelper::getModulesPath() . $moduleB
+      'SingleModule' => TestHelper::getModulesPath() . $moduleA . '/',
+      'ModuleWithArea' => TestHelper::getModulesPath() . $moduleB . '/'
     ]);
   }
 

@@ -1,7 +1,6 @@
 <?php
 namespace WPStarter;
 
-use Exception;
 use WPStarter\ConstructionPlan;
 use WPStarter\Render;
 
@@ -30,26 +29,15 @@ class WPStarter {
   public static function registerModule($moduleName, $modulePath = null) {
     // check if module already registered
     if(array_key_exists($moduleName, self::$modules)) {
-      throw new Exception("Module {$moduleName} is already registered!");
+      trigger_error("Module {$moduleName} is already registered!", E_USER_WARNING);
+      return;
     }
 
     // register module / require functions.php
-    if(is_null($modulePath)) {
-      $modulePath = apply_filters('WPStarter/modulesPath', get_template_directory() . '/Modules/') . $moduleName;
-    }
+    $modulePath = trailingslashit(apply_filters('WPStarter/modulePath', $modulePath, $moduleName));
 
-    if(!is_dir($modulePath)) {
-      throw new Exception("Register Module: Folder {$modulePath} not found!");
-    }
-
-    do_action('WPStarter/registerModule', $modulePath);
+    do_action('WPStarter/registerModule', $modulePath, $moduleName);
     do_action("WPStarter/registerModule?name={$moduleName}", $modulePath);
-
-    $filePath = $modulePath . '/functions.php';
-    if(file_exists($filePath)) {
-      // require_once breaks the tests and is also unnecessary because of the validation above
-      require $filePath;
-    }
 
     // add module to internal list (array)
     self::addModuleToList($moduleName, $modulePath);

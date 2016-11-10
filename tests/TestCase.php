@@ -16,9 +16,6 @@ class TestCase extends Framework\TestCase {
     Filters::expectApplied('WPStarter/configPath')
     ->andReturnUsing(['TestHelper', 'getConfigPath']);
 
-    Filters::expectApplied('WPStarter/modulesPath')
-    ->andReturnUsing(['TestHelper', 'getModulesPath']);
-
     Functions::expect('get_template_directory')
     ->andReturnUsing(['TestHelper', 'getTemplateDirectory']);
 

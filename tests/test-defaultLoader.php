@@ -14,6 +14,7 @@ require_once dirname(__DIR__) . '/lib/WPStarter/DefaultLoader.php';
 use WPStarter\TestCase;
 use WPStarter\DefaultLoader;
 use Brain\Monkey\WP\Filters;
+use Brain\Monkey\WP\Actions;
 use Brain\Monkey\Functions;
 
 class DefaultLoaderTest extends TestCase {
@@ -50,6 +51,22 @@ class DefaultLoaderTest extends TestCase {
     DefaultLoader::init();
   }
 
+  function testAddsFilterForModulePath() {
+    Filters::expectAdded('WPStarter/modulePath')
+    ->once()
+    ->with(['WPStarter\DefaultLoader', 'addFilterModulePath'], 999, 2);
+
+    DefaultLoader::init();
+  }
+
+  function testAddsActionForRegisterModule() {
+    Actions::expectAdded('WPStarter/registerModule')
+    ->once()
+    ->with(['WPStarter\DefaultLoader', 'addActionRegisterModule']);
+
+    DefaultLoader::init();
+  }
+
   function testReturnsAConfigPath() {
     $configPath = DefaultLoader::addFilterConfigPath(null, '');
     $this->assertEquals($configPath, TestHelper::getTemplateDirectory() . '/config');
@@ -70,12 +87,12 @@ class DefaultLoaderTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testRenderThrowsErrorIfModuleFileIsADirectory() {
+  function testRenderShowsWarningIfModuleFileIsADirectory() {
     $moduleName = 'SingleModule';
     $moduleData = [];
     $areaHtml = [];
 
-    $this->expectException(Exception::class);
+    $this->expectException('PHPUnit_Framework_Error_Warning');
 
     Mockery::mock('alias:WPStarter\WPStarter')
     ->shouldReceive('getModulePath')
@@ -83,19 +100,20 @@ class DefaultLoaderTest extends TestCase {
     ->with($moduleName)
     ->andReturn(TestHelper::getModulesPath() . $moduleName);
 
-    DefaultLoader::addFilterRenderModule(null, $moduleName, $moduleData, $areaHtml);
+    $output = DefaultLoader::addFilterRenderModule(null, $moduleName, $moduleData, $areaHtml);
+    $this->assertEquals($output, '');
   }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testRenderThrowsErrorIfModuleFileDoesntExist() {
+  function testRenderShowsWarningIfModuleFileDoesntExist() {
     $moduleName = 'SomeModuleThatDoesntExist';
     $moduleData = [];
     $areaHtml = [];
 
-    $this->expectException(Exception::class);
+    $this->expectException('PHPUnit_Framework_Error_Warning');
 
     Mockery::mock('alias:WPStarter\WPStarter')
     ->shouldReceive('getModulePath')
@@ -103,7 +121,27 @@ class DefaultLoaderTest extends TestCase {
     ->with($moduleName)
     ->andReturn('not/a/real/file.php');
 
-    DefaultLoader::addFilterRenderModule(null, $moduleName, $moduleData, $areaHtml);
+    $output = DefaultLoader::addFilterRenderModule(null, $moduleName, $moduleData, $areaHtml);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testRenderReturnsEmptyStringOnError() {
+    $moduleName = 'SomeModuleThatDoesntExist';
+    $moduleData = [];
+    $areaHtml = [];
+
+    Mockery::mock('alias:WPStarter\WPStarter')
+    ->shouldReceive('getModulePath')
+    ->once()
+    ->with($moduleName)
+    ->andReturn('not/a/real/file.php');
+
+    // suppress exception to get an output
+    $output = @DefaultLoader::addFilterRenderModule(null, $moduleName, $moduleData, $areaHtml);
+    $this->assertEquals($output, '');
   }
 
   /**
@@ -148,7 +186,7 @@ class DefaultLoaderTest extends TestCase {
     ->shouldReceive('getModulePath')
     ->times(2)
     ->with(Mockery::type('string'))
-    ->andReturnUsing(['TestHelper', 'getModulePath']);
+    ->andReturnUsing(['TestHelper', 'getModuleIndexPath']);
 
     Functions::expect('WPStarter\Helpers\extractNestedDataFromArray')
     ->andReturn('result');
@@ -159,5 +197,33 @@ class DefaultLoaderTest extends TestCase {
     $output = DefaultLoader::addFilterRenderModule('', $parentModuleName, $moduleData, $areaHtml);
 
     $this->assertEquals($output, "<div>{$parentModuleName} result<div>{$childModuleName} result</div>\n</div>\n");
+  }
+
+  function testShowsWarningWhenModuleFolderNotFound() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+    DefaultLoader::addActionRegisterModule('not/a/real/path');
+  }
+
+  function testLoadsFunctionsPhpOnRegisterModule() {
+    $moduleName = 'SingleModule';
+
+    Filters::expectAdded("WPStarter/DataFilters/{$moduleName}/foo")
+    ->once();
+
+    DefaultLoader::addActionRegisterModule(TestHelper::getModulePath(null, $moduleName));
+  }
+
+  /**
+   * @runInSeparateProcess
+   */
+  function testDoesNotLoadFunctionsPhpOnRegisterModuleIfItDoesntExist() {
+    // running this test separately to be able to see the error message
+    $moduleName = 'ModuleWithoutFunctionsPhp';
+
+    // make sure test file wasn't added by mistake
+    $this->assertFileNotExists(TestHelper::getModulePath(null, $moduleName) . '/index.php');
+
+    // this will throw an error if a file is required that doesn't exist
+    DefaultLoader::addActionRegisterModule(TestHelper::getModulePath(null, $moduleName));
   }
 }

@@ -33,24 +33,76 @@ class ConstructionPlanTest extends TestCase {
     ];
   }
 
-  function testThrowErrorOnEmptyConfig() {
-    $this->expectException(Exception::class);
+  function testShowWarningOnEmptyConfig() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig([], $this->moduleList);
   }
 
-  function testThrowErrorIfConfigIsAnObject() {
-    $this->expectException(Exception::class);
+  function testReturnsEmptyConstructionPlanOnEmptyConfig() {
+    $cp = @ConstructionPlan::fromConfig([], $this->moduleList);
+    $this->assertEquals($cp, []);
+  }
+
+  function testShowWarningOnMissingNameInConfig() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+    $cp = ConstructionPlan::fromConfig([
+      'data' => [
+        'whatever'
+      ]
+    ], $this->moduleList);
+  }
+
+  function testReturnsEmptyConstructionPlanOnMissingNameInConfig() {
+    $cp = @ConstructionPlan::fromConfig([
+      'data' => [
+        'whatever'
+      ]
+    ], $this->moduleList);
+    $this->assertEquals($cp, []);
+  }
+
+  function testShowWarningIfConfigIsAnObject() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
   }
 
-  function testThrowErrorIfConfigIsAString() {
-    $this->expectException(Exception::class);
+  function testReturnsEmptyConstructionPlanIfConfigIsAnObject() {
+    $cp = @ConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
+    $this->assertEquals($cp, []);
+  }
+
+  function testShowWarningIfConfigIsAString() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig('string', $this->moduleList);
   }
 
-  function testThrowErrorIfConfigIsANumber() {
-    $this->expectException(Exception::class);
+  function testReturnsEmptyConstructionPlanIfConfigIsAString() {
+    $cp = @ConstructionPlan::fromConfig('string', $this->moduleList);
+    $this->assertEquals($cp, []);
+  }
+
+  function testShowWarningIfConfigIsANumber() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
     $cp = ConstructionPlan::fromConfig(0, $this->moduleList);
+  }
+
+  function testReturnsEmptyConstructionPlanIfConfigIsANumber() {
+    $cp = @ConstructionPlan::fromConfig(0, $this->moduleList);
+    $this->assertEquals($cp, []);
+  }
+
+  function testShowWarningWhenModuleIsNotRegistered() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+    ConstructionPlan::fromConfig([
+      'name' => 'ThisModuleIsNotRegistered'
+    ], $this->moduleList);
+  }
+
+  function testReturnsEmptyConstructionPlanWhenModuleIsNotRegistered() {
+    $cp = @ConstructionPlan::fromConfig([
+      'name' => 'ThisModuleIsNotRegistered'
+    ], $this->moduleList);
+    $this->assertEquals($cp, []);
   }
 
   function testConfigCanBeLoadedFromFile() {
@@ -71,7 +123,7 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
-  function testThrowsErrorWhenConfigFileDoesntExist() {
+  function testShowWarningWhenConfigFileDoesntExist() {
     $fileName = 'exceptionTest.json';
 
     Filters::expectApplied('WPStarter/configPath')
@@ -79,16 +131,21 @@ class ConstructionPlanTest extends TestCase {
     ->with(null, $fileName)
     ->andReturn('/not/a/real/folder/');
 
-    $this->expectException(Exception::class);
+    $this->expectException('PHPUnit_Framework_Error_Warning');
 
     $cp = ConstructionPlan::fromConfigFile($fileName, $this->moduleList);
   }
 
-  function testThrowsErrorWhenModuleIsNotRegistered() {
-    $this->expectException(Exception::class);
-    ConstructionPlan::fromConfig([
-      'name' => 'ThisModuleIsNotRegistered'
-    ], $this->moduleList);
+  function testReturnsEmptyConstructionPlanWhenConfigFileDoesntExist() {
+    $fileName = 'exceptionTest.json';
+
+    Filters::expectApplied('WPStarter/configPath')
+    ->once()
+    ->with(null, $fileName)
+    ->andReturn('/not/a/real/folder/');
+
+    $cp = @ConstructionPlan::fromConfigFile($fileName, $this->moduleList);
+    $this->assertEquals($cp, []);
   }
 
   function testModuleWithoutDataIsValid() {
