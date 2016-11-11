@@ -96,6 +96,59 @@ class ModuleManagerTest extends TestCase {
     $this->moduleManager->registerModule($moduleName);
   }
 
+  function testGetsModuleFilePath() {
+    $moduleName = 'SingleModule';
+
+    // mock default functionality for path on registerModule
+    Filters::expectApplied('WPStarter/modulePath')
+    ->andReturnUsing(['TestHelper', 'getModulePath']);
+
+    $this->moduleManager->registerModule($moduleName);
+
+    // test default
+    $path = $this->moduleManager->getModuleFilePath($moduleName);
+    $this->assertEquals($path, TestHelper::getModulePath(null, $moduleName) . '/index.php');
+
+    // test second parameter
+    $fileName = 'index.html';
+    $path = $this->moduleManager->getModuleFilePath($moduleName, $fileName);
+    $this->assertEquals($path, TestHelper::getModulePath(null, $moduleName) . '/' . $fileName);
+  }
+
+  function testGetModuleFilePathShowsWarningOnUnregisteredModuleParam() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+    $path = $this->moduleManager->getModuleFilePath('SomeModuleName');
+  }
+
+  function testGetModuleFilePathReturnsFalseOnUnregisteredModuleParam() {
+    $path = @$this->moduleManager->getModuleFilePath('SomeModuleName');
+    $this->assertFalse($path);
+  }
+
+  function testGetModuleFilePathShowsWarningOnIncorrectFileName() {
+    $moduleName = 'SingleModule';
+
+    Filters::expectApplied('WPStarter/modulePath')
+    ->andReturnUsing(['TestHelper', 'getModulePath']);
+
+    $this->moduleManager->registerModule($moduleName);
+
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+    $path = $this->moduleManager->getModuleFilePath($moduleName, 'doesNotExist.something');
+  }
+
+  function testGetModuleFilePathReturnsFalseOnIncorrectFileName() {
+    $moduleName = 'SingleModule';
+
+    Filters::expectApplied('WPStarter/modulePath')
+    ->andReturnUsing(['TestHelper', 'getModulePath']);
+
+    $this->moduleManager->registerModule($moduleName);
+
+    $path = @$this->moduleManager->getModuleFilePath($moduleName, 'doesNotExist.something');
+    $this->assertFalse($path);
+  }
+
   function testReturnsModuleList() {
     $moduleA = 'SingleModule';
     $moduleB = 'ModuleWithArea';
