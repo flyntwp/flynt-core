@@ -3,10 +3,7 @@
 namespace WPStarter;
 
 class BuildConstructionPlan {
-  private static $_moduleList = [];
-
-  public static function fromConfig($config, $moduleList) {
-    self::$_moduleList = $moduleList;
+  public static function fromConfig($config) {
     return self::fromConfigRecursive($config);
   }
 
@@ -28,7 +25,7 @@ class BuildConstructionPlan {
     return self::cleanModule($config);
   }
 
-  public static function fromConfigFile($configFileName, $moduleList) {
+  public static function fromConfigFile($configFileName) {
     $configPath = trailingslashit(apply_filters('WPStarter/configPath', null, $configFileName));
     $configFilePath = $configPath . $configFileName;
     if (!is_file($configFilePath)) {
@@ -36,7 +33,7 @@ class BuildConstructionPlan {
       return [];
     }
     $config = apply_filters('WPStarter/configFileLoader', null, $configFileName, $configFilePath);
-    return self::fromConfig($config, $moduleList);
+    return self::fromConfig($config);
   }
 
   protected static function validateConfig($config) {
@@ -56,7 +53,8 @@ class BuildConstructionPlan {
       return false;
     }
     // check if this module is registered
-    if (!array_key_exists($config['name'], self::$_moduleList)) {
+    $moduleManager = ModuleManager::getInstance();
+    if (!array_key_exists($config['name'], $moduleManager->getAll())) {
       trigger_error(
         "Module '{$config['name']}' could not be found in module list. Did you forget to register the module?",
         E_USER_WARNING

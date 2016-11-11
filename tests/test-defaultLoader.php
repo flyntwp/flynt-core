@@ -100,7 +100,7 @@ class DefaultLoaderTest extends TestCase {
 
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
-    Mockery::mock('alias:WPStarter\WPStarter')
+    $this->mockModuleManager()
     ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
@@ -121,7 +121,7 @@ class DefaultLoaderTest extends TestCase {
 
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
-    Mockery::mock('alias:WPStarter\WPStarter')
+    $this->mockModuleManager()
     ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
@@ -139,7 +139,7 @@ class DefaultLoaderTest extends TestCase {
     $moduleData = [];
     $areaHtml = [];
 
-    Mockery::mock('alias:WPStarter\WPStarter')
+    $this->mockModuleManager()
     ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
@@ -161,7 +161,7 @@ class DefaultLoaderTest extends TestCase {
     ];
     $areaHtml = [];
 
-    Mockery::mock('alias:WPStarter\WPStarter')
+    $this->mockModuleManager()
     ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
@@ -188,7 +188,7 @@ class DefaultLoaderTest extends TestCase {
       'test' => 'result'
     ];
 
-    Mockery::mock('alias:WPStarter\WPStarter')
+    $this->mockModuleManager()
     ->shouldReceive('getModuleFilePath')
     ->times(2)
     ->with(Mockery::type('string'))
@@ -231,5 +231,16 @@ class DefaultLoaderTest extends TestCase {
 
     // this will throw an error if a file is required that doesn't exist
     DefaultLoader::loadFunctionsFile(TestHelper::getModulePath(null, $moduleName));
+  }
+
+  // Helpers
+  function mockModuleManager() {
+    $moduleManagerMock = Mockery::mock('ModuleManager');
+
+    Mockery::mock('alias:WPStarter\ModuleManager')
+    ->shouldReceive('getInstance')
+    ->andReturn($moduleManagerMock);
+
+    return $moduleManagerMock;
   }
 }

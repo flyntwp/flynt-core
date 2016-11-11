@@ -2,9 +2,11 @@
 
 namespace WPStarter;
 
-use WPStarter\WPStarter;
+use WPStarter\ModuleManager;
+// TODO use Helpers Class instead
 use function WPStarter\Helpers\extractNestedDataFromArray;
 
+// TODO Rename to Defaults
 class DefaultLoader {
   public static function init() {
     add_filter('WPStarter/configPath', ['WPStarter\DefaultLoader', 'setConfigPath'], 999, 1);
@@ -31,7 +33,8 @@ class DefaultLoader {
 
   public static function renderModule($output, $moduleName, $moduleData, $areaHtml) {
     if (empty($output)) {
-      $filePath = WPStarter::getModuleFilePath($moduleName);
+      $moduleManager = ModuleManager::getInstance();
+      $filePath = $moduleManager->getModuleFilePath($moduleName);
       $output = self::renderFile($moduleData, $areaHtml, $filePath);
     }
     return $output;

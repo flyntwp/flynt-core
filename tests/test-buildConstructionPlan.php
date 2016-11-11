@@ -35,11 +35,11 @@ class BuildConstructionPlanTest extends TestCase {
 
   function testShowWarningOnEmptyConfig() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig([], $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig([]);
   }
 
   function testReturnsEmptyConstructionPlanOnEmptyConfig() {
-    $cp = @BuildConstructionPlan::fromConfig([], $this->moduleList);
+    $cp = @BuildConstructionPlan::fromConfig([]);
     $this->assertEquals($cp, []);
   }
 
@@ -49,7 +49,7 @@ class BuildConstructionPlanTest extends TestCase {
       'data' => [
         'whatever'
       ]
-    ], $this->moduleList);
+    ]);
   }
 
   function testReturnsEmptyConstructionPlanOnMissingNameInConfig() {
@@ -57,37 +57,37 @@ class BuildConstructionPlanTest extends TestCase {
       'data' => [
         'whatever'
       ]
-    ], $this->moduleList);
+    ]);
     $this->assertEquals($cp, []);
   }
 
   function testShowWarningIfConfigIsAnObject() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig(new StdClass());
   }
 
   function testReturnsEmptyConstructionPlanIfConfigIsAnObject() {
-    $cp = @BuildConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
+    $cp = @BuildConstructionPlan::fromConfig(new StdClass());
     $this->assertEquals($cp, []);
   }
 
   function testShowWarningIfConfigIsAString() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig('string', $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig('string');
   }
 
   function testReturnsEmptyConstructionPlanIfConfigIsAString() {
-    $cp = @BuildConstructionPlan::fromConfig('string', $this->moduleList);
+    $cp = @BuildConstructionPlan::fromConfig('string');
     $this->assertEquals($cp, []);
   }
 
   function testShowWarningIfConfigIsANumber() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig(0, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig(0);
   }
 
   function testReturnsEmptyConstructionPlanIfConfigIsANumber() {
-    $cp = @BuildConstructionPlan::fromConfig(0, $this->moduleList);
+    $cp = @BuildConstructionPlan::fromConfig(0);
     $this->assertEquals($cp, []);
   }
 
@@ -95,16 +95,20 @@ class BuildConstructionPlanTest extends TestCase {
     $this->expectException('PHPUnit_Framework_Error_Warning');
     BuildConstructionPlan::fromConfig([
       'name' => 'ThisModuleIsNotRegistered'
-    ], $this->moduleList);
+    ]);
   }
 
   function testReturnsEmptyConstructionPlanWhenModuleIsNotRegistered() {
     $cp = @BuildConstructionPlan::fromConfig([
       'name' => 'ThisModuleIsNotRegistered'
-    ], $this->moduleList);
+    ]);
     $this->assertEquals($cp, []);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testConfigCanBeLoadedFromFile() {
     $fileName = 'exampleConfig.json';
     $filePath = TestHelper::getConfigPath() . $fileName;
@@ -119,7 +123,9 @@ class BuildConstructionPlanTest extends TestCase {
       'name' => 'SingleModule'
     ]);
 
-    $cp = BuildConstructionPlan::fromConfigFile($fileName, $this->moduleList);
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfigFile($fileName);
     $this->assertEquals($cp, [
       'name' => 'SingleModule',
       'data' => []
@@ -136,7 +142,7 @@ class BuildConstructionPlanTest extends TestCase {
 
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
-    $cp = BuildConstructionPlan::fromConfigFile($fileName, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfigFile($fileName);
   }
 
   function testReturnsEmptyConstructionPlanWhenConfigFileDoesntExist() {
@@ -147,19 +153,31 @@ class BuildConstructionPlanTest extends TestCase {
     ->with(null, $fileName)
     ->andReturn('/not/a/real/folder/');
 
-    $cp = @BuildConstructionPlan::fromConfigFile($fileName, $this->moduleList);
+    $cp = @BuildConstructionPlan::fromConfigFile($fileName);
     $this->assertEquals($cp, []);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testModuleWithoutDataIsValid() {
     $module = TestHelper::getCustomModule('SingleModule', ['name', 'areas']);
+
+    $this->mockModuleManager();
+
     $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+
     $this->assertEquals($cp, [
       'name' => 'SingleModule',
       'data' => []
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testModuleDataIsFiltered() {
     $moduleName = 'SingleModule';
 
@@ -167,6 +185,9 @@ class BuildConstructionPlanTest extends TestCase {
     TestHelper::registerDataFilter($moduleName);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
+
+    $this->mockModuleManager();
+
     $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
@@ -177,6 +198,10 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testDataFilterArgumentsAreUsed() {
     $moduleName = 'SingleModule';
 
@@ -184,6 +209,9 @@ class BuildConstructionPlanTest extends TestCase {
     TestHelper::registerDataFilter($moduleName, true, false);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
+
+    $this->mockModuleManager();
+
     $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
@@ -194,11 +222,18 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testCustomDataIsAddedToModule() {
     $moduleName = 'SingleModule';
 
     // this simulates add_filter with return data:
     $module = TestHelper::getCustomModule($moduleName, ['name', 'customData', 'areas']);
+
+    $this->mockModuleManager();
+
     $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
@@ -214,6 +249,10 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testDataIsFilteredAndCustomDataIsAdded() {
     $moduleName = 'SingleModule';
 
@@ -221,6 +260,9 @@ class BuildConstructionPlanTest extends TestCase {
     TestHelper::registerDataFilter($moduleName, false, true);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'customData', 'areas']);
+
+    $this->mockModuleManager();
+
     $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
@@ -237,6 +279,10 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testNestedModuleIsAddedToArea() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
@@ -251,6 +297,8 @@ class BuildConstructionPlanTest extends TestCase {
         TestHelper::getCompleteModule($childModuleName)
       ]
     ];
+
+    $this->mockModuleManager();
 
     $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
@@ -276,6 +324,10 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testParentModuleDataIsNotAddedToChildModule() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
@@ -290,6 +342,8 @@ class BuildConstructionPlanTest extends TestCase {
         TestHelper::getCustomModule($childModuleName, ['name'])
       ]
     ];
+
+    $this->mockModuleManager();
 
     $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
@@ -309,6 +363,10 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testDeeplyNestedModulesCreateValidConstructionPlan() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'NestedModuleWithArea';
@@ -336,6 +394,8 @@ class BuildConstructionPlanTest extends TestCase {
         TestHelper::getCustomModule($grandChildModuleNameC, ['name'])
       ]
     ];
+
+    $this->mockModuleManager();
 
     $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
@@ -373,6 +433,10 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testDynamicSubmodulesCanBeAddedWithAFilter() {
     $moduleName = 'ModuleWithArea';
     $dynamicModuleName = 'SingleModule';
@@ -387,6 +451,8 @@ class BuildConstructionPlanTest extends TestCase {
     ->with([], ['test' => 'result'], [])
     ->once()
     ->andReturn(['area51' => [ $dynamicModule ]]);
+
+    $this->mockModuleManager();
 
     $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
@@ -406,6 +472,10 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testDynamicSubmodulesReceiveParentData() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'NestedModuleWithArea';
@@ -431,6 +501,8 @@ class BuildConstructionPlanTest extends TestCase {
     ->with([], [], ['test' => 'result'])
     ->once()
     ->andReturn(['area51' => [ $dynamicModule ]]);
+
+    $this->mockModuleManager();
 
     $cp = BuildConstructionPlan::fromConfig($parentModule, $this->moduleList);
 
@@ -464,5 +536,18 @@ class BuildConstructionPlanTest extends TestCase {
         ]
       ]
     ]);
+  }
+
+  // Helpers
+  function mockModuleManager() {
+    $moduleManagerMock = Mockery::mock('ModuleManager');
+
+    Mockery::mock('alias:WPStarter\ModuleManager')
+    ->shouldReceive('getInstance')
+    ->andReturn($moduleManagerMock);
+
+    $moduleManagerMock
+    ->shouldReceive('getAll')
+    ->andReturn($this->moduleList);
   }
 }
