@@ -3,8 +3,7 @@
 namespace WPStarter;
 
 use WPStarter\ModuleManager;
-// TODO use Helpers Class instead
-use function WPStarter\Helpers\extractNestedDataFromArray;
+use WPStarter\Helpers;
 
 // TODO Rename to Defaults
 class DefaultLoader {
@@ -77,7 +76,7 @@ class DefaultLoader {
     $data = function () use ($moduleData) {
       $args = func_get_args();
       array_unshift($args, $moduleData);
-      return extractNestedDataFromArray($args);
+      return Helpers::extractNestedDataFromArray($args);
     };
 
     ob_start();

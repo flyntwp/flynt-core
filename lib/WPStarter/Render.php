@@ -2,8 +2,6 @@
 
 namespace WPStarter;
 
-use function WPStarter\Helpers\extractNestedDataFromArray;
-
 class Render {
   public static function fromConstructionPlan($constructionPlan) {
     self::validateConstructionPlan($constructionPlan);

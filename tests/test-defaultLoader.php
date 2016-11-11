@@ -15,7 +15,6 @@ use WPStarter\TestCase;
 use WPStarter\DefaultLoader;
 use Brain\Monkey\WP\Filters;
 use Brain\Monkey\WP\Actions;
-use Brain\Monkey\Functions;
 
 class DefaultLoaderTest extends TestCase {
 
@@ -167,7 +166,8 @@ class DefaultLoaderTest extends TestCase {
     ->with($moduleName)
     ->andReturn(TestHelper::getModulesPath() . $moduleName . '/index.php');
 
-    Functions::expect('WPStarter\Helpers\extractNestedDataFromArray')
+    Mockery::mock('alias:WPStarter\Helpers')
+    ->shouldReceive('extractNestedDataFromArray')
     ->andReturn('result');
 
     $output = DefaultLoader::renderModule('', $moduleName, $moduleData, $areaHtml);
@@ -194,7 +194,8 @@ class DefaultLoaderTest extends TestCase {
     ->with(Mockery::type('string'))
     ->andReturnUsing(['TestHelper', 'getModuleIndexPath']);
 
-    Functions::expect('WPStarter\Helpers\extractNestedDataFromArray')
+    Mockery::mock('alias:WPStarter\Helpers')
+    ->shouldReceive('extractNestedDataFromArray')
     ->andReturn('result');
 
     $areaHtml = [
