@@ -1,6 +1,6 @@
 <?php
 /**
- * Class DefaultLoaderTest
+ * Class DefaultsTest
  *
  * @package Wp_Starter_Plugin
  */
@@ -9,15 +9,14 @@
  * Default Loader test case.
  */
 
-require_once dirname(__DIR__) . '/lib/WPStarter/DefaultLoader.php';
+require_once dirname(__DIR__) . '/lib/WPStarter/Defaults.php';
 
 use WPStarter\TestCase;
-use WPStarter\DefaultLoader;
+use WPStarter\Defaults;
 use Brain\Monkey\WP\Filters;
 use Brain\Monkey\WP\Actions;
-use Brain\Monkey\Functions;
 
-class DefaultLoaderTest extends TestCase {
+class DefaultsTest extends TestCase {
 
   function setUp() {
     parent::setUp();
@@ -30,57 +29,57 @@ class DefaultLoaderTest extends TestCase {
   function testAddsFilterForConfigPath() {
     Filters::expectAdded('WPStarter/configPath')
     ->once()
-    ->with(['WPStarter\DefaultLoader', 'setConfigPath'], 999, 1);
+    ->with(['WPStarter\Defaults', 'setConfigPath'], 999, 1);
 
-    DefaultLoader::init();
+    Defaults::init();
   }
 
   function testAddsFilterForConfigFileLoader() {
     Filters::expectAdded('WPStarter/configFileLoader')
     ->once()
-    ->with(['WPStarter\DefaultLoader', 'loadConfigFile'], 999, 3);
+    ->with(['WPStarter\Defaults', 'loadConfigFile'], 999, 3);
 
-    DefaultLoader::init();
+    Defaults::init();
   }
 
   function testAddsFilterForRenderModule() {
     Filters::expectAdded('WPStarter/renderModule')
     ->once()
-    ->with(['WPStarter\DefaultLoader', 'renderModule'], 999, 3);
+    ->with(['WPStarter\Defaults', 'renderModule'], 999, 3);
 
-    DefaultLoader::init();
+    Defaults::init();
   }
 
   function testAddsFilterForModulePath() {
     Filters::expectAdded('WPStarter/modulePath')
     ->once()
-    ->with(['WPStarter\DefaultLoader', 'setModulePath'], 999, 2);
+    ->with(['WPStarter\Defaults', 'setModulePath'], 999, 2);
 
-    DefaultLoader::init();
+    Defaults::init();
   }
 
   function testAddsActionForRegisterModule() {
     Actions::expectAdded('WPStarter/registerModule')
     ->once()
     ->ordered()
-    ->with(['WPStarter\DefaultLoader', 'checkModuleFolder']);
+    ->with(['WPStarter\Defaults', 'checkModuleFolder']);
 
     Actions::expectAdded('WPStarter/registerModule')
     ->once()
     ->ordered()
-    ->with(['WPStarter\DefaultLoader', 'loadFunctionsFile']);
+    ->with(['WPStarter\Defaults', 'loadFunctionsFile']);
 
-    DefaultLoader::init();
+    Defaults::init();
   }
 
   function testReturnsAConfigPath() {
-    $configPath = DefaultLoader::setConfigPath(null, '');
+    $configPath = Defaults::setConfigPath(null, '');
     $this->assertEquals($configPath, TestHelper::getTemplateDirectory() . '/config');
   }
 
   function testLoadsAndDecodesJsonFile() {
     $configPath = TestHelper::getConfigPath() . 'exampleConfigWithSingleModule.json';
-    $config = DefaultLoader::loadConfigFile(null, '', $configPath);
+    $config = Defaults::loadConfigFile(null, '', $configPath);
     $this->assertEquals($config, [
       'name' => 'SingleModule',
       'customData' => [
@@ -100,13 +99,13 @@ class DefaultLoaderTest extends TestCase {
 
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
-    Mockery::mock('alias:WPStarter\WPStarter')
-    ->shouldReceive('getModulePath')
+    $this->mockModuleManager()
+    ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
     ->andReturn(TestHelper::getModulesPath() . $moduleName);
 
-    $output = DefaultLoader::renderModule(null, $moduleName, $moduleData, $areaHtml);
+    $output = Defaults::renderModule(null, $moduleName, $moduleData, $areaHtml);
     $this->assertEquals($output, '');
   }
 
@@ -121,13 +120,13 @@ class DefaultLoaderTest extends TestCase {
 
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
-    Mockery::mock('alias:WPStarter\WPStarter')
-    ->shouldReceive('getModulePath')
+    $this->mockModuleManager()
+    ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
     ->andReturn('not/a/real/file.php');
 
-    $output = DefaultLoader::renderModule(null, $moduleName, $moduleData, $areaHtml);
+    $output = Defaults::renderModule(null, $moduleName, $moduleData, $areaHtml);
   }
 
   /**
@@ -139,14 +138,14 @@ class DefaultLoaderTest extends TestCase {
     $moduleData = [];
     $areaHtml = [];
 
-    Mockery::mock('alias:WPStarter\WPStarter')
-    ->shouldReceive('getModulePath')
+    $this->mockModuleManager()
+    ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
     ->andReturn('not/a/real/file.php');
 
     // suppress exception to get an output
-    $output = @DefaultLoader::renderModule(null, $moduleName, $moduleData, $areaHtml);
+    $output = @Defaults::renderModule(null, $moduleName, $moduleData, $areaHtml);
     $this->assertEquals($output, '');
   }
 
@@ -161,16 +160,17 @@ class DefaultLoaderTest extends TestCase {
     ];
     $areaHtml = [];
 
-    Mockery::mock('alias:WPStarter\WPStarter')
-    ->shouldReceive('getModulePath')
+    $this->mockModuleManager()
+    ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
     ->andReturn(TestHelper::getModulesPath() . $moduleName . '/index.php');
 
-    Functions::expect('WPStarter\Helpers\extractNestedDataFromArray')
+    Mockery::mock('alias:WPStarter\Helpers')
+    ->shouldReceive('extractNestedDataFromArray')
     ->andReturn('result');
 
-    $output = DefaultLoader::renderModule('', $moduleName, $moduleData, $areaHtml);
+    $output = Defaults::renderModule('', $moduleName, $moduleData, $areaHtml);
 
     $expectedHTML = "<div>SingleModule result</div>\n";
 
@@ -188,26 +188,27 @@ class DefaultLoaderTest extends TestCase {
       'test' => 'result'
     ];
 
-    Mockery::mock('alias:WPStarter\WPStarter')
-    ->shouldReceive('getModulePath')
+    $this->mockModuleManager()
+    ->shouldReceive('getModuleFilePath')
     ->times(2)
     ->with(Mockery::type('string'))
     ->andReturnUsing(['TestHelper', 'getModuleIndexPath']);
 
-    Functions::expect('WPStarter\Helpers\extractNestedDataFromArray')
+    Mockery::mock('alias:WPStarter\Helpers')
+    ->shouldReceive('extractNestedDataFromArray')
     ->andReturn('result');
 
     $areaHtml = [
-      'area51' => DefaultLoader::renderModule('', $childModuleName, $moduleData, [])
+      'area51' => Defaults::renderModule('', $childModuleName, $moduleData, [])
     ];
-    $output = DefaultLoader::renderModule('', $parentModuleName, $moduleData, $areaHtml);
+    $output = Defaults::renderModule('', $parentModuleName, $moduleData, $areaHtml);
 
     $this->assertEquals($output, "<div>{$parentModuleName} result<div>{$childModuleName} result</div>\n</div>\n");
   }
 
   function testShowsWarningWhenModuleFolderNotFound() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    DefaultLoader::checkModuleFolder('not/a/real/path');
+    Defaults::checkModuleFolder('not/a/real/path');
   }
 
   function testLoadsFunctionsPhpOnRegisterModule() {
@@ -216,7 +217,7 @@ class DefaultLoaderTest extends TestCase {
     Filters::expectAdded("WPStarter/DataFilters/{$moduleName}/foo")
     ->once();
 
-    DefaultLoader::loadFunctionsFile(TestHelper::getModulePath(null, $moduleName));
+    Defaults::loadFunctionsFile(TestHelper::getModulePath(null, $moduleName));
   }
 
   /**
@@ -230,6 +231,17 @@ class DefaultLoaderTest extends TestCase {
     $this->assertFileNotExists(TestHelper::getModulePath(null, $moduleName) . '/index.php');
 
     // this will throw an error if a file is required that doesn't exist
-    DefaultLoader::loadFunctionsFile(TestHelper::getModulePath(null, $moduleName));
+    Defaults::loadFunctionsFile(TestHelper::getModulePath(null, $moduleName));
+  }
+
+  // Helpers
+  function mockModuleManager() {
+    $moduleManagerMock = Mockery::mock('ModuleManager');
+
+    Mockery::mock('alias:WPStarter\ModuleManager')
+    ->shouldReceive('getInstance')
+    ->andReturn($moduleManagerMock);
+
+    return $moduleManagerMock;
   }
 }

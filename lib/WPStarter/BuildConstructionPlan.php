@@ -2,11 +2,8 @@
 
 namespace WPStarter;
 
-class ConstructionPlan {
-  private static $moduleList = [];
-
-  public static function fromConfig($config, $moduleList) {
-    self::$moduleList = $moduleList;
+class BuildConstructionPlan {
+  public static function fromConfig($config) {
     return self::fromConfigRecursive($config);
   }
 
@@ -28,7 +25,7 @@ class ConstructionPlan {
     return self::cleanModule($config);
   }
 
-  public static function fromConfigFile($configFileName, $moduleList) {
+  public static function fromConfigFile($configFileName) {
     $configPath = trailingslashit(apply_filters('WPStarter/configPath', null, $configFileName));
     $configFilePath = $configPath . $configFileName;
     if (!is_file($configFilePath)) {
@@ -36,25 +33,32 @@ class ConstructionPlan {
       return [];
     }
     $config = apply_filters('WPStarter/configFileLoader', null, $configFileName, $configFilePath);
-    return self::fromConfig($config, $moduleList);
+    return self::fromConfig($config);
   }
 
   protected static function validateConfig($config) {
-    if(!is_array($config)) {
+    if (!is_array($config)) {
       trigger_error('Config needs to be an array! ' . gettype($config) . ' given.', E_USER_WARNING);
       return false;
     }
-    if(empty($config)) {
+    if (empty($config)) {
       trigger_error('Config is empty!', E_USER_WARNING);
       return false;
     }
-    if(!array_key_exists('name', $config)) {
-      trigger_error('No module name given! Please make sure every module has at least a \'name\' attribute.', E_USER_WARNING);
+    if (!array_key_exists('name', $config)) {
+      trigger_error(
+        'No module name given! Please make sure every module has at least a \'name\' attribute.',
+        E_USER_WARNING
+      );
       return false;
     }
     // check if this module is registered
-    if(!array_key_exists($config['name'], self::$moduleList)) {
-      trigger_error("Module '{$config['name']}' could not be found in module list. Did you forget to register the module?", E_USER_WARNING);
+    $moduleManager = ModuleManager::getInstance();
+    if (!array_key_exists($config['name'], $moduleManager->getAll())) {
+      trigger_error(
+        "Module '{$config['name']}' could not be found in module list. Did you forget to register the module?",
+        E_USER_WARNING
+      );
       return false;
     }
   }
@@ -81,11 +85,16 @@ class ConstructionPlan {
   protected static function addSubmodules($config, $parentData) {
     // add dynamic submodules to areas
     $areas = array_key_exists('areas', $config) ? $config['areas'] : [];
-    $config['areas'] = apply_filters("WPStarter/dynamicSubmodules?name={$config['name']}", $areas, $config['data'], $parentData);
+    $config['areas'] = apply_filters(
+      "WPStarter/dynamicSubmodules?name={$config['name']}",
+      $areas,
+      $config['data'],
+      $parentData
+    );
 
     // iterate areas and recursively map child module construction plan
     if (!empty($config['areas'])) {
-      $config['areas'] = array_map(function($modules) use ($config, $parentData) {
+      $config['areas'] = array_map(function ($modules) use ($config, $parentData) {
         return self::mapAreaModules($modules, $config, $parentData);
       }, $config['areas']);
     }
@@ -93,7 +102,7 @@ class ConstructionPlan {
   }
 
   protected static function mapAreaModules($modules, $config, $parentData) {
-    return array_map(function($module) use ($config, $parentData) {
+    return array_map(function ($module) use ($config, $parentData) {
       $data = empty($config['data']) ? $parentData : $config['data'];
       return self::fromConfigRecursive($module, $data);
     }, $modules);

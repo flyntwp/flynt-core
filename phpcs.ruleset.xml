@@ -23,6 +23,7 @@
   <rule ref="Zend">
     <exclude name="Generic.Functions.OpeningFunctionBraceBsdAllman" />
     <exclude name="PEAR.Classes.ClassDeclaration" />
+    <exclude name="Zend.NamingConventions.ValidVariableName.PrivateNoUnderscore" />
   </rule>
 
   <rule ref="Generic.Files.LineLength">

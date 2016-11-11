@@ -1,21 +1,21 @@
 <?php
 /**
- * Class ConstructionPlanTest
+ * Class BuildConstructionPlanTest
  *
  * @package Wp_Starter_Plugin
  */
 
 /**
- * Construction plan test case.
+ * Build Construction Plan test case.
  */
 
-require_once dirname(__DIR__) . '/lib/WPStarter/ConstructionPlan.php';
+require_once dirname(__DIR__) . '/lib/WPStarter/BuildConstructionPlan.php';
 
 use WPStarter\TestCase;
-use WPStarter\ConstructionPlan;
+use WPStarter\BuildConstructionPlan;
 use Brain\Monkey\WP\Filters;
 
-class ConstructionPlanTest extends TestCase {
+class BuildConstructionPlanTest extends TestCase {
 
   function setUp() {
     parent::setUp();
@@ -35,76 +35,80 @@ class ConstructionPlanTest extends TestCase {
 
   function testShowWarningOnEmptyConfig() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = ConstructionPlan::fromConfig([], $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig([]);
   }
 
   function testReturnsEmptyConstructionPlanOnEmptyConfig() {
-    $cp = @ConstructionPlan::fromConfig([], $this->moduleList);
+    $cp = @BuildConstructionPlan::fromConfig([]);
     $this->assertEquals($cp, []);
   }
 
   function testShowWarningOnMissingNameInConfig() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = ConstructionPlan::fromConfig([
+    $cp = BuildConstructionPlan::fromConfig([
       'data' => [
         'whatever'
       ]
-    ], $this->moduleList);
+    ]);
   }
 
   function testReturnsEmptyConstructionPlanOnMissingNameInConfig() {
-    $cp = @ConstructionPlan::fromConfig([
+    $cp = @BuildConstructionPlan::fromConfig([
       'data' => [
         'whatever'
       ]
-    ], $this->moduleList);
+    ]);
     $this->assertEquals($cp, []);
   }
 
   function testShowWarningIfConfigIsAnObject() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = ConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig(new StdClass());
   }
 
   function testReturnsEmptyConstructionPlanIfConfigIsAnObject() {
-    $cp = @ConstructionPlan::fromConfig(new StdClass(), $this->moduleList);
+    $cp = @BuildConstructionPlan::fromConfig(new StdClass());
     $this->assertEquals($cp, []);
   }
 
   function testShowWarningIfConfigIsAString() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = ConstructionPlan::fromConfig('string', $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig('string');
   }
 
   function testReturnsEmptyConstructionPlanIfConfigIsAString() {
-    $cp = @ConstructionPlan::fromConfig('string', $this->moduleList);
+    $cp = @BuildConstructionPlan::fromConfig('string');
     $this->assertEquals($cp, []);
   }
 
   function testShowWarningIfConfigIsANumber() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = ConstructionPlan::fromConfig(0, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig(0);
   }
 
   function testReturnsEmptyConstructionPlanIfConfigIsANumber() {
-    $cp = @ConstructionPlan::fromConfig(0, $this->moduleList);
+    $cp = @BuildConstructionPlan::fromConfig(0);
     $this->assertEquals($cp, []);
   }
 
   function testShowWarningWhenModuleIsNotRegistered() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    ConstructionPlan::fromConfig([
+    BuildConstructionPlan::fromConfig([
       'name' => 'ThisModuleIsNotRegistered'
-    ], $this->moduleList);
+    ]);
   }
 
   function testReturnsEmptyConstructionPlanWhenModuleIsNotRegistered() {
-    $cp = @ConstructionPlan::fromConfig([
+    $cp = @BuildConstructionPlan::fromConfig([
       'name' => 'ThisModuleIsNotRegistered'
-    ], $this->moduleList);
+    ]);
     $this->assertEquals($cp, []);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testConfigCanBeLoadedFromFile() {
     $fileName = 'exampleConfig.json';
     $filePath = TestHelper::getConfigPath() . $fileName;
@@ -119,7 +123,9 @@ class ConstructionPlanTest extends TestCase {
       'name' => 'SingleModule'
     ]);
 
-    $cp = ConstructionPlan::fromConfigFile($fileName, $this->moduleList);
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfigFile($fileName);
     $this->assertEquals($cp, [
       'name' => 'SingleModule',
       'data' => []
@@ -136,7 +142,7 @@ class ConstructionPlanTest extends TestCase {
 
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
-    $cp = ConstructionPlan::fromConfigFile($fileName, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfigFile($fileName);
   }
 
   function testReturnsEmptyConstructionPlanWhenConfigFileDoesntExist() {
@@ -147,19 +153,31 @@ class ConstructionPlanTest extends TestCase {
     ->with(null, $fileName)
     ->andReturn('/not/a/real/folder/');
 
-    $cp = @ConstructionPlan::fromConfigFile($fileName, $this->moduleList);
+    $cp = @BuildConstructionPlan::fromConfigFile($fileName);
     $this->assertEquals($cp, []);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testModuleWithoutDataIsValid() {
     $module = TestHelper::getCustomModule('SingleModule', ['name', 'areas']);
-    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
+
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+
     $this->assertEquals($cp, [
       'name' => 'SingleModule',
       'data' => []
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testModuleDataIsFiltered() {
     $moduleName = 'SingleModule';
 
@@ -167,7 +185,10 @@ class ConstructionPlanTest extends TestCase {
     TestHelper::registerDataFilter($moduleName);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
-    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
+
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $moduleName,
@@ -177,6 +198,10 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testDataFilterArgumentsAreUsed() {
     $moduleName = 'SingleModule';
 
@@ -184,7 +209,10 @@ class ConstructionPlanTest extends TestCase {
     TestHelper::registerDataFilter($moduleName, true, false);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
-    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
+
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $moduleName,
@@ -194,12 +222,19 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testCustomDataIsAddedToModule() {
     $moduleName = 'SingleModule';
 
     // this simulates add_filter with return data:
     $module = TestHelper::getCustomModule($moduleName, ['name', 'customData', 'areas']);
-    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
+
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $moduleName,
@@ -214,6 +249,10 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testDataIsFilteredAndCustomDataIsAdded() {
     $moduleName = 'SingleModule';
 
@@ -221,7 +260,10 @@ class ConstructionPlanTest extends TestCase {
     TestHelper::registerDataFilter($moduleName, false, true);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'customData', 'areas']);
-    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
+
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $moduleName,
@@ -237,6 +279,10 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testNestedModuleIsAddedToArea() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
@@ -252,7 +298,9 @@ class ConstructionPlanTest extends TestCase {
       ]
     ];
 
-    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $parentModuleName,
@@ -276,6 +324,10 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testParentModuleDataIsNotAddedToChildModule() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
@@ -291,7 +343,9 @@ class ConstructionPlanTest extends TestCase {
       ]
     ];
 
-    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $parentModuleName,
@@ -309,6 +363,10 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testDeeplyNestedModulesCreateValidConstructionPlan() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'NestedModuleWithArea';
@@ -337,7 +395,9 @@ class ConstructionPlanTest extends TestCase {
       ]
     ];
 
-    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $parentModuleName,
@@ -373,6 +433,10 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testDynamicSubmodulesCanBeAddedWithAFilter() {
     $moduleName = 'ModuleWithArea';
     $dynamicModuleName = 'SingleModule';
@@ -384,11 +448,13 @@ class ConstructionPlanTest extends TestCase {
     $dynamicModule = TestHelper::getCustomModule($dynamicModuleName, ['name']);
 
     Filters::expectApplied("WPStarter/dynamicSubmodules?name={$moduleName}")
-    ->with([],  ['test' => 'result'], [])
+    ->with([], ['test' => 'result'], [])
     ->once()
     ->andReturn(['area51' => [ $dynamicModule ]]);
 
-    $cp = ConstructionPlan::fromConfig($module, $this->moduleList);
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $moduleName,
@@ -406,6 +472,10 @@ class ConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testDynamicSubmodulesReceiveParentData() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'NestedModuleWithArea';
@@ -428,11 +498,13 @@ class ConstructionPlanTest extends TestCase {
     ];
 
     Filters::expectApplied("WPStarter/dynamicSubmodules?name={$childSubmoduleName}")
-    ->with([],  [], ['test' => 'result'])
+    ->with([], [], ['test' => 'result'])
     ->once()
     ->andReturn(['area51' => [ $dynamicModule ]]);
 
-    $cp = ConstructionPlan::fromConfig($parentModule, $this->moduleList);
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfig($parentModule, $this->moduleList);
 
     $this->assertEquals($cp, [
       'name' => $parentModuleName,
@@ -464,5 +536,18 @@ class ConstructionPlanTest extends TestCase {
         ]
       ]
     ]);
+  }
+
+  // Helpers
+  function mockModuleManager() {
+    $moduleManagerMock = Mockery::mock('ModuleManager');
+
+    Mockery::mock('alias:WPStarter\ModuleManager')
+    ->shouldReceive('getInstance')
+    ->andReturn($moduleManagerMock);
+
+    $moduleManagerMock
+    ->shouldReceive('getAll')
+    ->andReturn($this->moduleList);
   }
 }

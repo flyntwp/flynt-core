@@ -12,7 +12,7 @@
 require_once dirname(__DIR__) . '/lib/WPStarter/Helpers.php';
 
 use WPStarter\TestCase;
-use function WPStarter\Helpers\extractNestedDataFromArray;
+use WPStarter\Helpers;
 
 class HelpersTest extends TestCase {
 
@@ -24,19 +24,19 @@ class HelpersTest extends TestCase {
     $arr = [
       'foo' => $foo
     ];
-    $value = extractNestedDataFromArray(null);
+    $value = Helpers::extractNestedDataFromArray(null);
     $this->assertEquals($value, '');
-    $value = extractNestedDataFromArray('string');
+    $value = Helpers::extractNestedDataFromArray('string');
     $this->assertEquals($value, '');
-    $value = extractNestedDataFromArray('stringA', 'stringB');
+    $value = Helpers::extractNestedDataFromArray('stringA', 'stringB');
     $this->assertEquals($value, '');
-    $value = extractNestedDataFromArray('stringA', null, 'stringB');
+    $value = Helpers::extractNestedDataFromArray('stringA', null, 'stringB');
     $this->assertEquals($value, '');
-    $value = extractNestedDataFromArray([$arr, 'boo']);
+    $value = Helpers::extractNestedDataFromArray([$arr, 'boo']);
     $this->assertEquals($value, '');
-    $value = extractNestedDataFromArray([$arr, 'foo']);
+    $value = Helpers::extractNestedDataFromArray([$arr, 'foo']);
     $this->assertEquals($value, $foo);
-    $value = extractNestedDataFromArray([$arr, 'foo', 'bar']);
+    $value = Helpers::extractNestedDataFromArray([$arr, 'foo', 'bar']);
     $this->assertEquals($value, $bar);
   }
 

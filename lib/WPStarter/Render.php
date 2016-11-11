@@ -2,8 +2,6 @@
 
 namespace WPStarter;
 
-use function WPStarter\Helpers\extractNestedDataFromArray;
-
 class Render {
   public static function fromConstructionPlan($constructionPlan) {
     self::validateConstructionPlan($constructionPlan);
@@ -21,7 +19,7 @@ class Render {
 
   protected static function extractAreaHtml($constructionPlan) {
     $areaHtml = [];
-    if(array_key_exists('areas', $constructionPlan)) {
+    if (array_key_exists('areas', $constructionPlan)) {
       $areaHtml = array_map('self::joinAreaModules', $constructionPlan['areas']);
     }
     return $areaHtml;

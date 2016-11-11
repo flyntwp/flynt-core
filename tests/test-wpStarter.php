@@ -7,106 +7,50 @@
  */
 
 /**
- * WPStarter test case.
+ * WPStarter API functions test case.
  */
 
-require_once dirname(__DIR__) . '/lib/WPStarter/WPStarter.php';
+require_once dirname(__DIR__) . '/lib/WPStarter.php';
 
 use WPStarter\TestCase;
-use WPStarter\WPStarter;
 use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
+use function WPStarter\echoHtmlFromConfig;
+use function WPStarter\echoHtmlFromConfigFile;
+use function WPStarter\getHtmlFromConfig;
+use function WPStarter\getHtmlFromConfigFile;
+use function WPStarter\registerModule;
 
 class WPStarterTest extends TestCase {
   protected function setUp() {
     parent::setUp();
-
-    // reset private static modules array in WPStarter
-    $reflectedClass = new ReflectionClass(WPStarter::class);
-    $reflectedProperty = $reflectedClass->getProperty('modules');
-    $reflectedProperty->setAccessible(true);
-    $reflectedProperty = $reflectedProperty->setValue([]);
   }
 
   protected function tearDown() {
     parent::tearDown();
   }
 
-  public function testRegisterModuleUsesOptionalPathParameter() {
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testRegisterModuleIsForwarded() {
     $moduleName = 'ModuleWithArea';
     $modulePath = TestHelper::getModulesPath() . 'SingleModule';
 
-    Filters::expectApplied('WPStarter/modulePath')
-    ->with($modulePath, $moduleName)
+    $moduleManagerMock = Mockery::mock('ModuleManager');
+
+    Mockery::mock('alias:WPStarter\ModuleManager')
+    ->shouldReceive('getInstance')
+    ->once()
+    ->andReturn($moduleManagerMock);
+
+    $moduleManagerMock
+    ->shouldReceive('register')
+    ->with($moduleName, $modulePath)
     ->once();
 
-    WPStarter::registerModule($moduleName, $modulePath);
-  }
-
-  public function testModuleIsAddedToArray() {
-    $moduleName = 'SingleModule';
-
-    Filters::expectApplied('WPStarter/modulePath')
-    ->andReturnUsing(['TestHelper', 'getModulePath']);
-
-    WPStarter::registerModule($moduleName);
-
-    $modules = WPStarter::getModuleList();
-    $this->assertEquals($modules, [$moduleName => TestHelper::getModulesPath() . $moduleName . '/']);
-  }
-
-  public function testShowsWarningWhenModuleIsAddedMoreThanOnce() {
-    $moduleName = 'SingleModule';
-    WPStarter::registerModule($moduleName);
-
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-
-    WPStarter::registerModule($moduleName);
-  }
-
-  public function testModuleIsOnlyAddedToArrayOnce() {
-    $moduleName = 'SingleModule';
-    WPStarter::registerModule($moduleName);
-
-    Filters::expectApplied('WPStarter/modulePath')
-    ->never();
-
-    @WPStarter::registerModule($moduleName);
-  }
-
-  public function testDoesRegisterModuleAction() {
-    $moduleName = 'SingleModule';
-    $modulePath = TestHelper::getModulesPath() . $moduleName . '/';
-
-    Filters::expectApplied('WPStarter/modulePath')
-    ->andReturnUsing(['TestHelper', 'getModulePath']);
-
-    Actions::expectFired('WPStarter/registerModule')
-    ->with($modulePath, $moduleName);
-
-    Actions::expectFired("WPStarter/registerModule?name={$moduleName}")
-    ->with($modulePath);
-
-    WPStarter::registerModule($moduleName);
-  }
-
-  public function testReturnsModuleList() {
-    $moduleA = 'SingleModule';
-    $moduleB = 'ModuleWithArea';
-
-    Filters::expectApplied('WPStarter/modulePath')
-    ->andReturnUsing(['TestHelper', 'getModulePath']);
-
-    WPStarter::registerModule($moduleA);
-    $this->assertEquals(WPStarter::getModuleList(), [
-      'SingleModule' => TestHelper::getModulesPath() . $moduleA . '/'
-    ]);
-
-    WPStarter::registerModule($moduleB);
-    $this->assertEquals(WPStarter::getModuleList(), [
-      'SingleModule' => TestHelper::getModulesPath() . $moduleA . '/',
-      'ModuleWithArea' => TestHelper::getModulesPath() . $moduleB . '/'
-    ]);
+    registerModule($moduleName, $modulePath);
   }
 
   /**
@@ -128,10 +72,10 @@ class WPStarterTest extends TestCase {
       ]
     ];
 
-    Mockery::mock('alias:WPStarter\ConstructionPlan')
+    Mockery::mock('alias:WPStarter\BuildConstructionPlan')
     ->shouldReceive('fromConfig')
     ->once()
-    ->with($config, [])
+    ->with($config)
     ->andReturn($constructionPlan);
 
     Mockery::mock('alias:WPStarter\Render')
@@ -141,7 +85,7 @@ class WPStarterTest extends TestCase {
     ->andReturn('test');
 
     $this->expectOutputString('test');
-    WPStarter::echoHtmlFromConfig($config);
+    echoHtmlFromConfig($config);
   }
 
   /**
@@ -158,10 +102,10 @@ class WPStarterTest extends TestCase {
       ]
     ];
 
-    Mockery::mock('alias:WPStarter\ConstructionPlan')
+    Mockery::mock('alias:WPStarter\BuildConstructionPlan')
     ->shouldReceive('fromConfigFile')
     ->once()
-    ->with($configFileName, [])
+    ->with($configFileName)
     ->andReturn($constructionPlan);
 
     Mockery::mock('alias:WPStarter\Render')
@@ -171,6 +115,6 @@ class WPStarterTest extends TestCase {
     ->andReturn('test');
 
     $this->expectOutputString('test');
-    WPStarter::echoHtmlFromConfigFile($configFileName);
+    echoHtmlFromConfigFile($configFileName);
   }
 }
