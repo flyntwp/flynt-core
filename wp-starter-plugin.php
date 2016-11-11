@@ -17,8 +17,8 @@ require_once __DIR__ . '/lib/WPStarter/ModuleManager.php';
 require_once __DIR__ . '/lib/WPStarter/BuildConstructionPlan.php';
 require_once __DIR__ . '/lib/WPStarter/Render.php';
 require_once __DIR__ . '/lib/WPStarter.php';
-require_once __DIR__ . '/lib/WPStarter/DefaultLoader.php';
+require_once __DIR__ . '/lib/WPStarter/Defaults.php';
 
-use WPStarter\DefaultLoader;
+use WPStarter\Defaults;
 
-DefaultLoader::init();
+Defaults::init();

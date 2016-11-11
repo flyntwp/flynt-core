@@ -5,15 +5,14 @@ namespace WPStarter;
 use WPStarter\ModuleManager;
 use WPStarter\Helpers;
 
-// TODO Rename to Defaults
-class DefaultLoader {
+class Defaults {
   public static function init() {
-    add_filter('WPStarter/configPath', ['WPStarter\DefaultLoader', 'setConfigPath'], 999, 1);
-    add_filter('WPStarter/configFileLoader', ['WPStarter\DefaultLoader', 'loadConfigFile'], 999, 3);
-    add_filter('WPStarter/renderModule', ['WPStarter\DefaultLoader', 'renderModule'], 999, 3);
-    add_filter('WPStarter/modulePath', ['WPStarter\DefaultLoader', 'setModulePath'], 999, 2);
-    add_action('WPStarter/registerModule', ['WPStarter\DefaultLoader', 'checkModuleFolder']);
-    add_action('WPStarter/registerModule', ['WPStarter\DefaultLoader', 'loadFunctionsFile']);
+    add_filter('WPStarter/configPath', ['WPStarter\Defaults', 'setConfigPath'], 999, 1);
+    add_filter('WPStarter/configFileLoader', ['WPStarter\Defaults', 'loadConfigFile'], 999, 3);
+    add_filter('WPStarter/renderModule', ['WPStarter\Defaults', 'renderModule'], 999, 3);
+    add_filter('WPStarter/modulePath', ['WPStarter\Defaults', 'setModulePath'], 999, 2);
+    add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'checkModuleFolder']);
+    add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'loadFunctionsFile']);
   }
 
   public static function setConfigPath($configPath) {
