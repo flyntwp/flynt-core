@@ -62,7 +62,7 @@ class TestHelper {
   }
 
   public static function getModulePath($modulePath, $moduleName) {
-    if(is_null($modulePath)) {
+    if (is_null($modulePath)) {
       return __DIR__ . '/assets/src/' . $moduleName;
     }
     return $modulePath;

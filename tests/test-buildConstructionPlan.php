@@ -384,7 +384,7 @@ class BuildConstructionPlanTest extends TestCase {
     $dynamicModule = TestHelper::getCustomModule($dynamicModuleName, ['name']);
 
     Filters::expectApplied("WPStarter/dynamicSubmodules?name={$moduleName}")
-    ->with([],  ['test' => 'result'], [])
+    ->with([], ['test' => 'result'], [])
     ->once()
     ->andReturn(['area51' => [ $dynamicModule ]]);
 
@@ -428,7 +428,7 @@ class BuildConstructionPlanTest extends TestCase {
     ];
 
     Filters::expectApplied("WPStarter/dynamicSubmodules?name={$childSubmoduleName}")
-    ->with([],  [], ['test' => 'result'])
+    ->with([], [], ['test' => 'result'])
     ->once()
     ->andReturn(['area51' => [ $dynamicModule ]]);
 

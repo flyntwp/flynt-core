@@ -2,6 +2,7 @@
 
 namespace WPStarter\Helpers;
 
+// @codingStandardsIgnoreLine
 function extractNestedDataFromArray($args = []) {
   if (count($args) <= 1) return '';
   $key = array_pop($args);
@@ -11,9 +12,9 @@ function extractNestedDataFromArray($args = []) {
     $data = $args[0];
   }
   $output = '';
-  if($key === '*') {
+  if ($key === '*') {
     $output = $data;
-  } elseif(is_array($data) && array_key_exists($key, $data)) {
+  } elseif (is_array($data) && array_key_exists($key, $data)) {
     $output = $data[$key];
   }
 

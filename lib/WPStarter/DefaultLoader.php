@@ -16,21 +16,21 @@ class DefaultLoader {
   }
 
   public static function setConfigPath($configPath) {
-    if(is_null($configPath)) {
+    if (is_null($configPath)) {
       $configPath = get_template_directory() . '/config';
     }
     return $configPath;
   }
 
   public static function loadConfigFile($config, $configName, $configPath) {
-    if(is_null($config)) {
+    if (is_null($config)) {
       $config = json_decode(file_get_contents($configPath), true);
     }
     return $config;
   }
 
   public static function renderModule($output, $moduleName, $moduleData, $areaHtml) {
-    if(empty($output)) {
+    if (empty($output)) {
       $filePath = WPStarter::getModuleFilePath($moduleName);
       $output = self::renderFile($moduleData, $areaHtml, $filePath);
     }
@@ -38,7 +38,7 @@ class DefaultLoader {
   }
 
   public static function setModulePath($modulePath, $moduleName) {
-    if(is_null($modulePath)) {
+    if (is_null($modulePath)) {
       $modulePath = get_template_directory() . '/Modules/' . $moduleName;
     }
     return $modulePath;
@@ -46,7 +46,7 @@ class DefaultLoader {
 
   // this action needs to be removed by the user if they want to overwrite this functionality
   public static function checkModuleFolder($modulePath) {
-    if(!is_dir($modulePath)) {
+    if (!is_dir($modulePath)) {
       trigger_error("Register Module: Folder {$modulePath} not found!", E_USER_WARNING);
     }
   }
@@ -54,24 +54,24 @@ class DefaultLoader {
   // this action needs to be removed by the user if they want to overwrite this functionality
   public static function loadFunctionsFile($modulePath) {
     $filePath = $modulePath . '/functions.php';
-    if(file_exists($filePath)) {
+    if (file_exists($filePath)) {
       require_once $filePath;
     }
   }
 
   protected static function renderFile($moduleData, $areaHtml, $filePath) {
-    if(!is_file($filePath)) {
+    if (!is_file($filePath)) {
       trigger_error("Template not found: {$filePath}", E_USER_WARNING);
       return '';
     }
 
-    $area = function($areaName) use ($areaHtml){
+    $area = function ($areaName) use ($areaHtml) {
       if (array_key_exists($areaName, $areaHtml)) {
         return $areaHtml[$areaName];
       }
     };
 
-    $data = function() use ($moduleData){
+    $data = function () use ($moduleData) {
       $args = func_get_args();
       array_unshift($args, $moduleData);
       return extractNestedDataFromArray($args);

@@ -6,14 +6,14 @@ use WPStarter\Render;
 
 class WPStarter {
 
-  private static $modules = [];
+  private static $_modules = [];
 
   public static function echoHtmlFromConfig($config) {
     echo self::getHtmlFromConfig($config);
   }
 
   public static function getHtmlFromConfig($config) {
-    $cp = BuildConstructionPlan::fromConfig($config, self::$modules);
+    $cp = BuildConstructionPlan::fromConfig($config, self::$_modules);
     return Render::fromConstructionPlan($cp);
   }
 
@@ -22,13 +22,13 @@ class WPStarter {
   }
 
   public static function getHtmlFromConfigFile($fileName) {
-    $cp = BuildConstructionPlan::fromConfigFile($fileName, self::$modules);
+    $cp = BuildConstructionPlan::fromConfigFile($fileName, self::$_modules);
     return Render::fromConstructionPlan($cp);
   }
 
   public static function registerModule($moduleName, $modulePath = null) {
     // check if module already registered
-    if(array_key_exists($moduleName, self::$modules)) {
+    if (array_key_exists($moduleName, self::$_modules)) {
       trigger_error("Module {$moduleName} is already registered!", E_USER_WARNING);
       return;
     }
@@ -45,14 +45,14 @@ class WPStarter {
 
   public static function getModuleFilePath($moduleName, $fileName = 'index.php') {
     // check if module exists / is registered
-    if(!array_key_exists($moduleName, self::$modules)) {
+    if (!array_key_exists($moduleName, self::$_modules)) {
       trigger_error("Cannot get module file: Module '{$moduleName}' is not registered!", E_USER_WARNING);
       return false;
     }
 
     // check if file exists (path in array already has a trailing slash)
-    $filePath = self::$modules[$moduleName] . $fileName;
-    if(!is_file($filePath)) {
+    $filePath = self::$_modules[$moduleName] . $fileName;
+    if (!is_file($filePath)) {
       trigger_error("Cannot get module file: File '{$fileName}' could not be found at '{$filePath}'!", E_USER_WARNING);
       return false;
     }
@@ -61,10 +61,10 @@ class WPStarter {
   }
 
   protected static function addModuleToList($name, $path) {
-    self::$modules[$name] = $path;
+    self::$_modules[$name] = $path;
   }
 
   public static function getModuleList() {
-    return self::$modules;
+    return self::$_modules;
   }
 }

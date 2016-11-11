@@ -21,7 +21,7 @@ class Render {
 
   protected static function extractAreaHtml($constructionPlan) {
     $areaHtml = [];
-    if(array_key_exists('areas', $constructionPlan)) {
+    if (array_key_exists('areas', $constructionPlan)) {
       $areaHtml = array_map('self::joinAreaModules', $constructionPlan['areas']);
     }
     return $areaHtml;

@@ -23,7 +23,7 @@ class WPStarterTest extends TestCase {
 
     // reset private static modules array in WPStarter
     $reflectedClass = new ReflectionClass(WPStarter::class);
-    $reflectedProperty = $reflectedClass->getProperty('modules');
+    $reflectedProperty = $reflectedClass->getProperty('_modules');
     $reflectedProperty->setAccessible(true);
     $reflectedProperty = $reflectedProperty->setValue([]);
   }
