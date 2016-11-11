@@ -173,4 +173,54 @@ class WPStarterTest extends TestCase {
     $this->expectOutputString('test');
     WPStarter::echoHtmlFromConfigFile($configFileName);
   }
+
+  function testGetsModuleFile() {
+    $moduleName = 'SingleModule';
+
+    // mock default functionality for path on registerModule
+    Filters::expectApplied('WPStarter/modulePath')
+    ->andReturnUsing(['TestHelper', 'getModulePath']);
+    WPStarter::registerModule($moduleName);
+
+    // test default
+    $path = WPStarter::getModuleFilePath($moduleName);
+    $this->assertEquals($path, TestHelper::getModulePath(null, $moduleName) . '/index.php');
+
+    // test second parameter
+    $fileName = 'index.html';
+    $path = WPStarter::getModuleFilePath($moduleName, $fileName);
+    $this->assertEquals($path, TestHelper::getModulePath(null, $moduleName) . '/' . $fileName);
+  }
+
+  function testGetModuleFilePathShowsWarningOnUnregisteredModuleParam() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+    $path = WPStarter::getModuleFilePath('SomeModuleName');
+  }
+
+  function testGetModuleFilePathReturnsFalseOnUnregisteredModuleParam() {
+    $path = @WPStarter::getModuleFilePath('SomeModuleName');
+    $this->assertFalse($path);
+  }
+
+  function testGetModuleFilePathShowsWarningOnIncorrectFileName() {
+    $moduleName = 'SingleModule';
+
+    Filters::expectApplied('WPStarter/modulePath')
+    ->andReturnUsing(['TestHelper', 'getModulePath']);
+    WPStarter::registerModule($moduleName);
+
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+    $path = WPStarter::getModuleFilePath($moduleName, 'doesNotExist.something');
+  }
+
+  function testGetModuleFilePathReturnsFalseOnIncorrectFileName() {
+    $moduleName = 'SingleModule';
+
+    Filters::expectApplied('WPStarter/modulePath')
+    ->andReturnUsing(['TestHelper', 'getModulePath']);
+    WPStarter::registerModule($moduleName);
+
+    $path = @WPStarter::getModuleFilePath($moduleName, 'doesNotExist.something');
+    $this->assertFalse($path);
+  }
 }

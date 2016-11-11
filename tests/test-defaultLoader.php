@@ -101,7 +101,7 @@ class DefaultLoaderTest extends TestCase {
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
     Mockery::mock('alias:WPStarter\WPStarter')
-    ->shouldReceive('getModulePath')
+    ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
     ->andReturn(TestHelper::getModulesPath() . $moduleName);
@@ -122,7 +122,7 @@ class DefaultLoaderTest extends TestCase {
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
     Mockery::mock('alias:WPStarter\WPStarter')
-    ->shouldReceive('getModulePath')
+    ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
     ->andReturn('not/a/real/file.php');
@@ -140,7 +140,7 @@ class DefaultLoaderTest extends TestCase {
     $areaHtml = [];
 
     Mockery::mock('alias:WPStarter\WPStarter')
-    ->shouldReceive('getModulePath')
+    ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
     ->andReturn('not/a/real/file.php');
@@ -162,7 +162,7 @@ class DefaultLoaderTest extends TestCase {
     $areaHtml = [];
 
     Mockery::mock('alias:WPStarter\WPStarter')
-    ->shouldReceive('getModulePath')
+    ->shouldReceive('getModuleFilePath')
     ->once()
     ->with($moduleName)
     ->andReturn(TestHelper::getModulesPath() . $moduleName . '/index.php');
@@ -189,7 +189,7 @@ class DefaultLoaderTest extends TestCase {
     ];
 
     Mockery::mock('alias:WPStarter\WPStarter')
-    ->shouldReceive('getModulePath')
+    ->shouldReceive('getModuleFilePath')
     ->times(2)
     ->with(Mockery::type('string'))
     ->andReturnUsing(['TestHelper', 'getModuleIndexPath']);

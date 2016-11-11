@@ -43,6 +43,23 @@ class WPStarter {
     self::addModuleToList($moduleName, $modulePath);
   }
 
+  public static function getModuleFilePath($moduleName, $fileName = 'index.php') {
+    // check if module exists / is registered
+    if(!array_key_exists($moduleName, self::$modules)) {
+      trigger_error("Cannot get module file: Module '{$moduleName}' is not registered!", E_USER_WARNING);
+      return false;
+    }
+
+    // check if file exists (path in array already has a trailing slash)
+    $filePath = self::$modules[$moduleName] . $fileName;
+    if(!is_file($filePath)) {
+      trigger_error("Cannot get module file: File '{$fileName}' could not be found at '{$filePath}'!", E_USER_WARNING);
+      return false;
+    }
+
+    return $filePath;
+  }
+
   protected static function addModuleToList($name, $path) {
     self::$modules[$name] = $path;
   }

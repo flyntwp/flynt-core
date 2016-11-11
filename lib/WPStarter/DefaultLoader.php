@@ -31,7 +31,7 @@ class DefaultLoader {
 
   public static function renderModule($output, $moduleName, $moduleData, $areaHtml) {
     if(empty($output)) {
-      $filePath = WPStarter::getModulePath($moduleName);
+      $filePath = WPStarter::getModuleFilePath($moduleName);
       $output = self::renderFile($moduleData, $areaHtml, $filePath);
     }
     return $output;
