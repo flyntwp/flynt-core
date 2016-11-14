@@ -46,7 +46,7 @@ class WPStarterTest extends TestCase {
     ->andReturn($moduleManagerMock);
 
     $moduleManagerMock
-    ->shouldReceive('register')
+    ->shouldReceive('registerModule')
     ->with($moduleName, $modulePath)
     ->once();
 

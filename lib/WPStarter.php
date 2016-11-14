@@ -30,5 +30,5 @@ function getHtmlFromConfigFile($fileName) {
 // @codingStandardsIgnoreLine
 function registerModule($moduleName, $modulePath = null) {
   $moduleManager = ModuleManager::getInstance();
-  $moduleManager->register($moduleName, $modulePath);
+  $moduleManager->registerModule($moduleName, $modulePath);
 }
