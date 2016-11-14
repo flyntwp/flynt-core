@@ -45,7 +45,7 @@ class DefaultsTest extends TestCase {
   function testAddsFilterForRenderModule() {
     Filters::expectAdded('WPStarter/renderModule')
     ->once()
-    ->with(['WPStarter\Defaults', 'renderModule'], 999, 3);
+    ->with(['WPStarter\Defaults', 'renderModule'], 999, 4);
 
     Defaults::init();
   }

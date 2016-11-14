@@ -9,7 +9,7 @@ class Defaults {
   public static function init() {
     add_filter('WPStarter/configPath', ['WPStarter\Defaults', 'setConfigPath'], 999, 1);
     add_filter('WPStarter/configFileLoader', ['WPStarter\Defaults', 'loadConfigFile'], 999, 3);
-    add_filter('WPStarter/renderModule', ['WPStarter\Defaults', 'renderModule'], 999, 3);
+    add_filter('WPStarter/renderModule', ['WPStarter\Defaults', 'renderModule'], 999, 4);
     add_filter('WPStarter/modulePath', ['WPStarter\Defaults', 'setModulePath'], 999, 2);
     add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'checkModuleFolder']);
     add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'loadFunctionsFile']);
