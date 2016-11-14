@@ -114,7 +114,7 @@ class BuildConstructionPlanTest extends TestCase {
     $filePath = TestHelper::getConfigPath() . $fileName;
 
     Filters::expectApplied('WPStarter/configPath')
-    ->andReturnUsing(['TestHelper', 'getConfigPath']);
+    ->andReturn($filePath);
 
     Filters::expectApplied('WPStarter/configFileLoader')
     ->once()
@@ -138,7 +138,7 @@ class BuildConstructionPlanTest extends TestCase {
     Filters::expectApplied('WPStarter/configPath')
     ->once()
     ->with(null, $fileName)
-    ->andReturn('/not/a/real/folder/');
+    ->andReturn('/not/a/real/config/file.json');
 
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
@@ -151,7 +151,7 @@ class BuildConstructionPlanTest extends TestCase {
     Filters::expectApplied('WPStarter/configPath')
     ->once()
     ->with(null, $fileName)
-    ->andReturn('/not/a/real/folder/');
+    ->andReturn('/not/a/real/config/file.json');
 
     $cp = @BuildConstructionPlan::fromConfigFile($fileName);
     $this->assertEquals($cp, []);
