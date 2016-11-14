@@ -24,13 +24,13 @@ class HelpersTest extends TestCase {
     $arr = [
       'foo' => $foo
     ];
-    $value = Helpers::extractNestedDataFromArray(null);
+    $value = Helpers::extractNestedDataFromArray([null]);
     $this->assertEquals($value, '');
-    $value = Helpers::extractNestedDataFromArray('string');
+    $value = Helpers::extractNestedDataFromArray(['string']);
+    $this->assertEquals($value, 'string');
+    $value = Helpers::extractNestedDataFromArray(['stringA', 'stringB']);
     $this->assertEquals($value, '');
-    $value = Helpers::extractNestedDataFromArray('stringA', 'stringB');
-    $this->assertEquals($value, '');
-    $value = Helpers::extractNestedDataFromArray('stringA', null, 'stringB');
+    $value = Helpers::extractNestedDataFromArray(['stringA', null, 'stringB']);
     $this->assertEquals($value, '');
     $value = Helpers::extractNestedDataFromArray([$arr, 'boo']);
     $this->assertEquals($value, '');
@@ -38,6 +38,12 @@ class HelpersTest extends TestCase {
     $this->assertEquals($value, $foo);
     $value = Helpers::extractNestedDataFromArray([$arr, 'foo', 'bar']);
     $this->assertEquals($value, $bar);
+    $value = Helpers::extractNestedDataFromArray([[], $arr, 'foo']);
+    $this->assertEquals($value, $foo);
+    $value = Helpers::extractNestedDataFromArray([$arr]);
+    $this->assertEquals($value, $arr);
+    $value = Helpers::extractNestedDataFromArray([$arr, $foo]);
+    $this->assertEquals($value, $foo);
   }
 
 }
