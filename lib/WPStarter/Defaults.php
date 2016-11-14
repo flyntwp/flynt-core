@@ -7,7 +7,7 @@ use WPStarter\Helpers;
 
 class Defaults {
   public static function init() {
-    add_filter('WPStarter/configPath', ['WPStarter\Defaults', 'setConfigPath'], 999, 1);
+    add_filter('WPStarter/configPath', ['WPStarter\Defaults', 'setConfigPath'], 999, 2);
     add_filter('WPStarter/configFileLoader', ['WPStarter\Defaults', 'loadConfigFile'], 999, 3);
     add_filter('WPStarter/renderModule', ['WPStarter\Defaults', 'renderModule'], 999, 3);
     add_filter('WPStarter/modulePath', ['WPStarter\Defaults', 'setModulePath'], 999, 2);
@@ -15,9 +15,9 @@ class Defaults {
     add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'loadFunctionsFile']);
   }
 
-  public static function setConfigPath($configPath) {
+  public static function setConfigPath($configPath, $configFileName) {
     if (is_null($configPath)) {
-      $configPath = get_template_directory() . '/config';
+      $configPath = get_template_directory() . '/config/' . $configFileName;
     }
     return $configPath;
   }

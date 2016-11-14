@@ -26,8 +26,7 @@ class BuildConstructionPlan {
   }
 
   public static function fromConfigFile($configFileName) {
-    $configPath = trailingslashit(apply_filters('WPStarter/configPath', null, $configFileName));
-    $configFilePath = $configPath . $configFileName;
+    $configFilePath = apply_filters('WPStarter/configPath', null, $configFileName);
     if (!is_file($configFilePath)) {
       trigger_error('Config file not found: ' . $configFilePath, E_USER_WARNING);
       return [];

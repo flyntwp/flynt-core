@@ -29,7 +29,7 @@ class DefaultsTest extends TestCase {
   function testAddsFilterForConfigPath() {
     Filters::expectAdded('WPStarter/configPath')
     ->once()
-    ->with(['WPStarter\Defaults', 'setConfigPath'], 999, 1);
+    ->with(['WPStarter\Defaults', 'setConfigPath'], 999, 2);
 
     Defaults::init();
   }
@@ -73,8 +73,8 @@ class DefaultsTest extends TestCase {
   }
 
   function testReturnsAConfigPath() {
-    $configPath = Defaults::setConfigPath(null, '');
-    $this->assertEquals($configPath, TestHelper::getTemplateDirectory() . '/config');
+    $configPath = Defaults::setConfigPath(null, 'config.json');
+    $this->assertEquals($configPath, TestHelper::getTemplateDirectory() . '/config/config.json');
   }
 
   function testLoadsAndDecodesJsonFile() {
