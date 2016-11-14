@@ -1,8 +1,13 @@
-# WP Starter Render Class
+# `Render` Class
 
 The Render class is responsible for ...
 
-## Public API
+## Table of Contents
+1. References
+
+## 1. References
+
+### Public Class Methods
 - fromConstructionPlan
 
-## Filters and Actions
+### Filters and Actions
