@@ -42,6 +42,8 @@ class HelpersTest extends TestCase {
     $this->assertEquals($value, $foo);
     $value = Helpers::extractNestedDataFromArray([$arr]);
     $this->assertEquals($value, $arr);
+    $value = Helpers::extractNestedDataFromArray([$arr, $foo]);
+    $this->assertEquals($value, $foo);
   }
 
 }
