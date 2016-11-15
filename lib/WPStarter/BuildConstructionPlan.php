@@ -13,20 +13,17 @@ class BuildConstructionPlan {
       return [];
     }
 
-    // add data to module
     $config['data'] = [];
-    $config = apply_filters('WPStarter/initModuleConfig', $config, $areaName, $parentData);
-    $config = apply_filters("WPStarter/initModuleConfig?name={$config['name']}", $config, $areaName, $parentData);
+
+    // applies filters for module initialisation
+    $config = self::initModuleConfig($config, $areaName, $parentData);
+
+    // add data to module
     $config = self::applyDataFilter($config);
     $config = self::addCustomData($config);
 
-    $config['data'] = apply_filters('WPStarter/modifyModuleData', $config['data'], $parentData, $config);
-    $config['data'] = apply_filters(
-      "WPStarter/modifyModuleData?name={$config['name']}",
-      $config['data'],
-      $parentData,
-      $config
-    );
+    // apply modifyModuleData filters to be used in a functions.php of a module for example
+    $config = self::applyDataModifications($config, $parentData);
 
     // add submodules (dynamic + static)
     $config = self::addSubmodules($config, $parentData);
@@ -72,6 +69,21 @@ class BuildConstructionPlan {
     }
   }
 
+  protected static function initModuleConfig($config, $areaName, $parentData) {
+    $config = apply_filters(
+      'WPStarter/initModuleConfig',
+      $config,
+      $areaName,
+      $parentData
+    );
+    return apply_filters(
+      "WPStarter/initModuleConfig?name={$config['name']}",
+      $config,
+      $areaName,
+      $parentData
+    );
+  }
+
   protected static function applyDataFilter($config) {
     if (array_key_exists('dataFilter', $config)) {
       $args = [ $config['data'] ];
@@ -88,6 +100,22 @@ class BuildConstructionPlan {
       // custom data overwrites original data
       $config['data'] = array_merge($config['data'], $config['customData']);
     }
+    return $config;
+  }
+
+  protected static function applyDataModifications($config, $parentData) {
+    $config['data'] = apply_filters(
+      'WPStarter/modifyModuleData',
+      $config['data'],
+      $parentData,
+      $config
+    );
+    $config['data'] = apply_filters(
+      "WPStarter/modifyModuleData?name={$config['name']}",
+      $config['data'],
+      $parentData,
+      $config
+    );
     return $config;
   }
 
