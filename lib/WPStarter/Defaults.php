@@ -6,6 +6,9 @@ use WPStarter\ModuleManager;
 use WPStarter\Helpers;
 
 class Defaults {
+  const CONFIG_DIR = 'config';
+  const MODULE_DIR = 'Modules';
+
   public static function init() {
     add_filter('WPStarter/configPath', ['WPStarter\Defaults', 'setConfigPath'], 999, 2);
     add_filter('WPStarter/configFileLoader', ['WPStarter\Defaults', 'loadConfigFile'], 999, 3);
@@ -17,7 +20,7 @@ class Defaults {
 
   public static function setConfigPath($configPath, $configFileName) {
     if (is_null($configPath)) {
-      $configPath = get_template_directory() . '/config/' . $configFileName;
+      $configPath = get_template_directory() . '/' . self::CONFIG_DIR . '/' . $configFileName;
     }
     return $configPath;
   }
@@ -40,9 +43,13 @@ class Defaults {
 
   public static function setModulePath($modulePath, $moduleName) {
     if (is_null($modulePath)) {
-      $modulePath = get_template_directory() . '/Modules/' . $moduleName;
+      $modulePath = self::getModulesDirectory() . '/' . $moduleName;
     }
     return $modulePath;
+  }
+
+  public static function getModulesDirectory() {
+    return get_template_directory() . '/' . self::MODULE_DIR;
   }
 
   // this action needs to be removed by the user if they want to overwrite this functionality
