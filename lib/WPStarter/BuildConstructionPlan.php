@@ -20,6 +20,14 @@ class BuildConstructionPlan {
     $config = self::applyDataFilter($config);
     $config = self::addCustomData($config);
 
+    $config['data'] = apply_filters('WPStarter/modifyModuleData', $config['data'], $parentData, $config);
+    $config['data'] = apply_filters(
+      "WPStarter/modifyModuleData?name={$config['name']}",
+      $config['data'],
+      $parentData,
+      $config
+    );
+
     // add submodules (dynamic + static)
     $config = self::addSubmodules($config, $parentData);
 

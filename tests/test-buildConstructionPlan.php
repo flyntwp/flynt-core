@@ -283,6 +283,103 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
+  function testModifyModuleDataFiltersAreApplied() {
+    // Made this more complex than necessary to also test parentData being passed
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName);
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($childModuleName, true, true);
+
+    $parentModule = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+    $childModule = TestHelper::getCompleteModule($childModuleName);
+
+    $parentModule['areas'] = [
+      'Area51' => [
+        $childModule
+      ]
+    ];
+
+    $this->mockModuleManager();
+
+    $parentData = [
+      'test' => 'result'
+    ];
+
+    $childData = [
+      'test' => 'result',
+      'test0' => 0,
+      'test1' => 'string',
+      'test2' => [
+        'something strange'
+      ],
+      'duplicate' => 'newValue'
+    ];
+
+    $newChildData = array_merge($childData, [
+      'test' => 'fromAddData',
+      'something' => 'else'
+    ]);
+
+    $parentModuleAsArg = array_merge($parentModule, [
+      'data' => $parentData
+    ]);
+
+    $childModuleAsArg = array_merge($childModule, [
+      'data' => $childData
+    ]);
+
+    Filters::expectApplied('WPStarter/modifyModuleData')
+    ->with($parentData, [], $parentModuleAsArg)
+    ->ordered()
+    ->once()
+    ->andReturn($parentData);
+
+    Filters::expectApplied('WPStarter/modifyModuleData')
+    ->with($childData, $parentData, $childModuleAsArg)
+    ->ordered()
+    ->once()
+    ->andReturn($childData);
+
+    Filters::expectApplied("WPStarter/modifyModuleData?name={$childModuleName}")
+    ->with($childData, $parentData, $childModuleAsArg)
+    ->once()
+    ->andReturn($newChildData);
+
+    $cp = BuildConstructionPlan::fromConfig($parentModule, $this->moduleList);
+
+    $this->assertEquals($cp, [
+      'name' => $parentModuleName,
+      'data' => [
+        'test' => 'result'
+      ],
+      'areas' => [
+        'Area51' => [
+          [
+            'name' => $childModuleName,
+            'data' => [
+              'test' => 'fromAddData',
+              'something' => 'else',
+              'test0' => 0,
+              'test1' => 'string',
+              'test2' => [
+                'something strange'
+              ],
+              'duplicate' => 'newValue'
+            ]
+          ]
+        ]
+      ]
+    ]);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testNestedModuleIsAddedToArea() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
