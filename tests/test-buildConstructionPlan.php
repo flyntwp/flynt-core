@@ -538,6 +538,56 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testAppliesInitModuleConfigFilters() {
+    $moduleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
+
+    $moduleData = ['test' => 'result'];
+
+    $moduleConfig = TestHelper::getCustomModule($moduleName, ['name', 'areas']);
+    $childModuleConfig = TestHelper::getCustomModule($childModuleName, ['name']);
+
+    $moduleConfig['areas']['area51'][0] = $childModuleConfig;
+
+    $moduleConfigFilterParam = $moduleConfig;
+    $childModuleConfigFilterParam = $childModuleConfig;
+
+    $moduleConfigFilterParam['data'] = [];
+    $childModuleConfigFilterParam['data'] = [];
+
+    $moduleConfigAfterInit = array_merge($moduleConfigFilterParam, ['data' => $moduleData]);
+
+    Filters::expectApplied('WPStarter/initModuleConfig')
+    ->with($moduleConfigFilterParam, null, [])
+    ->ordered()
+    ->once()
+    ->andReturn($moduleConfigAfterInit);
+
+    Filters::expectApplied('WPStarter/initModuleConfig')
+    ->with($childModuleConfigFilterParam, 'area51', $moduleData)
+    ->ordered()
+    ->once()
+    ->andReturn($childModuleConfigFilterParam);
+
+    Filters::expectApplied("WPStarter/initModuleConfig?name={$moduleName}")
+    ->with($moduleConfigAfterInit, null, [])
+    ->once()
+    ->andReturn($moduleConfigAfterInit);
+
+    Filters::expectApplied("WPStarter/initModuleConfig?name={$childModuleName}")
+    ->with($childModuleConfigFilterParam, 'area51', $moduleData)
+    ->once()
+    ->andReturn($moduleConfigAfterInit);
+
+    $this->mockModuleManager();
+
+    BuildConstructionPlan::fromConfig($moduleConfig);
+  }
+
   // Helpers
   function mockModuleManager() {
     $moduleManagerMock = Mockery::mock('ModuleManager');

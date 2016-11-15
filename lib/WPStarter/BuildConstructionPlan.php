@@ -7,7 +7,7 @@ class BuildConstructionPlan {
     return self::fromConfigRecursive($config);
   }
 
-  protected static function fromConfigRecursive($config, $parentData = []) {
+  protected static function fromConfigRecursive($config, $areaName = null, $parentData = []) {
     // Check configuration for errors
     if (false === self::validateConfig($config)) {
       return [];
@@ -15,6 +15,8 @@ class BuildConstructionPlan {
 
     // add data to module
     $config['data'] = [];
+    $config = apply_filters('WPStarter/initModuleConfig', $config, $areaName, $parentData);
+    $config = apply_filters("WPStarter/initModuleConfig?name={$config['name']}", $config, $areaName, $parentData);
     $config = self::applyDataFilter($config);
     $config = self::addCustomData($config);
 
@@ -93,17 +95,20 @@ class BuildConstructionPlan {
 
     // iterate areas and recursively map child module construction plan
     if (!empty($config['areas'])) {
-      $config['areas'] = array_map(function ($modules) use ($config, $parentData) {
-        return self::mapAreaModules($modules, $config, $parentData);
-      }, $config['areas']);
+      $areaNames = array_keys($config['areas']);
+      $config['areas'] = array_reduce($areaNames, function ($output, $areaName) use ($config, $parentData) {
+        $modules = $config['areas'][$areaName];
+        $output[$areaName] = self::mapAreaModules($modules, $config, $areaName, $parentData);
+        return $output;
+      }, []);
     }
     return $config;
   }
 
-  protected static function mapAreaModules($modules, $config, $parentData) {
-    return array_map(function ($module) use ($config, $parentData) {
+  protected static function mapAreaModules($modules, $config, $areaName, $parentData) {
+    return array_map(function ($module) use ($config, $areaName, $parentData) {
       $data = empty($config['data']) ? $parentData : $config['data'];
-      return self::fromConfigRecursive($module, $data);
+      return self::fromConfigRecursive($module, $areaName, $data);
     }, $modules);
   }
 
