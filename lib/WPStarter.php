@@ -32,3 +32,17 @@ function registerModule($moduleName, $modulePath = null) {
   $moduleManager = ModuleManager::getInstance();
   $moduleManager->registerModule($moduleName, $modulePath);
 }
+
+// @codingStandardsIgnoreLine
+function registerModules($modules = []) {
+  $moduleManager = ModuleManager::getInstance();
+  foreach ($modules as $moduleName => $modulePath) {
+    if (is_int($moduleName)) {
+      $moduleName = $modulePath;
+      $modulePath = null;
+    } else {
+      $modulePath = (isset($modulePath)) ? $modulePath : null;
+    }
+    $moduleManager->registerModule($moduleName, $modulePath);
+  }
+}
