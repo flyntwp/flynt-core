@@ -30,8 +30,13 @@ class TestHelper {
     }, ARRAY_FILTER_USE_KEY);
   }
 
-  public static function registerDataFilter($moduleName = 'Module', $hasFilterArgs = false, $returnDuplicate = false) {
-    $filterArgs = [[]];
+  public static function registerDataFilter(
+    $moduleName = 'Module',
+    $parentData = [],
+    $hasFilterArgs = false,
+    $returnDuplicate = false
+  ) {
+    $filterArgs = [ [], $parentData ];
     $return = [ 'test' => 'result' ];
 
     if ($hasFilterArgs) {

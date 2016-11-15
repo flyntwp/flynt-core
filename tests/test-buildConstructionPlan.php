@@ -202,11 +202,64 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
+  function testModuleDataIsFilteredWithParentData() {
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
+    $parentData = [
+      'test' => 'result'
+    ];
+
+    // Params: moduleName, parentData, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName);
+
+    // Params: moduleName, parentData, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($childModuleName, $parentData, true, true);
+
+    $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+
+    $module['areas'] = [
+      'Area51' => [
+        TestHelper::getCompleteModule($childModuleName)
+      ]
+    ];
+
+    $this->mockModuleManager();
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+
+    $this->assertEquals($cp, [
+      'name' => $parentModuleName,
+      'data' => [
+        'test' => 'result'
+      ],
+      'areas' => [
+        'Area51' => [
+          [
+            'name' => $childModuleName,
+            'data' => [
+              'test' => 'result',
+              'test0' => 0,
+              'test1' => 'string',
+              'test2' => [
+                'something strange'
+              ],
+              'duplicate' => 'newValue'
+            ]
+          ]
+        ]
+      ]
+    ]);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testDataFilterArgumentsAreUsed() {
     $moduleName = 'SingleModule';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($moduleName, true, false);
+    // Params: moduleName, parentData, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($moduleName, [], true, false);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
 
@@ -256,8 +309,8 @@ class BuildConstructionPlanTest extends TestCase {
   function testDataIsFilteredAndCustomDataIsAdded() {
     $moduleName = 'SingleModule';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($moduleName, false, true);
+    // Params: moduleName, parentData, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($moduleName, [], false, true);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'customData', 'areas']);
 
@@ -287,8 +340,8 @@ class BuildConstructionPlanTest extends TestCase {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($childModuleName, true, true);
+    // Params: moduleName, parentData, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($childModuleName, [], true, true);
 
     $module = TestHelper::getCustomModule($parentModuleName, ['name', 'areas']);
 
@@ -332,8 +385,8 @@ class BuildConstructionPlanTest extends TestCase {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentModuleName, false, false);
+    // Params: moduleName, parentData, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName);
 
     $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
 
@@ -374,8 +427,8 @@ class BuildConstructionPlanTest extends TestCase {
     $grandChildModuleNameB = 'GrandChildB';
     $grandChildModuleNameC = 'GrandChildC';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentModuleName, false, false);
+    // Params: moduleName, parentData, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName);
 
     $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
 
@@ -441,8 +494,8 @@ class BuildConstructionPlanTest extends TestCase {
     $moduleName = 'ModuleWithArea';
     $dynamicModuleName = 'SingleModule';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($moduleName, false, false);
+    // Params: moduleName, parentData, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($moduleName, [], false, false);
 
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
     $dynamicModule = TestHelper::getCustomModule($dynamicModuleName, ['name']);
@@ -482,8 +535,8 @@ class BuildConstructionPlanTest extends TestCase {
     $childSubmoduleName = 'SingleModule';
     $dynamicModuleName = 'DynamicModule';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentModuleName, false, false);
+    // Params: moduleName, parentData, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName, [], false, false);
 
     $parentModule = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
     $childModule = TestHelper::getCustomModule($childModuleName, ['name']);

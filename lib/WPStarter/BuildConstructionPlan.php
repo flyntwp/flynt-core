@@ -15,7 +15,7 @@ class BuildConstructionPlan {
 
     // add data to module
     $config['data'] = [];
-    $config = self::applyDataFilter($config);
+    $config = self::applyDataFilter($config, $parentData);
     $config = self::addCustomData($config);
 
     // add submodules (dynamic + static)
@@ -62,9 +62,9 @@ class BuildConstructionPlan {
     }
   }
 
-  protected static function applyDataFilter($config) {
+  protected static function applyDataFilter($config, $parentData = []) {
     if (array_key_exists('dataFilter', $config)) {
-      $args = [ $config['data'] ];
+      $args = [ $config['data'], $parentData ];
       if (array_key_exists('dataFilterArgs', $config)) {
         $args = array_merge($args, $config['dataFilterArgs']);
       }
