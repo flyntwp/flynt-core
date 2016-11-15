@@ -234,6 +234,11 @@ class DefaultsTest extends TestCase {
     Defaults::loadFunctionsFile(TestHelper::getModulePath(null, $moduleName));
   }
 
+  function testIsGettingDefaultModulesDirectory() {
+    $dir = Defaults::getModulesDirectory();
+    $this->assertEquals($dir, TestHelper::getTemplateDirectory() . '/Modules');
+  }
+
   // Helpers
   function mockModuleManager() {
     $moduleManagerMock = Mockery::mock('ModuleManager');
