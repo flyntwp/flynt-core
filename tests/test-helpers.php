@@ -24,6 +24,10 @@ class HelpersTest extends TestCase {
     $arr = [
       'foo' => $foo
     ];
+    $fooObj = (object) $foo;
+    $obj = (object) [
+      'foo' => $fooObj
+    ];
     $value = Helpers::extractNestedDataFromArray([null]);
     $this->assertEquals($value, '');
     $value = Helpers::extractNestedDataFromArray(['string']);
@@ -44,6 +48,10 @@ class HelpersTest extends TestCase {
     $this->assertEquals($value, $arr);
     $value = Helpers::extractNestedDataFromArray([$arr, $foo]);
     $this->assertEquals($value, $foo);
+    $value = Helpers::extractNestedDataFromArray([$obj, 'foo']);
+    $this->assertEquals($value, $fooObj);
+    $value = Helpers::extractNestedDataFromArray([$obj, 'foo', 'bar']);
+    $this->assertEquals($value, $bar);
   }
 
 }

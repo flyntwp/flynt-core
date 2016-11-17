@@ -13,10 +13,12 @@ class Helpers {
       $data = $args[0];
     }
     $output = '';
-    if (is_array($key)) {
+    if (is_array($key) || is_object($key)) {
       $output = $key;
     } elseif (is_array($data) && array_key_exists($key, $data)) {
       $output = $data[$key];
+    } elseif (is_object($data) && property_exists($data, $key)) {
+      $output = $data->$key;
     }
     return $output;
   }
