@@ -42,7 +42,7 @@ class RenderTest extends TestCase {
 
     Filters::expectApplied('WPStarter/renderModule')
     ->once()
-    ->with('', Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
+    ->with(Mockery::mustBe(null), Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
     ->andReturn($shouldBeHtml);
 
     $html = Render::fromConstructionPlan($cp);
@@ -72,7 +72,7 @@ class RenderTest extends TestCase {
 
     Filters::expectApplied('WPStarter/renderModule')
     ->times(2)
-    ->with('', Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
+    ->with(Mockery::mustBe(null), Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
     ->andReturn($shouldBeHtml);
 
     // Specific Filters renderModule?name=SingleModule for example
