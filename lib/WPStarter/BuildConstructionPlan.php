@@ -15,6 +15,9 @@ class BuildConstructionPlan {
 
     $config['data'] = [];
 
+    // check for parent data overwrite
+    $parentData = self::overwriteParentData($config, $parentData);
+
     // applies filters for module initialisation
     $config = self::initModuleConfig($config, $areaName, $parentData);
 
@@ -67,6 +70,13 @@ class BuildConstructionPlan {
       );
       return false;
     }
+  }
+
+  protected static function overwriteParentData($config, $parentData) {
+    if (array_key_exists('parentData', $config)) {
+      return $config['parentData'];
+    }
+    return $parentData;
   }
 
   protected static function initModuleConfig($config, $areaName, $parentData) {
@@ -152,6 +162,7 @@ class BuildConstructionPlan {
     unset($config['dataFilter']);
     unset($config['dataFilterArgs']);
     unset($config['customData']);
+    unset($config['parentData']);
 
     if (empty($config['areas'])) {
       unset($config['areas']);
