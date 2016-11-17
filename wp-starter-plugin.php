@@ -21,4 +21,5 @@ require_once __DIR__ . '/lib/WPStarter.php';
 
 use WPStarter\Defaults;
 
+// Register default filters and actions. Does not actually run any plugin code.
 Defaults::init();
