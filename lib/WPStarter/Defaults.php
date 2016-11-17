@@ -33,7 +33,7 @@ class Defaults {
   }
 
   public static function renderModule($output, $moduleName, $moduleData, $areaHtml) {
-    if (empty($output)) {
+    if (is_null($output)) {
       $moduleManager = ModuleManager::getInstance();
       $filePath = $moduleManager->getModuleFilePath($moduleName);
       $output = self::renderFile($moduleData, $areaHtml, $filePath);

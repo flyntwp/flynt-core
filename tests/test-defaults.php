@@ -170,7 +170,7 @@ class DefaultsTest extends TestCase {
     ->shouldReceive('extractNestedDataFromArray')
     ->andReturn('result');
 
-    $output = Defaults::renderModule('', $moduleName, $moduleData, $areaHtml);
+    $output = Defaults::renderModule(null, $moduleName, $moduleData, $areaHtml);
 
     $expectedHTML = "<div>SingleModule result</div>\n";
 
@@ -199,9 +199,9 @@ class DefaultsTest extends TestCase {
     ->andReturn('result');
 
     $areaHtml = [
-      'area51' => Defaults::renderModule('', $childModuleName, $moduleData, [])
+      'area51' => Defaults::renderModule(null, $childModuleName, $moduleData, [])
     ];
-    $output = Defaults::renderModule('', $parentModuleName, $moduleData, $areaHtml);
+    $output = Defaults::renderModule(null, $parentModuleName, $moduleData, $areaHtml);
 
     $this->assertEquals($output, "<div>{$parentModuleName} result<div>{$childModuleName} result</div>\n</div>\n");
   }

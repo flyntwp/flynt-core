@@ -33,7 +33,9 @@ class Render {
     $moduleData = $constructionPlan['data'];
     $moduleName = $constructionPlan['name'];
 
-    $output = apply_filters('WPStarter/renderModule', '', $moduleName, $moduleData, $areaHtml);
-    return apply_filters("WPStarter/renderModule?name={$moduleName}", $output, $moduleName, $moduleData, $areaHtml);
+    $output = apply_filters('WPStarter/renderModule', null, $moduleName, $moduleData, $areaHtml);
+    $output = apply_filters("WPStarter/renderModule?name={$moduleName}", $output, $moduleName, $moduleData, $areaHtml);
+
+    return is_null($output) ? '' : $output;
   }
 }
