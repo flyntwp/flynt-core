@@ -327,10 +327,16 @@ class BuildConstructionPlanTest extends TestCase {
     $parentModuleAsArg = array_merge($parentModule, [
       'data' => $parentData
     ]);
+    unset($parentModuleAsArg['dataFilter']);
+    unset($parentModuleAsArg['dataFilterArgs']);
+    unset($parentModuleAsArg['customData']);
 
     $childModuleAsArg = array_merge($childModule, [
       'data' => $childData
     ]);
+    unset($childModuleAsArg['dataFilter']);
+    unset($childModuleAsArg['dataFilterArgs']);
+    unset($childModuleAsArg['customData']);
 
     Filters::expectApplied('WPStarter/modifyModuleData')
     ->with($parentData, [], $parentModuleAsArg)
@@ -454,6 +460,65 @@ class BuildConstructionPlanTest extends TestCase {
           [
             'name' => $childModuleName,
             'data' => []
+          ]
+        ]
+      ]
+    ]);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testParentDataIsOverwritten() {
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName, false, false);
+
+    $newParentData = [
+      'custom' => 'parentData'
+    ];
+
+    $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+    $childModule = TestHelper::getCustomModule($childModuleName, ['name']);
+    $childModule['parentData'] = $newParentData;
+
+    $module['areas'] = [
+      'area51' => [
+        $childModule
+      ]
+    ];
+
+    $this->mockModuleManager();
+
+    Filters::expectApplied('WPStarter/modifyModuleData')
+    ->with(['test' => 'result'], [], Mockery::type('array'))
+    ->ordered()
+    ->once()
+    ->andReturn(['test' => 'result']);
+
+    Filters::expectApplied('WPStarter/modifyModuleData')
+    ->with([], $newParentData, Mockery::type('array'))
+    ->ordered()
+    ->once()
+    ->andReturn($newParentData);
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+
+    $this->assertEquals($cp, [
+      'name' => $parentModuleName,
+      'data' => [
+        'test' => 'result',
+      ],
+      'areas' => [
+        'area51' => [
+          [
+            'name' => $childModuleName,
+            'data' => [
+              'custom' => 'parentData'
+            ]
           ]
         ]
       ]
