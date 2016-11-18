@@ -28,11 +28,8 @@ class BuildConstructionPlan {
     // apply modifyModuleData filters to be used in a functions.php of a module for example
     $config = self::applyDataModifications($config, $parentData);
 
-    // add submodules (dynamic + static)
-    $config = self::addSubmodules($config, $parentData);
-
-    // return cleaned up construction plan for the current module
-    return self::cleanModule($config);
+    // add submodules (dynamic + static) and return construction plan for the current module
+    return self::addSubmodules($config, $parentData);
   }
 
   public static function fromConfigFile($configFileName) {
@@ -72,9 +69,10 @@ class BuildConstructionPlan {
     }
   }
 
-  protected static function overwriteParentData($config, $parentData) {
+  protected static function overwriteParentData(&$config, $parentData) {
     if (array_key_exists('parentData', $config)) {
-      return $config['parentData'];
+      $parentData = $config['parentData'];
+      unset($config['parentData']);
     }
     return $parentData;
   }
@@ -99,8 +97,10 @@ class BuildConstructionPlan {
       $args = [ $config['data'] ];
       if (array_key_exists('dataFilterArgs', $config)) {
         $args = array_merge($args, $config['dataFilterArgs']);
+        unset($config['dataFilterArgs']);
       }
       $config['data'] = apply_filters_ref_array($config['dataFilter'], $args);
+      unset($config['dataFilter']);
     }
     return $config;
   }
@@ -109,6 +109,7 @@ class BuildConstructionPlan {
     if (array_key_exists('customData', $config)) {
       // custom data overwrites original data
       $config['data'] = array_merge($config['data'], $config['customData']);
+      unset($config['customData']);
     }
     return $config;
   }
@@ -148,6 +149,15 @@ class BuildConstructionPlan {
         return $output;
       }, []);
     }
+
+    // remove empty 'areas' key from config
+    // this can happen if:
+    // 1. there were no areas defined to begin with
+    // 2. there were areas defined, but no modules in them
+    if (empty($config['areas'])) {
+      unset($config['areas']);
+    }
+
     return $config;
   }
 
@@ -156,18 +166,5 @@ class BuildConstructionPlan {
       $data = empty($config['data']) ? $parentData : $config['data'];
       return self::fromConfigRecursive($module, $areaName, $data);
     }, $modules);
-  }
-
-  protected static function cleanModule($config) {
-    unset($config['dataFilter']);
-    unset($config['dataFilterArgs']);
-    unset($config['customData']);
-    unset($config['parentData']);
-
-    if (empty($config['areas'])) {
-      unset($config['areas']);
-    }
-
-    return $config;
   }
 }

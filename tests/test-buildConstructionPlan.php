@@ -327,10 +327,16 @@ class BuildConstructionPlanTest extends TestCase {
     $parentModuleAsArg = array_merge($parentModule, [
       'data' => $parentData
     ]);
+    unset($parentModuleAsArg['dataFilter']);
+    unset($parentModuleAsArg['dataFilterArgs']);
+    unset($parentModuleAsArg['customData']);
 
     $childModuleAsArg = array_merge($childModule, [
       'data' => $childData
     ]);
+    unset($childModuleAsArg['dataFilter']);
+    unset($childModuleAsArg['dataFilterArgs']);
+    unset($childModuleAsArg['customData']);
 
     Filters::expectApplied('WPStarter/modifyModuleData')
     ->with($parentData, [], $parentModuleAsArg)
