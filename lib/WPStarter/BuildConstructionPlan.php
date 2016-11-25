@@ -19,6 +19,7 @@ class BuildConstructionPlan {
     $parentData = self::overwriteParentData($config, $parentData);
 
     // applies filters for module initialisation
+    # TODO: rename function and filters
     $config = self::initModuleConfig($config, $areaName, $parentData);
 
     // add data to module
@@ -60,6 +61,7 @@ class BuildConstructionPlan {
     }
     // check if this module is registered
     $moduleManager = ModuleManager::getInstance();
+    # TODO: use ModuleManager#isRegistered, not array_key_exists
     if (!array_key_exists($config['name'], $moduleManager->getAll())) {
       trigger_error(
         "Module '{$config['name']}' could not be found in module list. Did you forget to register the module?",

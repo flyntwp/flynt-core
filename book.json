@@ -1,0 +1,15 @@
+{
+  "root": "./docs",
+  "structure": {
+    "summary": "table-of-contents.md",
+    "readme": "introduction.md"
+  },
+  "plugins": ["prism", "-highlight"],
+  "pluginsConfig": {
+    "prism": {
+      "css": [
+        "prismjs/themes/prism-tomorrow.css"
+      ]
+    }
+  }
+}

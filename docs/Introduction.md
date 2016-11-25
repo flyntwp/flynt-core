@@ -25,6 +25,8 @@ Assuming you have a folder called **Modules** in your theme directory, which loo
 
 Using the plugin is as simple as putting the following code into your functions.php and index.php:
 
+- TODO _Check `use WPStarter` statement_
+
 _my-theme/functions.php_
 ```php
 <?php
@@ -38,7 +40,7 @@ _my-theme/index.php_
 // render the index.php of your simple module
 WPStarter\echoHtmlFromConfig([
   'name' => 'SimpleModule'
-])
+]);
 ```
 
 _my-theme/Modules/SimpleModule/index.php_
@@ -78,6 +80,9 @@ remove_action('WPStarter/registerModule', ['WPStarter\DefaultLoader', 'loadFunct
 ```
 
 ### Adding Data to a Module
+
+- TODO _Add overwriting exaplanation with customData_
+
 To add data to a module, first register a Datafilter in your configuration array / file.
 ```php
 <?php
@@ -120,4 +125,16 @@ add_filter('WPStarter/renderModule', function($output, $moduleName, $moduleData,
   // return html rendered by timber / twig
   return Timber::fetch($filePath, $data);
 }, 10, 4);
+```
+
+
+# jade content bla
+
+```jade
+//- TODO this doesn't work yet (object)
+= $data('someObject', 'first')
+//- this works
+= $data('foo')('shmaz')
+//- this works
+- var_dump($data('someObject')->first . $data('bodyClass'))
 ```

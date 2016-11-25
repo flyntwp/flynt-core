@@ -36,6 +36,7 @@ function registerModule($moduleName, $modulePath = null) {
 // @codingStandardsIgnoreLine
 function registerModules($modules = []) {
   $moduleManager = ModuleManager::getInstance();
+  # TODO: use array_walk
   foreach ($modules as $moduleName => $modulePath) {
     if (is_int($moduleName)) {
       $moduleName = $modulePath;

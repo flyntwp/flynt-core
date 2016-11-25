@@ -20,12 +20,14 @@ The Construction Plan is ...
 <?php
 add_filter("WPStarter/dynamicSubmodules?name=ParentModule", function($areas, $data, $parentData) {
   $areas['area51'] = [
-    'name' => 'ChildModuleName',
-    'dataFilter' => 'WPStarter/DataFilters/ChildModuleName/foo',
-    'customData' => [
-      'test1' => 1
+    [
+      'name' => 'ChildModuleName',
+      'dataFilter' => 'WPStarter/DataFilters/ChildModuleName/foo',
+      'customData' => [
+        'test1' => 1
+      ]
     ]
-  ]
+  ];
   return $areas;
 }, 10, 3);
 ```

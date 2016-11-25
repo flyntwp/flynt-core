@@ -1,23 +1,15 @@
-<?php
+# Defaults
 
-namespace WPStarter;
-
-use WPStarter\ModuleManager;
-use WPStarter\Helpers;
-
-class Defaults {
-  const CONFIG_DIR = 'config';
-  const MODULE_DIR = 'Modules';
-
-  public static function init() {
-    add_filter('WPStarter/configPath', ['WPStarter\Defaults', 'setConfigPath'], 999, 2);
-    add_filter('WPStarter/configFileLoader', ['WPStarter\Defaults', 'loadConfigFile'], 999, 3);
-    add_filter('WPStarter/renderModule', ['WPStarter\Defaults', 'renderModule'], 999, 4);
-    add_filter('WPStarter/modulePath', ['WPStarter\Defaults', 'setModulePath'], 999, 2);
-    #TODO: make combine into one action, use ModuleManager#getModuleFilePath and change call do_action after adding module
-    add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'checkModuleFolder']);
-    add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'loadFunctionsFile']);
-  }
+In order to understand best what is possible 
+```php
+add_filter('Flynt/configPath', ['Flynt\Defaults', 'setConfigPath'], 999, 2);
+add_filter('Flynt/configFileLoader', ['Flynt\Defaults', 'loadConfigFile'], 999, 3);
+add_filter('Flynt/renderModule', ['Flynt\Defaults', 'renderModule'], 999, 4);
+add_filter('Flynt/modulePath', ['Flynt\Defaults', 'setModulePath'], 999, 2);
+add_action('Flynt/registerModule', ['Flynt\Defaults', 'checkModuleFolder']);
+add_action('Flynt/registerModule', ['Flynt\Defaults', 'loadFunctionsFile']);
+```
+```php
 
   public static function setConfigPath($configPath, $configFileName) {
     if (is_null($configPath)) {
@@ -61,9 +53,8 @@ class Defaults {
   }
 
   // this action needs to be removed by the user if they want to overwrite this functionality
-  public static function loadFunctionsFile($modulePath, $moduleName) {
+  public static function loadFunctionsFile($modulePath) {
     $filePath = $modulePath . '/functions.php';
-    $filePath = $moduleManager->getModuleFilePath($moduleName, 'functions.php');
     if (file_exists($filePath)) {
       require_once $filePath;
     }
@@ -95,3 +86,4 @@ class Defaults {
     return $output;
   }
 }
+```
