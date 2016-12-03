@@ -58,6 +58,14 @@ class DefaultsTest extends TestCase {
     Defaults::init();
   }
 
+  function testAddsFilterForModifyModuleData() {
+    Filters::expectAdded('WPStarter/modifyModuleData')
+    ->once()
+    ->with(['WPStarter\Defaults', 'inheritParentData'], 999, 2);
+
+    Defaults::init();
+  }
+
   function testAddsActionForRegisterModule() {
     Actions::expectAdded('WPStarter/registerModule')
     ->once()
@@ -86,6 +94,21 @@ class DefaultsTest extends TestCase {
         'test' => 'result'
       ]
     ]);
+  }
+
+  function testInheritsParentData() {
+    $data = [];
+    $parentData = [
+      'parent' => true
+    ];
+    $result = Defaults::inheritParentData($data, $parentData);
+    $this->assertEquals($result, $parentData);
+
+    $data = [
+      'not_parent' => true
+    ];
+    $result = Defaults::inheritParentData($data, $parentData);
+    $this->assertEquals($result, $data);
   }
 
   /**
