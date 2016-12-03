@@ -1,4 +1,30 @@
-# How the construction plan is build
+# Flynt Core
+
+The Flynt core plugin is the basic building block of the Flynt WordPress Framework.
+It offers a tiny public interface and a few WordPress hooks for achieving the main principles and ideas behind the framework.
+
+## Main principles
+
+The main functionaly of the Flynt Core can be seen as a HTML generator. Given a minimal configuration this plugin first creates a so called construction plan and then renders it.
+
+### Config
+
+The starting point of the whole process is a configuration that represents a module. Modules can be nested through so called areas.
+
+The available properties are:
+
+| Property | Description |
+| :------: | ----------- |
+| **name**<br>*(string)* | *(required)* name of the module |
+| **dataFilter**<br>*(string)* | a Wordpress filter that will be called to retrieve the module's data |
+| **dataFilterArgs**<br>*(array)* | arguments to pass to the *dataFilter* |
+| **customData**<br>*(array/object)* | pass custom data to the module. When used with *dataFilter* on the same module, it will the data will be merged. When used alone it will replace the modules data. |
+| **parentData**<br>*(array/object)* | replace parent data of a module (only relevant for advanced use cases) |
+| **areas**<br>*(array/object of arrays)* | defines a module's child modules grouped into named areas. The key is the area name, the value is an array of modules. |
+
+### Build the construction plan
+
+From the config Flynt core will build a construction plan by doing the following steps recursively:
 
 1. **Initialize empty module data**
 
@@ -31,3 +57,19 @@
 8. **do the same for submodule specified in and dynamically added to *areas***
 
   The final step for one module is doing the same construction logic for each of the module's area's sub modules.
+
+### Render construction plan
+
+The construction plan contains all the information needed to be rendered. The recursive rendering includes the following steps:
+
+1. **render construction plan for areas**
+
+  The recursive rendering starts by traversing down the module's areas rendering each module and joining the modules' rendering output to one HTML string for each area.
+
+2. **apply general filter *WPStarter/renderModule***
+
+  This filter is called for every module. This is the designated place to define general rendering rules like e.g. integrating a template engine.
+
+3. **apply module specific filter *WPStarter/renderModule?name={$moduleName}***
+
+  This filter can be used to target module specific rendering.

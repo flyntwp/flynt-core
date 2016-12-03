@@ -2,7 +2,7 @@
   "root": "./docs",
   "structure": {
     "summary": "table-of-contents.md",
-    "readme": "introduction.md"
+    "readme": "getting-started.md"
   },
   "plugins": ["prism", "-highlight"],
   "pluginsConfig": {
