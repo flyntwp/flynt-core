@@ -114,7 +114,7 @@ class BuildConstructionPlanTest extends TestCase {
     $filePath = TestHelper::getConfigPath() . $fileName;
 
     Filters::expectApplied('WPStarter/configPath')
-    ->andReturnUsing(['TestHelper', 'getConfigPath']);
+    ->andReturn($filePath);
 
     Filters::expectApplied('WPStarter/configFileLoader')
     ->once()
@@ -138,7 +138,7 @@ class BuildConstructionPlanTest extends TestCase {
     Filters::expectApplied('WPStarter/configPath')
     ->once()
     ->with(null, $fileName)
-    ->andReturn('/not/a/real/folder/');
+    ->andReturn('/not/a/real/config/file.json');
 
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
@@ -151,7 +151,7 @@ class BuildConstructionPlanTest extends TestCase {
     Filters::expectApplied('WPStarter/configPath')
     ->once()
     ->with(null, $fileName)
-    ->andReturn('/not/a/real/folder/');
+    ->andReturn('/not/a/real/config/file.json');
 
     $cp = @BuildConstructionPlan::fromConfigFile($fileName);
     $this->assertEquals($cp, []);
@@ -283,6 +283,109 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
+  function testModifyModuleDataFiltersAreApplied() {
+    // Made this more complex than necessary to also test parentData being passed
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName);
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($childModuleName, true, true);
+
+    $parentModule = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+    $childModule = TestHelper::getCompleteModule($childModuleName);
+
+    $parentModule['areas'] = [
+      'Area51' => [
+        $childModule
+      ]
+    ];
+
+    $this->mockModuleManager();
+
+    $parentData = [
+      'test' => 'result'
+    ];
+
+    $childData = [
+      'test' => 'result',
+      'test0' => 0,
+      'test1' => 'string',
+      'test2' => [
+        'something strange'
+      ],
+      'duplicate' => 'newValue'
+    ];
+
+    $newChildData = array_merge($childData, [
+      'test' => 'fromAddData',
+      'something' => 'else'
+    ]);
+
+    $parentModuleAsArg = array_merge($parentModule, [
+      'data' => $parentData
+    ]);
+    unset($parentModuleAsArg['dataFilter']);
+    unset($parentModuleAsArg['dataFilterArgs']);
+    unset($parentModuleAsArg['customData']);
+
+    $childModuleAsArg = array_merge($childModule, [
+      'data' => $childData
+    ]);
+    unset($childModuleAsArg['dataFilter']);
+    unset($childModuleAsArg['dataFilterArgs']);
+    unset($childModuleAsArg['customData']);
+
+    Filters::expectApplied('WPStarter/modifyModuleData')
+    ->with($parentData, [], $parentModuleAsArg)
+    ->ordered()
+    ->once()
+    ->andReturn($parentData);
+
+    Filters::expectApplied('WPStarter/modifyModuleData')
+    ->with($childData, $parentData, $childModuleAsArg)
+    ->ordered()
+    ->once()
+    ->andReturn($childData);
+
+    Filters::expectApplied("WPStarter/modifyModuleData?name={$childModuleName}")
+    ->with($childData, $parentData, $childModuleAsArg)
+    ->once()
+    ->andReturn($newChildData);
+
+    $cp = BuildConstructionPlan::fromConfig($parentModule, $this->moduleList);
+
+    $this->assertEquals($cp, [
+      'name' => $parentModuleName,
+      'data' => [
+        'test' => 'result'
+      ],
+      'areas' => [
+        'Area51' => [
+          [
+            'name' => $childModuleName,
+            'data' => [
+              'test' => 'fromAddData',
+              'something' => 'else',
+              'test0' => 0,
+              'test1' => 'string',
+              'test2' => [
+                'something strange'
+              ],
+              'duplicate' => 'newValue'
+            ]
+          ]
+        ]
+      ]
+    ]);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testNestedModuleIsAddedToArea() {
     $parentModuleName = 'ModuleWithArea';
     $childModuleName = 'SingleModule';
@@ -357,6 +460,65 @@ class BuildConstructionPlanTest extends TestCase {
           [
             'name' => $childModuleName,
             'data' => []
+          ]
+        ]
+      ]
+    ]);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testParentDataIsOverwritten() {
+    $parentModuleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
+
+    // Params: ModuleName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentModuleName, false, false);
+
+    $newParentData = [
+      'custom' => 'parentData'
+    ];
+
+    $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+    $childModule = TestHelper::getCustomModule($childModuleName, ['name']);
+    $childModule['parentData'] = $newParentData;
+
+    $module['areas'] = [
+      'area51' => [
+        $childModule
+      ]
+    ];
+
+    $this->mockModuleManager();
+
+    Filters::expectApplied('WPStarter/modifyModuleData')
+    ->with(['test' => 'result'], [], Mockery::type('array'))
+    ->ordered()
+    ->once()
+    ->andReturn(['test' => 'result']);
+
+    Filters::expectApplied('WPStarter/modifyModuleData')
+    ->with([], $newParentData, Mockery::type('array'))
+    ->ordered()
+    ->once()
+    ->andReturn($newParentData);
+
+    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+
+    $this->assertEquals($cp, [
+      'name' => $parentModuleName,
+      'data' => [
+        'test' => 'result',
+      ],
+      'areas' => [
+        'area51' => [
+          [
+            'name' => $childModuleName,
+            'data' => [
+              'custom' => 'parentData'
+            ]
           ]
         ]
       ]
@@ -536,6 +698,56 @@ class BuildConstructionPlanTest extends TestCase {
         ]
       ]
     ]);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testAppliesInitModuleConfigFilters() {
+    $moduleName = 'ModuleWithArea';
+    $childModuleName = 'SingleModule';
+
+    $moduleData = ['test' => 'result'];
+
+    $moduleConfig = TestHelper::getCustomModule($moduleName, ['name', 'areas']);
+    $childModuleConfig = TestHelper::getCustomModule($childModuleName, ['name']);
+
+    $moduleConfig['areas']['area51'][0] = $childModuleConfig;
+
+    $moduleConfigFilterParam = $moduleConfig;
+    $childModuleConfigFilterParam = $childModuleConfig;
+
+    $moduleConfigFilterParam['data'] = [];
+    $childModuleConfigFilterParam['data'] = [];
+
+    $moduleConfigAfterInit = array_merge($moduleConfigFilterParam, ['data' => $moduleData]);
+
+    Filters::expectApplied('WPStarter/initModuleConfig')
+    ->with($moduleConfigFilterParam, null, [])
+    ->ordered()
+    ->once()
+    ->andReturn($moduleConfigAfterInit);
+
+    Filters::expectApplied('WPStarter/initModuleConfig')
+    ->with($childModuleConfigFilterParam, 'area51', $moduleData)
+    ->ordered()
+    ->once()
+    ->andReturn($childModuleConfigFilterParam);
+
+    Filters::expectApplied("WPStarter/initModuleConfig?name={$moduleName}")
+    ->with($moduleConfigAfterInit, null, [])
+    ->once()
+    ->andReturn($moduleConfigAfterInit);
+
+    Filters::expectApplied("WPStarter/initModuleConfig?name={$childModuleName}")
+    ->with($childModuleConfigFilterParam, 'area51', $moduleData)
+    ->once()
+    ->andReturn($moduleConfigAfterInit);
+
+    $this->mockModuleManager();
+
+    BuildConstructionPlan::fromConfig($moduleConfig);
   }
 
   // Helpers

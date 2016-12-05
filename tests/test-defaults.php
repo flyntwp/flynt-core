@@ -29,7 +29,7 @@ class DefaultsTest extends TestCase {
   function testAddsFilterForConfigPath() {
     Filters::expectAdded('WPStarter/configPath')
     ->once()
-    ->with(['WPStarter\Defaults', 'setConfigPath'], 999, 1);
+    ->with(['WPStarter\Defaults', 'setConfigPath'], 999, 2);
 
     Defaults::init();
   }
@@ -45,7 +45,7 @@ class DefaultsTest extends TestCase {
   function testAddsFilterForRenderModule() {
     Filters::expectAdded('WPStarter/renderModule')
     ->once()
-    ->with(['WPStarter\Defaults', 'renderModule'], 999, 3);
+    ->with(['WPStarter\Defaults', 'renderModule'], 999, 4);
 
     Defaults::init();
   }
@@ -73,8 +73,8 @@ class DefaultsTest extends TestCase {
   }
 
   function testReturnsAConfigPath() {
-    $configPath = Defaults::setConfigPath(null, '');
-    $this->assertEquals($configPath, TestHelper::getTemplateDirectory() . '/config');
+    $configPath = Defaults::setConfigPath(null, 'config.json');
+    $this->assertEquals($configPath, TestHelper::getTemplateDirectory() . '/config/config.json');
   }
 
   function testLoadsAndDecodesJsonFile() {
@@ -170,7 +170,7 @@ class DefaultsTest extends TestCase {
     ->shouldReceive('extractNestedDataFromArray')
     ->andReturn('result');
 
-    $output = Defaults::renderModule('', $moduleName, $moduleData, $areaHtml);
+    $output = Defaults::renderModule(null, $moduleName, $moduleData, $areaHtml);
 
     $expectedHTML = "<div>SingleModule result</div>\n";
 
@@ -199,9 +199,9 @@ class DefaultsTest extends TestCase {
     ->andReturn('result');
 
     $areaHtml = [
-      'area51' => Defaults::renderModule('', $childModuleName, $moduleData, [])
+      'area51' => Defaults::renderModule(null, $childModuleName, $moduleData, [])
     ];
-    $output = Defaults::renderModule('', $parentModuleName, $moduleData, $areaHtml);
+    $output = Defaults::renderModule(null, $parentModuleName, $moduleData, $areaHtml);
 
     $this->assertEquals($output, "<div>{$parentModuleName} result<div>{$childModuleName} result</div>\n</div>\n");
   }
@@ -232,6 +232,11 @@ class DefaultsTest extends TestCase {
 
     // this will throw an error if a file is required that doesn't exist
     Defaults::loadFunctionsFile(TestHelper::getModulePath(null, $moduleName));
+  }
+
+  function testIsGettingDefaultModulesDirectory() {
+    $dir = Defaults::getModulesDirectory();
+    $this->assertEquals($dir, TestHelper::getTemplateDirectory() . '/Modules');
   }
 
   // Helpers

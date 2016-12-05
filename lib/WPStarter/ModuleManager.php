@@ -40,6 +40,7 @@ class ModuleManager {
     $modulePath = trailingslashit(apply_filters('WPStarter/modulePath', $modulePath, $moduleName));
 
     do_action('WPStarter/registerModule', $modulePath, $moduleName);
+    # TODO: out of consistency pass $moduleName as well?
     do_action("WPStarter/registerModule?name={$moduleName}", $modulePath);
 
     // add module to internal list (array)

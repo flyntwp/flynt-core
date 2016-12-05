@@ -7,27 +7,34 @@ class BuildConstructionPlan {
     return self::fromConfigRecursive($config);
   }
 
-  protected static function fromConfigRecursive($config, $parentData = []) {
+  protected static function fromConfigRecursive($config, $areaName = null, $parentData = []) {
     // Check configuration for errors
     if (false === self::validateConfig($config)) {
       return [];
     }
 
-    // add data to module
     $config['data'] = [];
+
+    // check for parent data overwrite
+    $parentData = self::overwriteParentData($config, $parentData);
+
+    // applies filters for module initialisation
+    # TODO: rename function and filters
+    $config = self::initModuleConfig($config, $areaName, $parentData);
+
+    // add data to module
     $config = self::applyDataFilter($config);
     $config = self::addCustomData($config);
 
-    // add submodules (dynamic + static)
-    $config = self::addSubmodules($config, $parentData);
+    // apply modifyModuleData filters to be used in a functions.php of a module for example
+    $config = self::applyDataModifications($config, $parentData);
 
-    // return cleaned up construction plan for the current module
-    return self::cleanModule($config);
+    // add submodules (dynamic + static) and return construction plan for the current module
+    return self::addSubmodules($config, $parentData);
   }
 
   public static function fromConfigFile($configFileName) {
-    $configPath = trailingslashit(apply_filters('WPStarter/configPath', null, $configFileName));
-    $configFilePath = $configPath . $configFileName;
+    $configFilePath = apply_filters('WPStarter/configPath', null, $configFileName);
     if (!is_file($configFilePath)) {
       trigger_error('Config file not found: ' . $configFilePath, E_USER_WARNING);
       return [];
@@ -54,6 +61,7 @@ class BuildConstructionPlan {
     }
     // check if this module is registered
     $moduleManager = ModuleManager::getInstance();
+    # TODO: use ModuleManager#isRegistered, not array_key_exists
     if (!array_key_exists($config['name'], $moduleManager->getAll())) {
       trigger_error(
         "Module '{$config['name']}' could not be found in module list. Did you forget to register the module?",
@@ -63,13 +71,38 @@ class BuildConstructionPlan {
     }
   }
 
+  protected static function overwriteParentData(&$config, $parentData) {
+    if (array_key_exists('parentData', $config)) {
+      $parentData = $config['parentData'];
+      unset($config['parentData']);
+    }
+    return $parentData;
+  }
+
+  protected static function initModuleConfig($config, $areaName, $parentData) {
+    $config = apply_filters(
+      'WPStarter/initModuleConfig',
+      $config,
+      $areaName,
+      $parentData
+    );
+    return apply_filters(
+      "WPStarter/initModuleConfig?name={$config['name']}",
+      $config,
+      $areaName,
+      $parentData
+    );
+  }
+
   protected static function applyDataFilter($config) {
     if (array_key_exists('dataFilter', $config)) {
       $args = [ $config['data'] ];
       if (array_key_exists('dataFilterArgs', $config)) {
         $args = array_merge($args, $config['dataFilterArgs']);
+        unset($config['dataFilterArgs']);
       }
       $config['data'] = apply_filters_ref_array($config['dataFilter'], $args);
+      unset($config['dataFilter']);
     }
     return $config;
   }
@@ -78,7 +111,24 @@ class BuildConstructionPlan {
     if (array_key_exists('customData', $config)) {
       // custom data overwrites original data
       $config['data'] = array_merge($config['data'], $config['customData']);
+      unset($config['customData']);
     }
+    return $config;
+  }
+
+  protected static function applyDataModifications($config, $parentData) {
+    $config['data'] = apply_filters(
+      'WPStarter/modifyModuleData',
+      $config['data'],
+      $parentData,
+      $config
+    );
+    $config['data'] = apply_filters(
+      "WPStarter/modifyModuleData?name={$config['name']}",
+      $config['data'],
+      $parentData,
+      $config
+    );
     return $config;
   }
 
@@ -94,29 +144,29 @@ class BuildConstructionPlan {
 
     // iterate areas and recursively map child module construction plan
     if (!empty($config['areas'])) {
-      $config['areas'] = array_map(function ($modules) use ($config, $parentData) {
-        return self::mapAreaModules($modules, $config, $parentData);
-      }, $config['areas']);
+      $areaNames = array_keys($config['areas']);
+      $config['areas'] = array_reduce($areaNames, function ($output, $areaName) use ($config, $parentData) {
+        $modules = $config['areas'][$areaName];
+        $output[$areaName] = self::mapAreaModules($modules, $config, $areaName, $parentData);
+        return $output;
+      }, []);
     }
-    return $config;
-  }
 
-  protected static function mapAreaModules($modules, $config, $parentData) {
-    return array_map(function ($module) use ($config, $parentData) {
-      $data = empty($config['data']) ? $parentData : $config['data'];
-      return self::fromConfigRecursive($module, $data);
-    }, $modules);
-  }
-
-  protected static function cleanModule($config) {
-    unset($config['dataFilter']);
-    unset($config['dataFilterArgs']);
-    unset($config['customData']);
-
+    // remove empty 'areas' key from config
+    // this can happen if:
+    // 1. there were no areas defined to begin with
+    // 2. there were areas defined, but no modules in them
     if (empty($config['areas'])) {
       unset($config['areas']);
     }
 
     return $config;
+  }
+
+  protected static function mapAreaModules($modules, $config, $areaName, $parentData) {
+    return array_map(function ($module) use ($config, $areaName, $parentData) {
+      $data = empty($config['data']) ? $parentData : $config['data'];
+      return self::fromConfigRecursive($module, $areaName, $data);
+    }, $modules);
   }
 }

@@ -20,6 +20,7 @@ use function WPStarter\echoHtmlFromConfigFile;
 use function WPStarter\getHtmlFromConfig;
 use function WPStarter\getHtmlFromConfigFile;
 use function WPStarter\registerModule;
+use function WPStarter\registerModules;
 
 class WPStarterTest extends TestCase {
   protected function setUp() {
@@ -46,11 +47,102 @@ class WPStarterTest extends TestCase {
     ->andReturn($moduleManagerMock);
 
     $moduleManagerMock
-    ->shouldReceive('register')
+    ->shouldReceive('registerModule')
     ->with($moduleName, $modulePath)
     ->once();
 
     registerModule($moduleName, $modulePath);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testRegistersModulesFromArray() {
+    $moduleManagerMock = Mockery::mock('ModuleManager');
+
+    Mockery::mock('alias:WPStarter\ModuleManager')
+    ->shouldReceive('getInstance')
+    ->times(3)
+    ->andReturn($moduleManagerMock);
+
+    $moduleManagerMock
+    ->shouldReceive('registerModule')
+    ->with('ModuleA', null)
+    ->ordered()
+    ->once();
+
+    $moduleManagerMock
+    ->shouldReceive('registerModule')
+    ->with('ModuleB', 'some/path')
+    ->ordered()
+    ->once();
+
+    $moduleManagerMock
+    ->shouldReceive('registerModule')
+    ->with('ModuleC', null)
+    ->ordered()
+    ->once();
+
+    $modulesWithPaths = [
+      'ModuleA' => null,
+      'ModuleB' => 'some/path',
+      'ModuleC' => null
+    ];
+
+    registerModules($modulesWithPaths);
+
+    $moduleManagerMock
+    ->shouldReceive('registerModule')
+    ->with('ModuleD', null)
+    ->ordered()
+    ->once();
+
+    $moduleManagerMock
+    ->shouldReceive('registerModule')
+    ->with('ModuleE', null)
+    ->ordered()
+    ->once();
+
+    $moduleManagerMock
+    ->shouldReceive('registerModule')
+    ->with('ModuleF', null)
+    ->ordered()
+    ->once();
+
+    $modulesWithoutPaths = [
+      'ModuleD',
+      'ModuleE',
+      'ModuleF'
+    ];
+
+    registerModules($modulesWithoutPaths);
+
+    $moduleManagerMock
+    ->shouldReceive('registerModule')
+    ->with('ModuleG', null)
+    ->ordered()
+    ->once();
+
+    $moduleManagerMock
+    ->shouldReceive('registerModule')
+    ->with('ModuleH', null)
+    ->ordered()
+    ->once();
+
+    $moduleManagerMock
+    ->shouldReceive('registerModule')
+    ->with('ModuleI', 'some/path')
+    ->ordered()
+    ->once();
+
+    $modulesMixed = [
+      'ModuleG',
+      'ModuleH' => null,
+      'ModuleI' => 'some/path'
+    ];
+
+    registerModules($modulesMixed);
   }
 
   /**

@@ -30,5 +30,20 @@ function getHtmlFromConfigFile($fileName) {
 // @codingStandardsIgnoreLine
 function registerModule($moduleName, $modulePath = null) {
   $moduleManager = ModuleManager::getInstance();
-  $moduleManager->register($moduleName, $modulePath);
+  $moduleManager->registerModule($moduleName, $modulePath);
+}
+
+// @codingStandardsIgnoreLine
+function registerModules($modules = []) {
+  $moduleManager = ModuleManager::getInstance();
+  # TODO: use array_walk
+  foreach ($modules as $moduleName => $modulePath) {
+    if (is_int($moduleName)) {
+      $moduleName = $modulePath;
+      $modulePath = null;
+    } else {
+      $modulePath = (isset($modulePath)) ? $modulePath : null;
+    }
+    $moduleManager->registerModule($moduleName, $modulePath);
+  }
 }

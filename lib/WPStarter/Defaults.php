@@ -6,18 +6,22 @@ use WPStarter\ModuleManager;
 use WPStarter\Helpers;
 
 class Defaults {
+  const CONFIG_DIR = 'config';
+  const MODULE_DIR = 'Modules';
+
   public static function init() {
-    add_filter('WPStarter/configPath', ['WPStarter\Defaults', 'setConfigPath'], 999, 1);
+    add_filter('WPStarter/configPath', ['WPStarter\Defaults', 'setConfigPath'], 999, 2);
     add_filter('WPStarter/configFileLoader', ['WPStarter\Defaults', 'loadConfigFile'], 999, 3);
-    add_filter('WPStarter/renderModule', ['WPStarter\Defaults', 'renderModule'], 999, 3);
+    add_filter('WPStarter/renderModule', ['WPStarter\Defaults', 'renderModule'], 999, 4);
     add_filter('WPStarter/modulePath', ['WPStarter\Defaults', 'setModulePath'], 999, 2);
+    #TODO: make combine into one action, use ModuleManager#getModuleFilePath and change call do_action after adding module
     add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'checkModuleFolder']);
     add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'loadFunctionsFile']);
   }
 
-  public static function setConfigPath($configPath) {
+  public static function setConfigPath($configPath, $configFileName) {
     if (is_null($configPath)) {
-      $configPath = get_template_directory() . '/config';
+      $configPath = get_template_directory() . '/' . self::CONFIG_DIR . '/' . $configFileName;
     }
     return $configPath;
   }
@@ -30,7 +34,7 @@ class Defaults {
   }
 
   public static function renderModule($output, $moduleName, $moduleData, $areaHtml) {
-    if (empty($output)) {
+    if (is_null($output)) {
       $moduleManager = ModuleManager::getInstance();
       $filePath = $moduleManager->getModuleFilePath($moduleName);
       $output = self::renderFile($moduleData, $areaHtml, $filePath);
@@ -40,9 +44,13 @@ class Defaults {
 
   public static function setModulePath($modulePath, $moduleName) {
     if (is_null($modulePath)) {
-      $modulePath = get_template_directory() . '/Modules/' . $moduleName;
+      $modulePath = self::getModulesDirectory() . '/' . $moduleName;
     }
     return $modulePath;
+  }
+
+  public static function getModulesDirectory() {
+    return get_template_directory() . '/' . self::MODULE_DIR;
   }
 
   // this action needs to be removed by the user if they want to overwrite this functionality
@@ -53,8 +61,9 @@ class Defaults {
   }
 
   // this action needs to be removed by the user if they want to overwrite this functionality
-  public static function loadFunctionsFile($modulePath) {
+  public static function loadFunctionsFile($modulePath, $moduleName) {
     $filePath = $modulePath . '/functions.php';
+    $filePath = $moduleManager->getModuleFilePath($moduleName, 'functions.php');
     if (file_exists($filePath)) {
       require_once $filePath;
     }
