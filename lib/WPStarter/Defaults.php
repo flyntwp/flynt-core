@@ -14,6 +14,7 @@ class Defaults {
     add_filter('WPStarter/configFileLoader', ['WPStarter\Defaults', 'loadConfigFile'], 999, 3);
     add_filter('WPStarter/renderModule', ['WPStarter\Defaults', 'renderModule'], 999, 4);
     add_filter('WPStarter/modulePath', ['WPStarter\Defaults', 'setModulePath'], 999, 2);
+    add_filter('WPStarter/modifyModuleData', ['WPStarter\Defaults', 'inheritParentData'], 999, 2);
     add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'checkModuleFolder']);
     add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'loadFunctionsFile']);
   }
@@ -50,6 +51,13 @@ class Defaults {
 
   public static function getModulesDirectory() {
     return get_template_directory() . '/' . self::MODULE_DIR;
+  }
+
+  public static function inheritParentData($data, $parentData) {
+    if (empty($data)) {
+      $data = $parentData;
+    }
+    return $data;
   }
 
   // this action needs to be removed by the user if they want to overwrite this functionality
