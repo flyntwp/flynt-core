@@ -1,9 +1,15 @@
 <?php
 namespace WPStarter;
 
+use WPStarter\Defaults;
 use WPStarter\BuildConstructionPlan;
 use WPStarter\Render;
 use WPStarter\ModuleManager;
+
+// @codingStandardsIgnoreLine
+function initDefaults() {
+  Defaults::init();
+}
 
 // @codingStandardsIgnoreLine
 function echoHtmlFromConfig($config) {
