@@ -722,7 +722,7 @@ class BuildConstructionPlanTest extends TestCase {
     $childModuleConfigFilterParam['data'] = [];
 
     $moduleConfigAfterInit = array_merge($moduleConfigFilterParam, ['data' => $moduleData]);
-    $childModuleConfigAfterInit = array_merge($childModuleConfigFilterParam, ['data' => $moduleData]);;
+    $childModuleConfigAfterInit = array_merge($childModuleConfigFilterParam, ['data' => $moduleData]);
 
     Filters::expectApplied('WPStarter/initModuleConfig')
     ->with($moduleConfigFilterParam, null, [])
