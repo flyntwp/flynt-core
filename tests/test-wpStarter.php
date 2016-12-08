@@ -21,6 +21,7 @@ use function WPStarter\getHtmlFromConfig;
 use function WPStarter\getHtmlFromConfigFile;
 use function WPStarter\registerModule;
 use function WPStarter\registerModules;
+use function WPStarter\initDefaults;
 
 class WPStarterTest extends TestCase {
   protected function setUp() {
@@ -208,5 +209,17 @@ class WPStarterTest extends TestCase {
 
     $this->expectOutputString('test');
     echoHtmlFromConfigFile($configFileName);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  public function testCallsDefaultsInitFunction() {
+    Mockery::mock('alias:WPStarter\Defaults')
+    ->shouldReceive('init')
+    ->once();
+
+    initDefaults();
   }
 }
