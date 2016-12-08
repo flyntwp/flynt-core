@@ -6,7 +6,7 @@ class TestHelper {
   public static function getCompleteModule($moduleName = 'ModuleName') {
     return [
       'name' =>  $moduleName,
-      'dataFilter' => 'WPStarter/DataFilters/' . $moduleName . '/foo',
+      'dataFilter' => 'Flynt/DataFilters/' . $moduleName . '/foo',
       'dataFilterArgs' => [
         'post',
         'page'
@@ -42,8 +42,8 @@ class TestHelper {
       $return['duplicate'] = 'previousValue';
     }
 
-    // expect apply_filters to be called with 'WPStarter/DataFilters/ModuleName/foo'
-    $filterMock = Filters::expectApplied('WPStarter/DataFilters/' . $moduleName . '/foo')
+    // expect apply_filters to be called with 'Flynt/DataFilters/ModuleName/foo'
+    $filterMock = Filters::expectApplied('Flynt/DataFilters/' . $moduleName . '/foo')
     ->once()
     ->withArgs($filterArgs)
     ->andReturn($return);

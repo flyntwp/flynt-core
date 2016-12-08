@@ -1,6 +1,6 @@
 <?php
 
-namespace WPStarter;
+namespace Flynt;
 
 use PHPUnit\Framework;
 use Brain\Monkey;

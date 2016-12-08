@@ -1,10 +1,10 @@
 <?php
-namespace WPStarter;
+namespace Flynt;
 
-use WPStarter\Defaults;
-use WPStarter\BuildConstructionPlan;
-use WPStarter\Render;
-use WPStarter\ModuleManager;
+use Flynt\Defaults;
+use Flynt\BuildConstructionPlan;
+use Flynt\Render;
+use Flynt\ModuleManager;
 
 // @codingStandardsIgnoreLine
 function initDefaults() {

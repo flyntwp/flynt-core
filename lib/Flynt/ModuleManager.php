@@ -1,5 +1,5 @@
 <?php
-namespace WPStarter;
+namespace Flynt;
 
 class ModuleManager {
 
@@ -37,10 +37,10 @@ class ModuleManager {
     }
 
     // register module / require functions.php
-    $modulePath = trailingslashit(apply_filters('WPStarter/modulePath', $modulePath, $moduleName));
+    $modulePath = trailingslashit(apply_filters('Flynt/modulePath', $modulePath, $moduleName));
 
-    do_action('WPStarter/registerModule', $modulePath, $moduleName);
-    do_action("WPStarter/registerModule?name={$moduleName}", $modulePath);
+    do_action('Flynt/registerModule', $modulePath, $moduleName);
+    do_action("Flynt/registerModule?name={$moduleName}", $modulePath);
 
     // add module to internal list (array)
     return $this->add($moduleName, $modulePath);

@@ -9,10 +9,10 @@
  * Helpers test case.
  */
 
-require_once dirname(__DIR__) . '/lib/WPStarter/Helpers.php';
+require_once dirname(__DIR__) . '/lib/Flynt/Helpers.php';
 
-use WPStarter\TestCase;
-use WPStarter\Helpers;
+use Flynt\TestCase;
+use Flynt\Helpers;
 
 class HelpersTest extends TestCase {
 

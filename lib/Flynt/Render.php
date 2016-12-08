@@ -1,6 +1,6 @@
 <?php
 
-namespace WPStarter;
+namespace Flynt;
 
 class Render {
   public static function fromConstructionPlan($constructionPlan) {
@@ -33,8 +33,8 @@ class Render {
     $moduleData = $constructionPlan['data'];
     $moduleName = $constructionPlan['name'];
 
-    $output = apply_filters('WPStarter/renderModule', null, $moduleName, $moduleData, $areaHtml);
-    $output = apply_filters("WPStarter/renderModule?name={$moduleName}", $output, $moduleName, $moduleData, $areaHtml);
+    $output = apply_filters('Flynt/renderModule', null, $moduleName, $moduleData, $areaHtml);
+    $output = apply_filters("Flynt/renderModule?name={$moduleName}", $output, $moduleName, $moduleData, $areaHtml);
 
     return is_null($output) ? '' : $output;
   }

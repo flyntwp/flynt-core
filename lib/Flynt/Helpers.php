@@ -1,6 +1,6 @@
 <?php
 
-namespace WPStarter;
+namespace Flynt;
 
 class Helpers {
   public static function extractNestedDataFromArray($args = []) {

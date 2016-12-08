@@ -1,6 +1,6 @@
 <?php
 
-namespace WPStarter;
+namespace Flynt;
 
 class BuildConstructionPlan {
   public static function fromConfig($config) {
@@ -33,12 +33,12 @@ class BuildConstructionPlan {
   }
 
   public static function fromConfigFile($configFileName) {
-    $configFilePath = apply_filters('WPStarter/configPath', null, $configFileName);
+    $configFilePath = apply_filters('Flynt/configPath', null, $configFileName);
     if (!is_file($configFilePath)) {
       trigger_error('Config file not found: ' . $configFilePath, E_USER_WARNING);
       return [];
     }
-    $config = apply_filters('WPStarter/configFileLoader', null, $configFileName, $configFilePath);
+    $config = apply_filters('Flynt/configFileLoader', null, $configFileName, $configFilePath);
     return self::fromConfig($config);
   }
 
@@ -79,13 +79,13 @@ class BuildConstructionPlan {
 
   protected static function initModuleConfig($config, $areaName, $parentData) {
     $config = apply_filters(
-      'WPStarter/initModuleConfig',
+      'Flynt/initModuleConfig',
       $config,
       $areaName,
       $parentData
     );
     return apply_filters(
-      "WPStarter/initModuleConfig?name={$config['name']}",
+      "Flynt/initModuleConfig?name={$config['name']}",
       $config,
       $areaName,
       $parentData
@@ -116,13 +116,13 @@ class BuildConstructionPlan {
 
   protected static function applyDataModifications($config, $parentData) {
     $config['data'] = apply_filters(
-      'WPStarter/modifyModuleData',
+      'Flynt/modifyModuleData',
       $config['data'],
       $parentData,
       $config
     );
     $config['data'] = apply_filters(
-      "WPStarter/modifyModuleData?name={$config['name']}",
+      "Flynt/modifyModuleData?name={$config['name']}",
       $config['data'],
       $parentData,
       $config
@@ -134,7 +134,7 @@ class BuildConstructionPlan {
     // add dynamic submodules to areas
     $areas = array_key_exists('areas', $config) ? $config['areas'] : [];
     $config['areas'] = apply_filters(
-      "WPStarter/dynamicSubmodules?name={$config['name']}",
+      "Flynt/dynamicSubmodules?name={$config['name']}",
       $areas,
       $config['data'],
       $parentData

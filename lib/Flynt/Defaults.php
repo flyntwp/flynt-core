@@ -1,21 +1,21 @@
 <?php
 
-namespace WPStarter;
+namespace Flynt;
 
-use WPStarter\ModuleManager;
-use WPStarter\Helpers;
+use Flynt\ModuleManager;
+use Flynt\Helpers;
 
 class Defaults {
   const CONFIG_DIR = 'config';
   const MODULE_DIR = 'Modules';
 
   public static function init() {
-    add_filter('WPStarter/configPath', ['WPStarter\Defaults', 'setConfigPath'], 999, 2);
-    add_filter('WPStarter/configFileLoader', ['WPStarter\Defaults', 'loadConfigFile'], 999, 3);
-    add_filter('WPStarter/renderModule', ['WPStarter\Defaults', 'renderModule'], 999, 4);
-    add_filter('WPStarter/modulePath', ['WPStarter\Defaults', 'setModulePath'], 999, 2);
-    add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'checkModuleFolder']);
-    add_action('WPStarter/registerModule', ['WPStarter\Defaults', 'loadFunctionsFile']);
+    add_filter('Flynt/configPath', ['Flynt\Defaults', 'setConfigPath'], 999, 2);
+    add_filter('Flynt/configFileLoader', ['Flynt\Defaults', 'loadConfigFile'], 999, 3);
+    add_filter('Flynt/renderModule', ['Flynt\Defaults', 'renderModule'], 999, 4);
+    add_filter('Flynt/modulePath', ['Flynt\Defaults', 'setModulePath'], 999, 2);
+    add_action('Flynt/registerModule', ['Flynt\Defaults', 'checkModuleFolder']);
+    add_action('Flynt/registerModule', ['Flynt\Defaults', 'loadFunctionsFile']);
   }
 
   public static function setConfigPath($configPath, $configFileName) {

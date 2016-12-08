@@ -9,10 +9,10 @@
  * Render test case.
  */
 
-require_once dirname(__DIR__) . '/lib/WPStarter/Render.php';
+require_once dirname(__DIR__) . '/lib/Flynt/Render.php';
 
-use WPStarter\TestCase;
-use WPStarter\Render;
+use Flynt\TestCase;
+use Flynt\Render;
 use Brain\Monkey\WP\Filters;
 
 class RenderTest extends TestCase {
@@ -40,7 +40,7 @@ class RenderTest extends TestCase {
 
     $shouldBeHtml = "<div>{$moduleName} After Filter Hook</div>\n";
 
-    Filters::expectApplied('WPStarter/renderModule')
+    Filters::expectApplied('Flynt/renderModule')
     ->once()
     ->with(Mockery::mustBe(null), Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
     ->andReturn($shouldBeHtml);
@@ -70,13 +70,13 @@ class RenderTest extends TestCase {
     $shouldBeChildOutput = "<div>{$childModuleName} After Filter Hook</div>\n";
     $shouldBeHtml = "<div>{$parentModuleName} result" . $shouldBeChildOutput . "</div>\n";
 
-    Filters::expectApplied('WPStarter/renderModule')
+    Filters::expectApplied('Flynt/renderModule')
     ->times(2)
     ->with(Mockery::mustBe(null), Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
     ->andReturn($shouldBeHtml);
 
     // Specific Filters renderModule?name=SingleModule for example
-    Filters::expectApplied('WPStarter/renderModule?name=' . $childModuleName)
+    Filters::expectApplied('Flynt/renderModule?name=' . $childModuleName)
     ->once()
     ->with(Mockery::type('string'), Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
     ->andReturn($shouldBeChildOutput);

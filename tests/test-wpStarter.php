@@ -1,29 +1,29 @@
 <?php
 
 /**
- * Class WPStarterTest
+ * Class FlyntTest
  *
  * @package Wp_Starter_Plugin
  */
 
 /**
- * WPStarter API functions test case.
+ * Flynt API functions test case.
  */
 
-require_once dirname(__DIR__) . '/lib/WPStarter.php';
+require_once dirname(__DIR__) . '/lib/Flynt.php';
 
-use WPStarter\TestCase;
+use Flynt\TestCase;
 use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
-use function WPStarter\echoHtmlFromConfig;
-use function WPStarter\echoHtmlFromConfigFile;
-use function WPStarter\getHtmlFromConfig;
-use function WPStarter\getHtmlFromConfigFile;
-use function WPStarter\registerModule;
-use function WPStarter\registerModules;
-use function WPStarter\initDefaults;
+use function Flynt\echoHtmlFromConfig;
+use function Flynt\echoHtmlFromConfigFile;
+use function Flynt\getHtmlFromConfig;
+use function Flynt\getHtmlFromConfigFile;
+use function Flynt\registerModule;
+use function Flynt\registerModules;
+use function Flynt\initDefaults;
 
-class WPStarterTest extends TestCase {
+class FlyntTest extends TestCase {
   protected function setUp() {
     parent::setUp();
   }
@@ -42,7 +42,7 @@ class WPStarterTest extends TestCase {
 
     $moduleManagerMock = Mockery::mock('ModuleManager');
 
-    Mockery::mock('alias:WPStarter\ModuleManager')
+    Mockery::mock('alias:Flynt\ModuleManager')
     ->shouldReceive('getInstance')
     ->once()
     ->andReturn($moduleManagerMock);
@@ -62,7 +62,7 @@ class WPStarterTest extends TestCase {
   function testRegistersModulesFromArray() {
     $moduleManagerMock = Mockery::mock('ModuleManager');
 
-    Mockery::mock('alias:WPStarter\ModuleManager')
+    Mockery::mock('alias:Flynt\ModuleManager')
     ->shouldReceive('getInstance')
     ->times(3)
     ->andReturn($moduleManagerMock);
@@ -165,13 +165,13 @@ class WPStarterTest extends TestCase {
       ]
     ];
 
-    Mockery::mock('alias:WPStarter\BuildConstructionPlan')
+    Mockery::mock('alias:Flynt\BuildConstructionPlan')
     ->shouldReceive('fromConfig')
     ->once()
     ->with($config)
     ->andReturn($constructionPlan);
 
-    Mockery::mock('alias:WPStarter\Render')
+    Mockery::mock('alias:Flynt\Render')
     ->shouldReceive('fromConstructionPlan')
     ->once()
     ->with($constructionPlan)
@@ -195,13 +195,13 @@ class WPStarterTest extends TestCase {
       ]
     ];
 
-    Mockery::mock('alias:WPStarter\BuildConstructionPlan')
+    Mockery::mock('alias:Flynt\BuildConstructionPlan')
     ->shouldReceive('fromConfigFile')
     ->once()
     ->with($configFileName)
     ->andReturn($constructionPlan);
 
-    Mockery::mock('alias:WPStarter\Render')
+    Mockery::mock('alias:Flynt\Render')
     ->shouldReceive('fromConstructionPlan')
     ->once()
     ->with($constructionPlan)
@@ -216,7 +216,7 @@ class WPStarterTest extends TestCase {
    * @preserveGlobalState disabled
    */
   public function testCallsDefaultsInitFunction() {
-    Mockery::mock('alias:WPStarter\Defaults')
+    Mockery::mock('alias:Flynt\Defaults')
     ->shouldReceive('init')
     ->once();
 

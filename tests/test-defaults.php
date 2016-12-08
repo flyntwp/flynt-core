@@ -9,10 +9,10 @@
  * Default Loader test case.
  */
 
-require_once dirname(__DIR__) . '/lib/WPStarter/Defaults.php';
+require_once dirname(__DIR__) . '/lib/Flynt/Defaults.php';
 
-use WPStarter\TestCase;
-use WPStarter\Defaults;
+use Flynt\TestCase;
+use Flynt\Defaults;
 use Brain\Monkey\WP\Filters;
 use Brain\Monkey\WP\Actions;
 
@@ -27,47 +27,47 @@ class DefaultsTest extends TestCase {
   }
 
   function testAddsFilterForConfigPath() {
-    Filters::expectAdded('WPStarter/configPath')
+    Filters::expectAdded('Flynt/configPath')
     ->once()
-    ->with(['WPStarter\Defaults', 'setConfigPath'], 999, 2);
+    ->with(['Flynt\Defaults', 'setConfigPath'], 999, 2);
 
     Defaults::init();
   }
 
   function testAddsFilterForConfigFileLoader() {
-    Filters::expectAdded('WPStarter/configFileLoader')
+    Filters::expectAdded('Flynt/configFileLoader')
     ->once()
-    ->with(['WPStarter\Defaults', 'loadConfigFile'], 999, 3);
+    ->with(['Flynt\Defaults', 'loadConfigFile'], 999, 3);
 
     Defaults::init();
   }
 
   function testAddsFilterForRenderModule() {
-    Filters::expectAdded('WPStarter/renderModule')
+    Filters::expectAdded('Flynt/renderModule')
     ->once()
-    ->with(['WPStarter\Defaults', 'renderModule'], 999, 4);
+    ->with(['Flynt\Defaults', 'renderModule'], 999, 4);
 
     Defaults::init();
   }
 
   function testAddsFilterForModulePath() {
-    Filters::expectAdded('WPStarter/modulePath')
+    Filters::expectAdded('Flynt/modulePath')
     ->once()
-    ->with(['WPStarter\Defaults', 'setModulePath'], 999, 2);
+    ->with(['Flynt\Defaults', 'setModulePath'], 999, 2);
 
     Defaults::init();
   }
 
   function testAddsActionForRegisterModule() {
-    Actions::expectAdded('WPStarter/registerModule')
+    Actions::expectAdded('Flynt/registerModule')
     ->once()
     ->ordered()
-    ->with(['WPStarter\Defaults', 'checkModuleFolder']);
+    ->with(['Flynt\Defaults', 'checkModuleFolder']);
 
-    Actions::expectAdded('WPStarter/registerModule')
+    Actions::expectAdded('Flynt/registerModule')
     ->once()
     ->ordered()
-    ->with(['WPStarter\Defaults', 'loadFunctionsFile']);
+    ->with(['Flynt\Defaults', 'loadFunctionsFile']);
 
     Defaults::init();
   }
@@ -166,7 +166,7 @@ class DefaultsTest extends TestCase {
     ->with($moduleName)
     ->andReturn(TestHelper::getModulesPath() . $moduleName . '/index.php');
 
-    Mockery::mock('alias:WPStarter\Helpers')
+    Mockery::mock('alias:Flynt\Helpers')
     ->shouldReceive('extractNestedDataFromArray')
     ->andReturn('result');
 
@@ -194,7 +194,7 @@ class DefaultsTest extends TestCase {
     ->with(Mockery::type('string'))
     ->andReturnUsing(['TestHelper', 'getModuleIndexPath']);
 
-    Mockery::mock('alias:WPStarter\Helpers')
+    Mockery::mock('alias:Flynt\Helpers')
     ->shouldReceive('extractNestedDataFromArray')
     ->andReturn('result');
 
@@ -214,7 +214,7 @@ class DefaultsTest extends TestCase {
   function testLoadsFunctionsPhpOnRegisterModule() {
     $moduleName = 'SingleModule';
 
-    Filters::expectAdded("WPStarter/DataFilters/{$moduleName}/foo")
+    Filters::expectAdded("Flynt/DataFilters/{$moduleName}/foo")
     ->once();
 
     Defaults::loadFunctionsFile(TestHelper::getModulePath(null, $moduleName));
@@ -243,7 +243,7 @@ class DefaultsTest extends TestCase {
   function mockModuleManager() {
     $moduleManagerMock = Mockery::mock('ModuleManager');
 
-    Mockery::mock('alias:WPStarter\ModuleManager')
+    Mockery::mock('alias:Flynt\ModuleManager')
     ->shouldReceive('getInstance')
     ->andReturn($moduleManagerMock);
 

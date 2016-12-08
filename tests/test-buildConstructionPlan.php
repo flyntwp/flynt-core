@@ -9,10 +9,10 @@
  * Build Construction Plan test case.
  */
 
-require_once dirname(__DIR__) . '/lib/WPStarter/BuildConstructionPlan.php';
+require_once dirname(__DIR__) . '/lib/Flynt/BuildConstructionPlan.php';
 
-use WPStarter\TestCase;
-use WPStarter\BuildConstructionPlan;
+use Flynt\TestCase;
+use Flynt\BuildConstructionPlan;
 use Brain\Monkey\WP\Filters;
 
 class BuildConstructionPlanTest extends TestCase {
@@ -113,10 +113,10 @@ class BuildConstructionPlanTest extends TestCase {
     $fileName = 'exampleConfig.json';
     $filePath = TestHelper::getConfigPath() . $fileName;
 
-    Filters::expectApplied('WPStarter/configPath')
+    Filters::expectApplied('Flynt/configPath')
     ->andReturn($filePath);
 
-    Filters::expectApplied('WPStarter/configFileLoader')
+    Filters::expectApplied('Flynt/configFileLoader')
     ->once()
     ->with(null, $fileName, $filePath)
     ->andReturn([
@@ -135,7 +135,7 @@ class BuildConstructionPlanTest extends TestCase {
   function testShowWarningWhenConfigFileDoesntExist() {
     $fileName = 'exceptionTest.json';
 
-    Filters::expectApplied('WPStarter/configPath')
+    Filters::expectApplied('Flynt/configPath')
     ->once()
     ->with(null, $fileName)
     ->andReturn('/not/a/real/config/file.json');
@@ -148,7 +148,7 @@ class BuildConstructionPlanTest extends TestCase {
   function testReturnsEmptyConstructionPlanWhenConfigFileDoesntExist() {
     $fileName = 'exceptionTest.json';
 
-    Filters::expectApplied('WPStarter/configPath')
+    Filters::expectApplied('Flynt/configPath')
     ->once()
     ->with(null, $fileName)
     ->andReturn('/not/a/real/config/file.json');
@@ -338,19 +338,19 @@ class BuildConstructionPlanTest extends TestCase {
     unset($childModuleAsArg['dataFilterArgs']);
     unset($childModuleAsArg['customData']);
 
-    Filters::expectApplied('WPStarter/modifyModuleData')
+    Filters::expectApplied('Flynt/modifyModuleData')
     ->with($parentData, [], $parentModuleAsArg)
     ->ordered()
     ->once()
     ->andReturn($parentData);
 
-    Filters::expectApplied('WPStarter/modifyModuleData')
+    Filters::expectApplied('Flynt/modifyModuleData')
     ->with($childData, $parentData, $childModuleAsArg)
     ->ordered()
     ->once()
     ->andReturn($childData);
 
-    Filters::expectApplied("WPStarter/modifyModuleData?name={$childModuleName}")
+    Filters::expectApplied("Flynt/modifyModuleData?name={$childModuleName}")
     ->with($childData, $parentData, $childModuleAsArg)
     ->once()
     ->andReturn($newChildData);
@@ -493,13 +493,13 @@ class BuildConstructionPlanTest extends TestCase {
 
     $this->mockModuleManager();
 
-    Filters::expectApplied('WPStarter/modifyModuleData')
+    Filters::expectApplied('Flynt/modifyModuleData')
     ->with(['test' => 'result'], [], Mockery::type('array'))
     ->ordered()
     ->once()
     ->andReturn(['test' => 'result']);
 
-    Filters::expectApplied('WPStarter/modifyModuleData')
+    Filters::expectApplied('Flynt/modifyModuleData')
     ->with([], $newParentData, Mockery::type('array'))
     ->ordered()
     ->once()
@@ -609,7 +609,7 @@ class BuildConstructionPlanTest extends TestCase {
     $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
     $dynamicModule = TestHelper::getCustomModule($dynamicModuleName, ['name']);
 
-    Filters::expectApplied("WPStarter/dynamicSubmodules?name={$moduleName}")
+    Filters::expectApplied("Flynt/dynamicSubmodules?name={$moduleName}")
     ->with([], ['test' => 'result'], [])
     ->once()
     ->andReturn(['area51' => [ $dynamicModule ]]);
@@ -659,7 +659,7 @@ class BuildConstructionPlanTest extends TestCase {
       'parentArea' => [ $childModule ]
     ];
 
-    Filters::expectApplied("WPStarter/dynamicSubmodules?name={$childSubmoduleName}")
+    Filters::expectApplied("Flynt/dynamicSubmodules?name={$childSubmoduleName}")
     ->with([], [], ['test' => 'result'])
     ->once()
     ->andReturn(['area51' => [ $dynamicModule ]]);
@@ -724,24 +724,24 @@ class BuildConstructionPlanTest extends TestCase {
     $moduleConfigAfterInit = array_merge($moduleConfigFilterParam, ['data' => $moduleData]);
     $childModuleConfigAfterInit = array_merge($childModuleConfigFilterParam, ['data' => $moduleData]);
 
-    Filters::expectApplied('WPStarter/initModuleConfig')
+    Filters::expectApplied('Flynt/initModuleConfig')
     ->with($moduleConfigFilterParam, null, [])
     ->ordered()
     ->once()
     ->andReturn($moduleConfigAfterInit);
 
-    Filters::expectApplied('WPStarter/initModuleConfig')
+    Filters::expectApplied('Flynt/initModuleConfig')
     ->with($childModuleConfigFilterParam, 'area51', $moduleData)
     ->ordered()
     ->once()
     ->andReturn($childModuleConfigFilterParam);
 
-    Filters::expectApplied("WPStarter/initModuleConfig?name={$moduleName}")
+    Filters::expectApplied("Flynt/initModuleConfig?name={$moduleName}")
     ->with($moduleConfigAfterInit, null, [])
     ->once()
     ->andReturn($moduleConfigAfterInit);
 
-    Filters::expectApplied("WPStarter/initModuleConfig?name={$childModuleName}")
+    Filters::expectApplied("Flynt/initModuleConfig?name={$childModuleName}")
     ->with($childModuleConfigFilterParam, 'area51', $moduleData)
     ->once()
     ->andReturn($childModuleConfigAfterInit);
@@ -755,7 +755,7 @@ class BuildConstructionPlanTest extends TestCase {
   function mockModuleManager() {
     $moduleManagerMock = Mockery::mock('ModuleManager');
 
-    Mockery::mock('alias:WPStarter\ModuleManager')
+    Mockery::mock('alias:Flynt\ModuleManager')
     ->shouldReceive('getInstance')
     ->andReturn($moduleManagerMock);
 

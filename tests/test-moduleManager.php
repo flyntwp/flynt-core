@@ -9,10 +9,10 @@
  * Module Manager test case.
  */
 
-require_once dirname(__DIR__) . '/lib/WPStarter/ModuleManager.php';
+require_once dirname(__DIR__) . '/lib/Flynt/ModuleManager.php';
 
-use WPStarter\TestCase;
-use WPStarter\ModuleManager;
+use Flynt\TestCase;
+use Flynt\ModuleManager;
 use Brain\Monkey\WP\Filters;
 use Brain\Monkey\WP\Actions;
 
@@ -42,7 +42,7 @@ class ModuleManagerTest extends TestCase {
     $moduleName = 'ModuleWithArea';
     $modulePath = TestHelper::getModulesPath() . 'SingleModule';
 
-    Filters::expectApplied('WPStarter/modulePath')
+    Filters::expectApplied('Flynt/modulePath')
     ->with($modulePath, $moduleName)
     ->once();
 
@@ -53,7 +53,7 @@ class ModuleManagerTest extends TestCase {
   function testModuleIsAddedToArray() {
     $moduleName = 'SingleModule';
 
-    Filters::expectApplied('WPStarter/modulePath')
+    Filters::expectApplied('Flynt/modulePath')
     ->andReturnUsing(['TestHelper', 'getModulePath']);
 
     $this->moduleManager->registerModule($moduleName);
@@ -74,7 +74,7 @@ class ModuleManagerTest extends TestCase {
     $moduleName = 'SingleModule';
     $this->moduleManager->registerModule($moduleName);
 
-    Filters::expectApplied('WPStarter/modulePath')
+    Filters::expectApplied('Flynt/modulePath')
     ->never();
 
     @$this->moduleManager->registerModule($moduleName);
@@ -84,13 +84,13 @@ class ModuleManagerTest extends TestCase {
     $moduleName = 'SingleModule';
     $modulePath = TestHelper::getModulesPath() . $moduleName . '/';
 
-    Filters::expectApplied('WPStarter/modulePath')
+    Filters::expectApplied('Flynt/modulePath')
     ->andReturnUsing(['TestHelper', 'getModulePath']);
 
-    Actions::expectFired('WPStarter/registerModule')
+    Actions::expectFired('Flynt/registerModule')
     ->with($modulePath, $moduleName);
 
-    Actions::expectFired("WPStarter/registerModule?name={$moduleName}")
+    Actions::expectFired("Flynt/registerModule?name={$moduleName}")
     ->with($modulePath);
 
     $this->moduleManager->registerModule($moduleName);
@@ -100,7 +100,7 @@ class ModuleManagerTest extends TestCase {
     $moduleName = 'SingleModule';
 
     // mock default functionality for path on registerModule
-    Filters::expectApplied('WPStarter/modulePath')
+    Filters::expectApplied('Flynt/modulePath')
     ->andReturnUsing(['TestHelper', 'getModulePath']);
 
     $this->moduleManager->registerModule($moduleName);
@@ -128,7 +128,7 @@ class ModuleManagerTest extends TestCase {
   function testGetModuleFilePathShowsWarningOnIncorrectFileName() {
     $moduleName = 'SingleModule';
 
-    Filters::expectApplied('WPStarter/modulePath')
+    Filters::expectApplied('Flynt/modulePath')
     ->andReturnUsing(['TestHelper', 'getModulePath']);
 
     $this->moduleManager->registerModule($moduleName);
@@ -140,7 +140,7 @@ class ModuleManagerTest extends TestCase {
   function testGetModuleFilePathReturnsFalseOnIncorrectFileName() {
     $moduleName = 'SingleModule';
 
-    Filters::expectApplied('WPStarter/modulePath')
+    Filters::expectApplied('Flynt/modulePath')
     ->andReturnUsing(['TestHelper', 'getModulePath']);
 
     $this->moduleManager->registerModule($moduleName);
@@ -153,7 +153,7 @@ class ModuleManagerTest extends TestCase {
     $moduleA = 'SingleModule';
     $moduleB = 'ModuleWithArea';
 
-    Filters::expectApplied('WPStarter/modulePath')
+    Filters::expectApplied('Flynt/modulePath')
     ->andReturnUsing(['TestHelper', 'getModulePath']);
 
     $this->moduleManager->registerModule($moduleA);
@@ -171,7 +171,7 @@ class ModuleManagerTest extends TestCase {
   function testClearsModuleList() {
     $module = 'SingleModule';
 
-    Filters::expectApplied('WPStarter/modulePath')
+    Filters::expectApplied('Flynt/modulePath')
     ->andReturnUsing(['TestHelper', 'getModulePath']);
 
     $this->moduleManager->registerModule($module);
