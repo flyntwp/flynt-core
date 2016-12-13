@@ -1,29 +1,29 @@
 <?php
 
 /**
- * Class WPStarterTest
+ * Class FlyntTest
  *
  * @package Wp_Starter_Plugin
  */
 
 /**
- * WPStarter API functions test case.
+ * Flynt API functions test case.
  */
 
-require_once dirname(__DIR__) . '/lib/WPStarter.php';
+require_once dirname(__DIR__) . '/lib/Flynt.php';
 
-use WPStarter\TestCase;
+use Flynt\TestCase;
 use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
-use function WPStarter\echoHtmlFromConfig;
-use function WPStarter\echoHtmlFromConfigFile;
-use function WPStarter\getHtmlFromConfig;
-use function WPStarter\getHtmlFromConfigFile;
-use function WPStarter\registerModule;
-use function WPStarter\registerModules;
-use function WPStarter\initDefaults;
+use function Flynt\echoHtmlFromConfig;
+use function Flynt\echoHtmlFromConfigFile;
+use function Flynt\getHtmlFromConfig;
+use function Flynt\getHtmlFromConfigFile;
+use function Flynt\registerComponent;
+use function Flynt\registerComponents;
+use function Flynt\initDefaults;
 
-class WPStarterTest extends TestCase {
+class FlyntTest extends TestCase {
   protected function setUp() {
     parent::setUp();
   }
@@ -36,114 +36,114 @@ class WPStarterTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testRegisterModuleIsForwarded() {
-    $moduleName = 'ModuleWithArea';
-    $modulePath = TestHelper::getModulesPath() . 'SingleModule';
+  function testRegisterComponentIsForwarded() {
+    $componentName = 'ComponentWithArea';
+    $componentPath = TestHelper::getComponentsPath() . 'SingleComponent';
 
-    $moduleManagerMock = Mockery::mock('ModuleManager');
+    $componentManagerMock = Mockery::mock('ComponentManager');
 
-    Mockery::mock('alias:WPStarter\ModuleManager')
+    Mockery::mock('alias:Flynt\ComponentManager')
     ->shouldReceive('getInstance')
     ->once()
-    ->andReturn($moduleManagerMock);
+    ->andReturn($componentManagerMock);
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with($moduleName, $modulePath)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with($componentName, $componentPath)
     ->once();
 
-    registerModule($moduleName, $modulePath);
+    registerComponent($componentName, $componentPath);
   }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testRegistersModulesFromArray() {
-    $moduleManagerMock = Mockery::mock('ModuleManager');
+  function testRegistersComponentsFromArray() {
+    $componentManagerMock = Mockery::mock('ComponentManager');
 
-    Mockery::mock('alias:WPStarter\ModuleManager')
+    Mockery::mock('alias:Flynt\ComponentManager')
     ->shouldReceive('getInstance')
     ->times(3)
-    ->andReturn($moduleManagerMock);
+    ->andReturn($componentManagerMock);
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleA', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentA', null)
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleB', 'some/path')
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentB', 'some/path')
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleC', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentC', null)
     ->ordered()
     ->once();
 
-    $modulesWithPaths = [
-      'ModuleA' => null,
-      'ModuleB' => 'some/path',
-      'ModuleC' => null
+    $componentsWithPaths = [
+      'ComponentA' => null,
+      'ComponentB' => 'some/path',
+      'ComponentC' => null
     ];
 
-    registerModules($modulesWithPaths);
+    registerComponents($componentsWithPaths);
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleD', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentD', null)
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleE', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentE', null)
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleF', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentF', null)
     ->ordered()
     ->once();
 
-    $modulesWithoutPaths = [
-      'ModuleD',
-      'ModuleE',
-      'ModuleF'
+    $componentsWithoutPaths = [
+      'ComponentD',
+      'ComponentE',
+      'ComponentF'
     ];
 
-    registerModules($modulesWithoutPaths);
+    registerComponents($componentsWithoutPaths);
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleG', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentG', null)
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleH', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentH', null)
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleI', 'some/path')
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentI', 'some/path')
     ->ordered()
     ->once();
 
-    $modulesMixed = [
-      'ModuleG',
-      'ModuleH' => null,
-      'ModuleI' => 'some/path'
+    $componentsMixed = [
+      'ComponentG',
+      'ComponentH' => null,
+      'ComponentI' => 'some/path'
     ];
 
-    registerModules($modulesMixed);
+    registerComponents($componentsMixed);
   }
 
   /**
@@ -152,26 +152,26 @@ class WPStarterTest extends TestCase {
    */
   public function testEchoesHtmlFromConfiguration() {
     $config = [
-      'name' => 'SingleModule',
+      'name' => 'SingleComponent',
       'customData' => [
         'test' => 'result'
       ]
     ];
 
     $constructionPlan = [
-      'name' => 'SingleModule',
+      'name' => 'SingleComponent',
       'data' => [
         'test' => 'result'
       ]
     ];
 
-    Mockery::mock('alias:WPStarter\BuildConstructionPlan')
+    Mockery::mock('alias:Flynt\BuildConstructionPlan')
     ->shouldReceive('fromConfig')
     ->once()
     ->with($config)
     ->andReturn($constructionPlan);
 
-    Mockery::mock('alias:WPStarter\Render')
+    Mockery::mock('alias:Flynt\Render')
     ->shouldReceive('fromConstructionPlan')
     ->once()
     ->with($constructionPlan)
@@ -186,22 +186,22 @@ class WPStarterTest extends TestCase {
    * @preserveGlobalState disabled
    */
   public function testEchoesHtmlFromConfigurationFile() {
-    $configFileName = 'exampleConfigWithSingleModule.json';
+    $configFileName = 'exampleConfigWithSingleComponent.json';
 
     $constructionPlan = [
-      'name' => 'SingleModule',
+      'name' => 'SingleComponent',
       'data' => [
         'test' => 'result'
       ]
     ];
 
-    Mockery::mock('alias:WPStarter\BuildConstructionPlan')
+    Mockery::mock('alias:Flynt\BuildConstructionPlan')
     ->shouldReceive('fromConfigFile')
     ->once()
     ->with($configFileName)
     ->andReturn($constructionPlan);
 
-    Mockery::mock('alias:WPStarter\Render')
+    Mockery::mock('alias:Flynt\Render')
     ->shouldReceive('fromConstructionPlan')
     ->once()
     ->with($constructionPlan)
@@ -216,7 +216,7 @@ class WPStarterTest extends TestCase {
    * @preserveGlobalState disabled
    */
   public function testCallsDefaultsInitFunction() {
-    Mockery::mock('alias:WPStarter\Defaults')
+    Mockery::mock('alias:Flynt\Defaults')
     ->shouldReceive('init')
     ->once();
 

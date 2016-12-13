@@ -1,5 +1,5 @@
 {
-  "name": "ModuleInConfigFile",
+  "name": "ComponentInConfigFile",
   "dataFilter": "FilterName",
   "customData": {
     "test": "test"
@@ -7,7 +7,7 @@
   "areas": {
     "area51": {
       "0": {
-        "name": "ChildModuleInConfigFile"
+        "name": "ChildComponentInConfigFile"
       }
     }
   }
