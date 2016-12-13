@@ -42,29 +42,29 @@ class DefaultsTest extends TestCase {
     Defaults::init();
   }
 
-  function testAddsFilterForRenderModule() {
-    Filters::expectAdded('Flynt/renderModule')
+  function testAddsFilterForRenderComponent() {
+    Filters::expectAdded('Flynt/renderComponent')
     ->once()
-    ->with(['Flynt\Defaults', 'renderModule'], 999, 4);
+    ->with(['Flynt\Defaults', 'renderComponent'], 999, 4);
 
     Defaults::init();
   }
 
-  function testAddsFilterForModulePath() {
-    Filters::expectAdded('Flynt/modulePath')
+  function testAddsFilterForComponentPath() {
+    Filters::expectAdded('Flynt/componentPath')
     ->once()
-    ->with(['Flynt\Defaults', 'setModulePath'], 999, 2);
+    ->with(['Flynt\Defaults', 'setComponentPath'], 999, 2);
 
     Defaults::init();
   }
 
-  function testAddsActionForRegisterModule() {
-    Actions::expectAdded('Flynt/registerModule')
+  function testAddsActionForRegisterComponent() {
+    Actions::expectAdded('Flynt/registerComponent')
     ->once()
     ->ordered()
-    ->with(['Flynt\Defaults', 'checkModuleFolder']);
+    ->with(['Flynt\Defaults', 'checkComponentFolder']);
 
-    Actions::expectAdded('Flynt/registerModule')
+    Actions::expectAdded('Flynt/registerComponent')
     ->once()
     ->ordered()
     ->with(['Flynt\Defaults', 'loadFunctionsFile']);
@@ -78,10 +78,10 @@ class DefaultsTest extends TestCase {
   }
 
   function testLoadsAndDecodesJsonFile() {
-    $configPath = TestHelper::getConfigPath() . 'exampleConfigWithSingleModule.json';
+    $configPath = TestHelper::getConfigPath() . 'exampleConfigWithSingleComponent.json';
     $config = Defaults::loadConfigFile(null, '', $configPath);
     $this->assertEquals($config, [
-      'name' => 'SingleModule',
+      'name' => 'SingleComponent',
       'customData' => [
         'test' => 'result'
       ]
@@ -92,20 +92,20 @@ class DefaultsTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testRenderShowsWarningIfModuleFileIsADirectory() {
-    $moduleName = 'SingleModule';
-    $moduleData = [];
+  function testRenderShowsWarningIfComponentFileIsADirectory() {
+    $componentName = 'SingleComponent';
+    $componentData = [];
     $areaHtml = [];
 
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
-    $this->mockModuleManager()
-    ->shouldReceive('getModuleFilePath')
+    $this->mockComponentManager()
+    ->shouldReceive('getComponentFilePath')
     ->once()
-    ->with($moduleName)
-    ->andReturn(TestHelper::getModulesPath() . $moduleName);
+    ->with($componentName)
+    ->andReturn(TestHelper::getComponentsPath() . $componentName);
 
-    $output = Defaults::renderModule(null, $moduleName, $moduleData, $areaHtml);
+    $output = Defaults::renderComponent(null, $componentName, $componentData, $areaHtml);
     $this->assertEquals($output, '');
   }
 
@@ -113,20 +113,20 @@ class DefaultsTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testRenderShowsWarningIfModuleFileDoesntExist() {
-    $moduleName = 'SomeModuleThatDoesntExist';
-    $moduleData = [];
+  function testRenderShowsWarningIfComponentFileDoesntExist() {
+    $componentName = 'SomeComponentThatDoesntExist';
+    $componentData = [];
     $areaHtml = [];
 
     $this->expectException('PHPUnit_Framework_Error_Warning');
 
-    $this->mockModuleManager()
-    ->shouldReceive('getModuleFilePath')
+    $this->mockComponentManager()
+    ->shouldReceive('getComponentFilePath')
     ->once()
-    ->with($moduleName)
+    ->with($componentName)
     ->andReturn('not/a/real/file.php');
 
-    $output = Defaults::renderModule(null, $moduleName, $moduleData, $areaHtml);
+    $output = Defaults::renderComponent(null, $componentName, $componentData, $areaHtml);
   }
 
   /**
@@ -134,18 +134,18 @@ class DefaultsTest extends TestCase {
    * @preserveGlobalState disabled
    */
   function testRenderReturnsEmptyStringOnError() {
-    $moduleName = 'SomeModuleThatDoesntExist';
-    $moduleData = [];
+    $componentName = 'SomeComponentThatDoesntExist';
+    $componentData = [];
     $areaHtml = [];
 
-    $this->mockModuleManager()
-    ->shouldReceive('getModuleFilePath')
+    $this->mockComponentManager()
+    ->shouldReceive('getComponentFilePath')
     ->once()
-    ->with($moduleName)
+    ->with($componentName)
     ->andReturn('not/a/real/file.php');
 
     // suppress exception to get an output
-    $output = @Defaults::renderModule(null, $moduleName, $moduleData, $areaHtml);
+    $output = @Defaults::renderComponent(null, $componentName, $componentData, $areaHtml);
     $this->assertEquals($output, '');
   }
 
@@ -154,25 +154,25 @@ class DefaultsTest extends TestCase {
    * @preserveGlobalState disabled
    */
   function testRendersFileCorrectly() {
-    $moduleName = 'SingleModule';
-    $moduleData = [
+    $componentName = 'SingleComponent';
+    $componentData = [
       'test' => 'result'
     ];
     $areaHtml = [];
 
-    $this->mockModuleManager()
-    ->shouldReceive('getModuleFilePath')
+    $this->mockComponentManager()
+    ->shouldReceive('getComponentFilePath')
     ->once()
-    ->with($moduleName)
-    ->andReturn(TestHelper::getModulesPath() . $moduleName . '/index.php');
+    ->with($componentName)
+    ->andReturn(TestHelper::getComponentsPath() . $componentName . '/index.php');
 
     Mockery::mock('alias:Flynt\Helpers')
     ->shouldReceive('extractNestedDataFromArray')
     ->andReturn('result');
 
-    $output = Defaults::renderModule(null, $moduleName, $moduleData, $areaHtml);
+    $output = Defaults::renderComponent(null, $componentName, $componentData, $areaHtml);
 
-    $expectedHTML = "<div>SingleModule result</div>\n";
+    $expectedHTML = "<div>SingleComponent result</div>\n";
 
     $this->assertEquals($output, $expectedHTML);
   }
@@ -181,72 +181,72 @@ class DefaultsTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testRendersNestedModulesCorrectly() {
-    $parentModuleName = 'ModuleWithArea';
-    $childModuleName = 'SingleModule';
-    $moduleData = [
+  function testRendersNestedComponentsCorrectly() {
+    $parentComponentName = 'ComponentWithArea';
+    $childComponentName = 'SingleComponent';
+    $componentData = [
       'test' => 'result'
     ];
 
-    $this->mockModuleManager()
-    ->shouldReceive('getModuleFilePath')
+    $this->mockComponentManager()
+    ->shouldReceive('getComponentFilePath')
     ->times(2)
     ->with(Mockery::type('string'))
-    ->andReturnUsing(['TestHelper', 'getModuleIndexPath']);
+    ->andReturnUsing(['TestHelper', 'getComponentIndexPath']);
 
     Mockery::mock('alias:Flynt\Helpers')
     ->shouldReceive('extractNestedDataFromArray')
     ->andReturn('result');
 
     $areaHtml = [
-      'area51' => Defaults::renderModule(null, $childModuleName, $moduleData, [])
+      'area51' => Defaults::renderComponent(null, $childComponentName, $componentData, [])
     ];
-    $output = Defaults::renderModule(null, $parentModuleName, $moduleData, $areaHtml);
+    $output = Defaults::renderComponent(null, $parentComponentName, $componentData, $areaHtml);
 
-    $this->assertEquals($output, "<div>{$parentModuleName} result<div>{$childModuleName} result</div>\n</div>\n");
+    $this->assertEquals($output, "<div>{$parentComponentName} result<div>{$childComponentName} result</div>\n</div>\n");
   }
 
-  function testShowsWarningWhenModuleFolderNotFound() {
+  function testShowsWarningWhenComponentFolderNotFound() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    Defaults::checkModuleFolder('not/a/real/path');
+    Defaults::checkComponentFolder('not/a/real/path');
   }
 
-  function testLoadsFunctionsPhpOnRegisterModule() {
-    $moduleName = 'SingleModule';
+  function testLoadsFunctionsPhpOnRegisterComponent() {
+    $componentName = 'SingleComponent';
 
-    Filters::expectAdded("Flynt/DataFilters/{$moduleName}/foo")
+    Filters::expectAdded("Flynt/DataFilters/{$componentName}/foo")
     ->once();
 
-    Defaults::loadFunctionsFile(TestHelper::getModulePath(null, $moduleName));
+    Defaults::loadFunctionsFile(TestHelper::getComponentPath(null, $componentName));
   }
 
   /**
    * @runInSeparateProcess
    */
-  function testDoesNotLoadFunctionsPhpOnRegisterModuleIfItDoesntExist() {
+  function testDoesNotLoadFunctionsPhpOnRegisterComponentIfItDoesntExist() {
     // running this test separately to be able to see the error message
-    $moduleName = 'ModuleWithoutFunctionsPhp';
+    $componentName = 'ComponentWithoutFunctionsPhp';
 
     // make sure test file wasn't added by mistake
-    $this->assertFileNotExists(TestHelper::getModulePath(null, $moduleName) . '/index.php');
+    $this->assertFileNotExists(TestHelper::getComponentPath(null, $componentName) . '/index.php');
 
     // this will throw an error if a file is required that doesn't exist
-    Defaults::loadFunctionsFile(TestHelper::getModulePath(null, $moduleName));
+    Defaults::loadFunctionsFile(TestHelper::getComponentPath(null, $componentName));
   }
 
-  function testIsGettingDefaultModulesDirectory() {
-    $dir = Defaults::getModulesDirectory();
-    $this->assertEquals($dir, TestHelper::getTemplateDirectory() . '/Modules');
+  function testIsGettingDefaultComponentsDirectory() {
+    $dir = Defaults::getComponentsDirectory();
+    $this->assertEquals($dir, TestHelper::getTemplateDirectory() . '/Components');
   }
 
   // Helpers
-  function mockModuleManager() {
-    $moduleManagerMock = Mockery::mock('ModuleManager');
+  function mockComponentManager() {
+    $componentManagerMock = Mockery::mock('ComponentManager');
 
-    Mockery::mock('alias:Flynt\ModuleManager')
+    Mockery::mock('alias:Flynt\ComponentManager')
     ->shouldReceive('getInstance')
-    ->andReturn($moduleManagerMock);
+    ->andReturn($componentManagerMock);
 
-    return $moduleManagerMock;
+    return $componentManagerMock;
   }
 }

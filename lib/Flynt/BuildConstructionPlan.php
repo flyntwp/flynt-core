@@ -18,18 +18,18 @@ class BuildConstructionPlan {
     // check for parent data overwrite
     $parentData = self::overwriteParentData($config, $parentData);
 
-    // applies filters for module initialisation
-    $config = self::initModuleConfig($config, $areaName, $parentData);
+    // applies filters for component initialisation
+    $config = self::initComponentConfig($config, $areaName, $parentData);
 
-    // add data to module
+    // add data to component
     $config = self::applyDataFilter($config);
     $config = self::addCustomData($config);
 
-    // apply modifyModuleData filters to be used in a functions.php of a module for example
+    // apply modifyComponentData filters to be used in a functions.php of a component for example
     $config = self::applyDataModifications($config, $parentData);
 
-    // add submodules (dynamic + static) and return construction plan for the current module
-    return self::addSubmodules($config, $parentData);
+    // add subcomponents (dynamic + static) and return construction plan for the current component
+    return self::addSubcomponents($config, $parentData);
   }
 
   public static function fromConfigFile($configFileName) {
@@ -53,16 +53,16 @@ class BuildConstructionPlan {
     }
     if (!array_key_exists('name', $config)) {
       trigger_error(
-        'No module name given! Please make sure every module has at least a \'name\' attribute.',
+        'No component name given! Please make sure every component has at least a \'name\' attribute.',
         E_USER_WARNING
       );
       return false;
     }
-    // check if this module is registered
-    $moduleManager = ModuleManager::getInstance();
-    if (!array_key_exists($config['name'], $moduleManager->getAll())) {
+    // check if this component is registered
+    $componentManager = ComponentManager::getInstance();
+    if (!array_key_exists($config['name'], $componentManager->getAll())) {
       trigger_error(
-        "Module '{$config['name']}' could not be found in module list. Did you forget to register the module?",
+        "Component '{$config['name']}' could not be found in component list. Did you forget to register the component?",
         E_USER_WARNING
       );
       return false;
@@ -77,15 +77,15 @@ class BuildConstructionPlan {
     return $parentData;
   }
 
-  protected static function initModuleConfig($config, $areaName, $parentData) {
+  protected static function initComponentConfig($config, $areaName, $parentData) {
     $config = apply_filters(
-      'Flynt/initModuleConfig',
+      'Flynt/initComponentConfig',
       $config,
       $areaName,
       $parentData
     );
     return apply_filters(
-      "Flynt/initModuleConfig?name={$config['name']}",
+      "Flynt/initComponentConfig?name={$config['name']}",
       $config,
       $areaName,
       $parentData
@@ -116,13 +116,13 @@ class BuildConstructionPlan {
 
   protected static function applyDataModifications($config, $parentData) {
     $config['data'] = apply_filters(
-      'Flynt/modifyModuleData',
+      'Flynt/modifyComponentData',
       $config['data'],
       $parentData,
       $config
     );
     $config['data'] = apply_filters(
-      "Flynt/modifyModuleData?name={$config['name']}",
+      "Flynt/modifyComponentData?name={$config['name']}",
       $config['data'],
       $parentData,
       $config
@@ -130,22 +130,22 @@ class BuildConstructionPlan {
     return $config;
   }
 
-  protected static function addSubmodules($config, $parentData) {
-    // add dynamic submodules to areas
+  protected static function addSubcomponents($config, $parentData) {
+    // add dynamic subcomponents to areas
     $areas = array_key_exists('areas', $config) ? $config['areas'] : [];
     $config['areas'] = apply_filters(
-      "Flynt/dynamicSubmodules?name={$config['name']}",
+      "Flynt/dynamicSubcomponents?name={$config['name']}",
       $areas,
       $config['data'],
       $parentData
     );
 
-    // iterate areas and recursively map child module construction plan
+    // iterate areas and recursively map child component construction plan
     if (!empty($config['areas'])) {
       $areaNames = array_keys($config['areas']);
       $config['areas'] = array_reduce($areaNames, function ($output, $areaName) use ($config, $parentData) {
-        $modules = $config['areas'][$areaName];
-        $output[$areaName] = self::mapAreaModules($modules, $config, $areaName, $parentData);
+        $components = $config['areas'][$areaName];
+        $output[$areaName] = self::mapAreaComponents($components, $config, $areaName, $parentData);
         return $output;
       }, []);
     }
@@ -153,7 +153,7 @@ class BuildConstructionPlan {
     // remove empty 'areas' key from config
     // this can happen if:
     // 1. there were no areas defined to begin with
-    // 2. there were areas defined, but no modules in them
+    // 2. there were areas defined, but no components in them
     if (empty($config['areas'])) {
       unset($config['areas']);
     }
@@ -161,10 +161,10 @@ class BuildConstructionPlan {
     return $config;
   }
 
-  protected static function mapAreaModules($modules, $config, $areaName, $parentData) {
-    return array_map(function ($module) use ($config, $areaName, $parentData) {
+  protected static function mapAreaComponents($components, $config, $areaName, $parentData) {
+    return array_map(function ($component) use ($config, $areaName, $parentData) {
       $data = empty($config['data']) ? $parentData : $config['data'];
-      return self::fromConfigRecursive($module, $areaName, $data);
-    }, $modules);
+      return self::fromConfigRecursive($component, $areaName, $data);
+    }, $components);
   }
 }

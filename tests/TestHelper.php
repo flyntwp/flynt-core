@@ -3,10 +3,10 @@
 use Brain\Monkey\WP\Filters;
 
 class TestHelper {
-  public static function getCompleteModule($moduleName = 'ModuleName') {
+  public static function getCompleteComponent($componentName = 'ComponentName') {
     return [
-      'name' =>  $moduleName,
-      'dataFilter' => 'Flynt/DataFilters/' . $moduleName . '/foo',
+      'name' =>  $componentName,
+      'dataFilter' => 'Flynt/DataFilters/' . $componentName . '/foo',
       'dataFilterArgs' => [
         'post',
         'page'
@@ -23,14 +23,18 @@ class TestHelper {
     ];
   }
 
-  // how to use: TestHelper::getCustomModule('Module', ['name', 'dataFilter'])
-  public static function getCustomModule($moduleName = 'Module', $config = []) {
-    return array_filter(self::getCompleteModule($moduleName), function ($key) use ($config) {
+  // how to use: TestHelper::getCustomComponent('Component', ['name', 'dataFilter'])
+  public static function getCustomComponent($componentName = 'Component', $config = []) {
+    return array_filter(self::getCompleteComponent($componentName), function ($key) use ($config) {
       return in_array($key, $config);
     }, ARRAY_FILTER_USE_KEY);
   }
 
-  public static function registerDataFilter($moduleName = 'Module', $hasFilterArgs = false, $returnDuplicate = false) {
+  public static function registerDataFilter(
+    $componentName = 'Component',
+    $hasFilterArgs = false,
+    $returnDuplicate = false
+  ) {
     $filterArgs = [[]];
     $return = [ 'test' => 'result' ];
 
@@ -42,30 +46,30 @@ class TestHelper {
       $return['duplicate'] = 'previousValue';
     }
 
-    // expect apply_filters to be called with 'Flynt/DataFilters/ModuleName/foo'
-    $filterMock = Filters::expectApplied('Flynt/DataFilters/' . $moduleName . '/foo')
+    // expect apply_filters to be called with 'Flynt/DataFilters/ComponentName/foo'
+    $filterMock = Filters::expectApplied('Flynt/DataFilters/' . $componentName . '/foo')
     ->once()
     ->withArgs($filterArgs)
     ->andReturn($return);
   }
 
-  public static function getModuleIndexPath($moduleName) {
-    return self::getModulePath(null, $moduleName) . '/index.php';
+  public static function getComponentIndexPath($componentName) {
+    return self::getComponentPath(null, $componentName) . '/index.php';
   }
 
   public static function getConfigPath() {
     return __DIR__ . "/assets/";
   }
 
-  public static function getModulesPath() {
+  public static function getComponentsPath() {
     return __DIR__ . '/assets/src/';
   }
 
-  public static function getModulePath($modulePath, $moduleName) {
-    if (is_null($modulePath)) {
-      return __DIR__ . '/assets/src/' . $moduleName;
+  public static function getComponentPath($componentPath, $componentName) {
+    if (is_null($componentPath)) {
+      return __DIR__ . '/assets/src/' . $componentName;
     }
-    return $modulePath;
+    return $componentPath;
   }
 
   public static function getTemplateDirectory() {

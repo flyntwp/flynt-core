@@ -4,7 +4,7 @@ namespace Flynt;
 use Flynt\Defaults;
 use Flynt\BuildConstructionPlan;
 use Flynt\Render;
-use Flynt\ModuleManager;
+use Flynt\ComponentManager;
 
 // @codingStandardsIgnoreLine
 function initDefaults() {
@@ -34,21 +34,21 @@ function getHtmlFromConfigFile($fileName) {
 }
 
 // @codingStandardsIgnoreLine
-function registerModule($moduleName, $modulePath = null) {
-  $moduleManager = ModuleManager::getInstance();
-  $moduleManager->registerModule($moduleName, $modulePath);
+function registerComponent($componentName, $componentPath = null) {
+  $componentManager = ComponentManager::getInstance();
+  $componentManager->registerComponent($componentName, $componentPath);
 }
 
 // @codingStandardsIgnoreLine
-function registerModules($modules = []) {
-  $moduleManager = ModuleManager::getInstance();
-  foreach ($modules as $moduleName => $modulePath) {
-    if (is_int($moduleName)) {
-      $moduleName = $modulePath;
-      $modulePath = null;
+function registerComponents($components = []) {
+  $componentManager = ComponentManager::getInstance();
+  foreach ($components as $componentName => $componentPath) {
+    if (is_int($componentName)) {
+      $componentName = $componentPath;
+      $componentPath = null;
     } else {
-      $modulePath = (isset($modulePath)) ? $modulePath : null;
+      $componentPath = (isset($componentPath)) ? $componentPath : null;
     }
-    $moduleManager->registerModule($moduleName, $modulePath);
+    $componentManager->registerComponent($componentName, $componentPath);
   }
 }

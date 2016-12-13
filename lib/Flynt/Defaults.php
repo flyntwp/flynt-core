@@ -2,20 +2,20 @@
 
 namespace Flynt;
 
-use Flynt\ModuleManager;
+use Flynt\ComponentManager;
 use Flynt\Helpers;
 
 class Defaults {
   const CONFIG_DIR = 'config';
-  const MODULE_DIR = 'Modules';
+  const COMPONENT_DIR = 'Components';
 
   public static function init() {
     add_filter('Flynt/configPath', ['Flynt\Defaults', 'setConfigPath'], 999, 2);
     add_filter('Flynt/configFileLoader', ['Flynt\Defaults', 'loadConfigFile'], 999, 3);
-    add_filter('Flynt/renderModule', ['Flynt\Defaults', 'renderModule'], 999, 4);
-    add_filter('Flynt/modulePath', ['Flynt\Defaults', 'setModulePath'], 999, 2);
-    add_action('Flynt/registerModule', ['Flynt\Defaults', 'checkModuleFolder']);
-    add_action('Flynt/registerModule', ['Flynt\Defaults', 'loadFunctionsFile']);
+    add_filter('Flynt/renderComponent', ['Flynt\Defaults', 'renderComponent'], 999, 4);
+    add_filter('Flynt/componentPath', ['Flynt\Defaults', 'setComponentPath'], 999, 2);
+    add_action('Flynt/registerComponent', ['Flynt\Defaults', 'checkComponentFolder']);
+    add_action('Flynt/registerComponent', ['Flynt\Defaults', 'loadFunctionsFile']);
   }
 
   public static function setConfigPath($configPath, $configFileName) {
@@ -32,42 +32,42 @@ class Defaults {
     return $config;
   }
 
-  public static function renderModule($output, $moduleName, $moduleData, $areaHtml) {
+  public static function renderComponent($output, $componentName, $componentData, $areaHtml) {
     if (is_null($output)) {
-      $moduleManager = ModuleManager::getInstance();
-      $filePath = $moduleManager->getModuleFilePath($moduleName);
-      $output = self::renderFile($moduleData, $areaHtml, $filePath);
+      $componentManager = ComponentManager::getInstance();
+      $filePath = $componentManager->getComponentFilePath($componentName);
+      $output = self::renderFile($componentData, $areaHtml, $filePath);
     }
     return $output;
   }
 
-  public static function setModulePath($modulePath, $moduleName) {
-    if (is_null($modulePath)) {
-      $modulePath = self::getModulesDirectory() . '/' . $moduleName;
+  public static function setComponentPath($componentPath, $componentName) {
+    if (is_null($componentPath)) {
+      $componentPath = self::getComponentsDirectory() . '/' . $componentName;
     }
-    return $modulePath;
+    return $componentPath;
   }
 
-  public static function getModulesDirectory() {
-    return get_template_directory() . '/' . self::MODULE_DIR;
+  public static function getComponentsDirectory() {
+    return get_template_directory() . '/' . self::COMPONENT_DIR;
   }
 
   // this action needs to be removed by the user if they want to overwrite this functionality
-  public static function checkModuleFolder($modulePath) {
-    if (!is_dir($modulePath)) {
-      trigger_error("Register Module: Folder {$modulePath} not found!", E_USER_WARNING);
+  public static function checkComponentFolder($componentPath) {
+    if (!is_dir($componentPath)) {
+      trigger_error("Register Component: Folder {$componentPath} not found!", E_USER_WARNING);
     }
   }
 
   // this action needs to be removed by the user if they want to overwrite this functionality
-  public static function loadFunctionsFile($modulePath) {
-    $filePath = $modulePath . '/functions.php';
+  public static function loadFunctionsFile($componentPath) {
+    $filePath = $componentPath . '/functions.php';
     if (file_exists($filePath)) {
       require_once $filePath;
     }
   }
 
-  protected static function renderFile($moduleData, $areaHtml, $filePath) {
+  protected static function renderFile($componentData, $areaHtml, $filePath) {
     if (!is_file($filePath)) {
       trigger_error("Template not found: {$filePath}", E_USER_WARNING);
       return '';
@@ -79,9 +79,9 @@ class Defaults {
       }
     };
 
-    $data = function () use ($moduleData) {
+    $data = function () use ($componentData) {
       $args = func_get_args();
-      array_unshift($args, $moduleData);
+      array_unshift($args, $componentData);
       return Helpers::extractNestedDataFromArray($args);
     };
 

@@ -19,8 +19,8 @@ use function Flynt\echoHtmlFromConfig;
 use function Flynt\echoHtmlFromConfigFile;
 use function Flynt\getHtmlFromConfig;
 use function Flynt\getHtmlFromConfigFile;
-use function Flynt\registerModule;
-use function Flynt\registerModules;
+use function Flynt\registerComponent;
+use function Flynt\registerComponents;
 use function Flynt\initDefaults;
 
 class FlyntTest extends TestCase {
@@ -36,114 +36,114 @@ class FlyntTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testRegisterModuleIsForwarded() {
-    $moduleName = 'ModuleWithArea';
-    $modulePath = TestHelper::getModulesPath() . 'SingleModule';
+  function testRegisterComponentIsForwarded() {
+    $componentName = 'ComponentWithArea';
+    $componentPath = TestHelper::getComponentsPath() . 'SingleComponent';
 
-    $moduleManagerMock = Mockery::mock('ModuleManager');
+    $componentManagerMock = Mockery::mock('ComponentManager');
 
-    Mockery::mock('alias:Flynt\ModuleManager')
+    Mockery::mock('alias:Flynt\ComponentManager')
     ->shouldReceive('getInstance')
     ->once()
-    ->andReturn($moduleManagerMock);
+    ->andReturn($componentManagerMock);
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with($moduleName, $modulePath)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with($componentName, $componentPath)
     ->once();
 
-    registerModule($moduleName, $modulePath);
+    registerComponent($componentName, $componentPath);
   }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testRegistersModulesFromArray() {
-    $moduleManagerMock = Mockery::mock('ModuleManager');
+  function testRegistersComponentsFromArray() {
+    $componentManagerMock = Mockery::mock('ComponentManager');
 
-    Mockery::mock('alias:Flynt\ModuleManager')
+    Mockery::mock('alias:Flynt\ComponentManager')
     ->shouldReceive('getInstance')
     ->times(3)
-    ->andReturn($moduleManagerMock);
+    ->andReturn($componentManagerMock);
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleA', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentA', null)
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleB', 'some/path')
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentB', 'some/path')
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleC', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentC', null)
     ->ordered()
     ->once();
 
-    $modulesWithPaths = [
-      'ModuleA' => null,
-      'ModuleB' => 'some/path',
-      'ModuleC' => null
+    $componentsWithPaths = [
+      'ComponentA' => null,
+      'ComponentB' => 'some/path',
+      'ComponentC' => null
     ];
 
-    registerModules($modulesWithPaths);
+    registerComponents($componentsWithPaths);
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleD', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentD', null)
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleE', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentE', null)
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleF', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentF', null)
     ->ordered()
     ->once();
 
-    $modulesWithoutPaths = [
-      'ModuleD',
-      'ModuleE',
-      'ModuleF'
+    $componentsWithoutPaths = [
+      'ComponentD',
+      'ComponentE',
+      'ComponentF'
     ];
 
-    registerModules($modulesWithoutPaths);
+    registerComponents($componentsWithoutPaths);
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleG', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentG', null)
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleH', null)
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentH', null)
     ->ordered()
     ->once();
 
-    $moduleManagerMock
-    ->shouldReceive('registerModule')
-    ->with('ModuleI', 'some/path')
+    $componentManagerMock
+    ->shouldReceive('registerComponent')
+    ->with('ComponentI', 'some/path')
     ->ordered()
     ->once();
 
-    $modulesMixed = [
-      'ModuleG',
-      'ModuleH' => null,
-      'ModuleI' => 'some/path'
+    $componentsMixed = [
+      'ComponentG',
+      'ComponentH' => null,
+      'ComponentI' => 'some/path'
     ];
 
-    registerModules($modulesMixed);
+    registerComponents($componentsMixed);
   }
 
   /**
@@ -152,14 +152,14 @@ class FlyntTest extends TestCase {
    */
   public function testEchoesHtmlFromConfiguration() {
     $config = [
-      'name' => 'SingleModule',
+      'name' => 'SingleComponent',
       'customData' => [
         'test' => 'result'
       ]
     ];
 
     $constructionPlan = [
-      'name' => 'SingleModule',
+      'name' => 'SingleComponent',
       'data' => [
         'test' => 'result'
       ]
@@ -186,10 +186,10 @@ class FlyntTest extends TestCase {
    * @preserveGlobalState disabled
    */
   public function testEchoesHtmlFromConfigurationFile() {
-    $configFileName = 'exampleConfigWithSingleModule.json';
+    $configFileName = 'exampleConfigWithSingleComponent.json';
 
     $constructionPlan = [
-      'name' => 'SingleModule',
+      'name' => 'SingleComponent',
       'data' => [
         'test' => 'result'
       ]

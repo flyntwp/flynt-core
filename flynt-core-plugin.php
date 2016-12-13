@@ -13,7 +13,7 @@
  */
 
 require_once __DIR__ . '/lib/Flynt/Helpers.php';
-require_once __DIR__ . '/lib/Flynt/ModuleManager.php';
+require_once __DIR__ . '/lib/Flynt/ComponentManager.php';
 require_once __DIR__ . '/lib/Flynt/BuildConstructionPlan.php';
 require_once __DIR__ . '/lib/Flynt/Render.php';
 require_once __DIR__ . '/lib/Flynt/Defaults.php';

@@ -32,15 +32,15 @@ class RenderTest extends TestCase {
 
   function testAppliesCustomHtmlHook() {
     // test whether custom html can be used
-    $moduleName = 'SingleModule';
+    $componentName = 'SingleComponent';
     $cp = [
-      'name' => $moduleName,
+      'name' => $componentName,
       'data' => []
     ];
 
-    $shouldBeHtml = "<div>{$moduleName} After Filter Hook</div>\n";
+    $shouldBeHtml = "<div>{$componentName} After Filter Hook</div>\n";
 
-    Filters::expectApplied('Flynt/renderModule')
+    Filters::expectApplied('Flynt/renderComponent')
     ->once()
     ->with(Mockery::mustBe(null), Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
     ->andReturn($shouldBeHtml);
@@ -49,34 +49,34 @@ class RenderTest extends TestCase {
     $this->assertEquals($html, $shouldBeHtml);
   }
 
-  function testAppliesCustomHtmlHookToANestedModule() {
-    $parentModuleName = 'ModuleWithArea';
-    $childModuleName = 'SingleModule';
+  function testAppliesCustomHtmlHookToANestedComponent() {
+    $parentComponentName = 'ComponentWithArea';
+    $childComponentName = 'SingleComponent';
 
     // test whether custom html can be used
     $cp = [
-      'name' => $parentModuleName,
+      'name' => $parentComponentName,
       'data' => [],
       'areas' => [
         'area51' => [
           [
-            'name' => $childModuleName,
+            'name' => $childComponentName,
             'data' => []
           ]
         ]
       ]
     ];
 
-    $shouldBeChildOutput = "<div>{$childModuleName} After Filter Hook</div>\n";
-    $shouldBeHtml = "<div>{$parentModuleName} result" . $shouldBeChildOutput . "</div>\n";
+    $shouldBeChildOutput = "<div>{$childComponentName} After Filter Hook</div>\n";
+    $shouldBeHtml = "<div>{$parentComponentName} result" . $shouldBeChildOutput . "</div>\n";
 
-    Filters::expectApplied('Flynt/renderModule')
+    Filters::expectApplied('Flynt/renderComponent')
     ->times(2)
     ->with(Mockery::mustBe(null), Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
     ->andReturn($shouldBeHtml);
 
-    // Specific Filters renderModule?name=SingleModule for example
-    Filters::expectApplied('Flynt/renderModule?name=' . $childModuleName)
+    // Specific Filters renderComponent?name=SingleComponent for example
+    Filters::expectApplied('Flynt/renderComponent?name=' . $childComponentName)
     ->once()
     ->with(Mockery::type('string'), Mockery::type('string'), Mockery::type('array'), Mockery::type('array'))
     ->andReturn($shouldBeChildOutput);

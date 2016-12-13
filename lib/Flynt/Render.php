@@ -20,21 +20,27 @@ class Render {
   protected static function extractAreaHtml($constructionPlan) {
     $areaHtml = [];
     if (array_key_exists('areas', $constructionPlan)) {
-      $areaHtml = array_map('self::joinAreaModules', $constructionPlan['areas']);
+      $areaHtml = array_map('self::joinAreaComponents', $constructionPlan['areas']);
     }
     return $areaHtml;
   }
 
-  protected static function joinAreaModules($modules) {
-    return join('', array_map('self::fromConstructionPlan', $modules));
+  protected static function joinAreaComponents($components) {
+    return join('', array_map('self::fromConstructionPlan', $components));
   }
 
   protected static function applyRenderFilters($constructionPlan, $areaHtml) {
-    $moduleData = $constructionPlan['data'];
-    $moduleName = $constructionPlan['name'];
+    $componentData = $constructionPlan['data'];
+    $componentName = $constructionPlan['name'];
 
-    $output = apply_filters('Flynt/renderModule', null, $moduleName, $moduleData, $areaHtml);
-    $output = apply_filters("Flynt/renderModule?name={$moduleName}", $output, $moduleName, $moduleData, $areaHtml);
+    $output = apply_filters('Flynt/renderComponent', null, $componentName, $componentData, $areaHtml);
+    $output = apply_filters(
+      "Flynt/renderComponent?name={$componentName}",
+      $output,
+      $componentName,
+      $componentData,
+      $areaHtml
+    );
 
     return is_null($output) ? '' : $output;
   }

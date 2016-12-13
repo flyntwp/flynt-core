@@ -20,13 +20,13 @@ class BuildConstructionPlanTest extends TestCase {
   function setUp() {
     parent::setUp();
 
-    $this->moduleList = [
-      'DynamicModule' => '',
-      'SingleModule' => '',
-      'ModuleWithArea' => '',
-      'NestedModuleWithArea' => '',
-      'ModuleInConfigFile' => '',
-      'ChildModuleInConfigFile' => '',
+    $this->componentList = [
+      'DynamicComponent' => '',
+      'SingleComponent' => '',
+      'ComponentWithArea' => '',
+      'NestedComponentWithArea' => '',
+      'ComponentInConfigFile' => '',
+      'ChildComponentInConfigFile' => '',
       'GrandChildA' => '',
       'GrandChildB' => '',
       'GrandChildC' => ''
@@ -91,16 +91,16 @@ class BuildConstructionPlanTest extends TestCase {
     $this->assertEquals($cp, []);
   }
 
-  function testShowWarningWhenModuleIsNotRegistered() {
+  function testShowWarningWhenComponentIsNotRegistered() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
     BuildConstructionPlan::fromConfig([
-      'name' => 'ThisModuleIsNotRegistered'
+      'name' => 'ThisComponentIsNotRegistered'
     ]);
   }
 
-  function testReturnsEmptyConstructionPlanWhenModuleIsNotRegistered() {
+  function testReturnsEmptyConstructionPlanWhenComponentIsNotRegistered() {
     $cp = @BuildConstructionPlan::fromConfig([
-      'name' => 'ThisModuleIsNotRegistered'
+      'name' => 'ThisComponentIsNotRegistered'
     ]);
     $this->assertEquals($cp, []);
   }
@@ -120,14 +120,14 @@ class BuildConstructionPlanTest extends TestCase {
     ->once()
     ->with(null, $fileName, $filePath)
     ->andReturn([
-      'name' => 'SingleModule'
+      'name' => 'SingleComponent'
     ]);
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
     $cp = BuildConstructionPlan::fromConfigFile($fileName);
     $this->assertEquals($cp, [
-      'name' => 'SingleModule',
+      'name' => 'SingleComponent',
       'data' => []
     ]);
   }
@@ -161,15 +161,15 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testModuleWithoutDataIsValid() {
-    $module = TestHelper::getCustomModule('SingleModule', ['name', 'areas']);
+  function testComponentWithoutDataIsValid() {
+    $component = TestHelper::getCustomComponent('SingleComponent', ['name', 'areas']);
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => 'SingleModule',
+      'name' => 'SingleComponent',
       'data' => []
     ]);
   }
@@ -178,20 +178,20 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testModuleDataIsFiltered() {
-    $moduleName = 'SingleModule';
+  function testComponentDataIsFiltered() {
+    $componentName = 'SingleComponent';
 
-    // Params: ModuleName, hasFilterArgs = false, returnDuplicate = false
-    TestHelper::registerDataFilter($moduleName);
+    // Params: ComponentName, hasFilterArgs = false, returnDuplicate = false
+    TestHelper::registerDataFilter($componentName);
 
-    $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
+    $component = TestHelper::getCustomComponent($componentName, ['name', 'dataFilter', 'areas']);
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => $moduleName,
+      'name' => $componentName,
       'data' => [
         'test' => 'result'
       ]
@@ -203,19 +203,19 @@ class BuildConstructionPlanTest extends TestCase {
    * @preserveGlobalState disabled
    */
   function testDataFilterArgumentsAreUsed() {
-    $moduleName = 'SingleModule';
+    $componentName = 'SingleComponent';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($moduleName, true, false);
+    // Params: ComponentName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($componentName, true, false);
 
-    $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
+    $component = TestHelper::getCustomComponent($componentName, ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => $moduleName,
+      'name' => $componentName,
       'data' => [
         'test' => 'result'
       ]
@@ -226,18 +226,18 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testCustomDataIsAddedToModule() {
-    $moduleName = 'SingleModule';
+  function testCustomDataIsAddedToComponent() {
+    $componentName = 'SingleComponent';
 
     // this simulates add_filter with return data:
-    $module = TestHelper::getCustomModule($moduleName, ['name', 'customData', 'areas']);
+    $component = TestHelper::getCustomComponent($componentName, ['name', 'customData', 'areas']);
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => $moduleName,
+      'name' => $componentName,
       'data' => [
         'test0' => 0,
         'test1' => 'string',
@@ -254,19 +254,19 @@ class BuildConstructionPlanTest extends TestCase {
    * @preserveGlobalState disabled
    */
   function testDataIsFilteredAndCustomDataIsAdded() {
-    $moduleName = 'SingleModule';
+    $componentName = 'SingleComponent';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($moduleName, false, true);
+    // Params: ComponentName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($componentName, false, true);
 
-    $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'customData', 'areas']);
+    $component = TestHelper::getCustomComponent($componentName, ['name', 'dataFilter', 'customData', 'areas']);
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => $moduleName,
+      'name' => $componentName,
       'data' => [
         'test' => 'result',
         'test0' => 0,
@@ -283,27 +283,27 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testModifyModuleDataFiltersAreApplied() {
+  function testModifyComponentDataFiltersAreApplied() {
     // Made this more complex than necessary to also test parentData being passed
-    $parentModuleName = 'ModuleWithArea';
-    $childModuleName = 'SingleModule';
+    $parentComponentName = 'ComponentWithArea';
+    $childComponentName = 'SingleComponent';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentModuleName);
+    // Params: ComponentName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentComponentName);
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($childModuleName, true, true);
+    // Params: ComponentName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($childComponentName, true, true);
 
-    $parentModule = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
-    $childModule = TestHelper::getCompleteModule($childModuleName);
+    $parentComponent = TestHelper::getCustomComponent($parentComponentName, ['name', 'dataFilter', 'areas']);
+    $childComponent = TestHelper::getCompleteComponent($childComponentName);
 
-    $parentModule['areas'] = [
+    $parentComponent['areas'] = [
       'Area51' => [
-        $childModule
+        $childComponent
       ]
     ];
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
     $parentData = [
       'test' => 'result'
@@ -324,48 +324,48 @@ class BuildConstructionPlanTest extends TestCase {
       'something' => 'else'
     ]);
 
-    $parentModuleAsArg = array_merge($parentModule, [
+    $parentComponentAsArg = array_merge($parentComponent, [
       'data' => $parentData
     ]);
-    unset($parentModuleAsArg['dataFilter']);
-    unset($parentModuleAsArg['dataFilterArgs']);
-    unset($parentModuleAsArg['customData']);
+    unset($parentComponentAsArg['dataFilter']);
+    unset($parentComponentAsArg['dataFilterArgs']);
+    unset($parentComponentAsArg['customData']);
 
-    $childModuleAsArg = array_merge($childModule, [
+    $childComponentAsArg = array_merge($childComponent, [
       'data' => $childData
     ]);
-    unset($childModuleAsArg['dataFilter']);
-    unset($childModuleAsArg['dataFilterArgs']);
-    unset($childModuleAsArg['customData']);
+    unset($childComponentAsArg['dataFilter']);
+    unset($childComponentAsArg['dataFilterArgs']);
+    unset($childComponentAsArg['customData']);
 
-    Filters::expectApplied('Flynt/modifyModuleData')
-    ->with($parentData, [], $parentModuleAsArg)
+    Filters::expectApplied('Flynt/modifyComponentData')
+    ->with($parentData, [], $parentComponentAsArg)
     ->ordered()
     ->once()
     ->andReturn($parentData);
 
-    Filters::expectApplied('Flynt/modifyModuleData')
-    ->with($childData, $parentData, $childModuleAsArg)
+    Filters::expectApplied('Flynt/modifyComponentData')
+    ->with($childData, $parentData, $childComponentAsArg)
     ->ordered()
     ->once()
     ->andReturn($childData);
 
-    Filters::expectApplied("Flynt/modifyModuleData?name={$childModuleName}")
-    ->with($childData, $parentData, $childModuleAsArg)
+    Filters::expectApplied("Flynt/modifyComponentData?name={$childComponentName}")
+    ->with($childData, $parentData, $childComponentAsArg)
     ->once()
     ->andReturn($newChildData);
 
-    $cp = BuildConstructionPlan::fromConfig($parentModule, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($parentComponent, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => $parentModuleName,
+      'name' => $parentComponentName,
       'data' => [
         'test' => 'result'
       ],
       'areas' => [
         'Area51' => [
           [
-            'name' => $childModuleName,
+            'name' => $childComponentName,
             'data' => [
               'test' => 'fromAddData',
               'something' => 'else',
@@ -386,32 +386,32 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testNestedModuleIsAddedToArea() {
-    $parentModuleName = 'ModuleWithArea';
-    $childModuleName = 'SingleModule';
+  function testNestedComponentIsAddedToArea() {
+    $parentComponentName = 'ComponentWithArea';
+    $childComponentName = 'SingleComponent';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($childModuleName, true, true);
+    // Params: ComponentName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($childComponentName, true, true);
 
-    $module = TestHelper::getCustomModule($parentModuleName, ['name', 'areas']);
+    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
 
-    $module['areas'] = [
+    $component['areas'] = [
       'Area51' => [
-        TestHelper::getCompleteModule($childModuleName)
+        TestHelper::getCompleteComponent($childComponentName)
       ]
     ];
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => $parentModuleName,
+      'name' => $parentComponentName,
       'data' => [],
       'areas' => [
         'Area51' => [
           [
-            'name' => $childModuleName,
+            'name' => $childComponentName,
             'data' => [
               'test' => 'result',
               'test0' => 0,
@@ -431,34 +431,34 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testParentModuleDataIsNotAddedToChildModule() {
-    $parentModuleName = 'ModuleWithArea';
-    $childModuleName = 'SingleModule';
+  function testParentComponentDataIsNotAddedToChildComponent() {
+    $parentComponentName = 'ComponentWithArea';
+    $childComponentName = 'SingleComponent';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentModuleName, false, false);
+    // Params: ComponentName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentComponentName, false, false);
 
-    $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'dataFilter', 'areas']);
 
-    $module['areas'] = [
+    $component['areas'] = [
       'area51' => [
-        TestHelper::getCustomModule($childModuleName, ['name'])
+        TestHelper::getCustomComponent($childComponentName, ['name'])
       ]
     ];
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => $parentModuleName,
+      'name' => $parentComponentName,
       'data' => [
         'test' => 'result',
       ],
       'areas' => [
         'area51' => [
           [
-            'name' => $childModuleName,
+            'name' => $childComponentName,
             'data' => []
           ]
         ]
@@ -471,51 +471,51 @@ class BuildConstructionPlanTest extends TestCase {
    * @preserveGlobalState disabled
    */
   function testParentDataIsOverwritten() {
-    $parentModuleName = 'ModuleWithArea';
-    $childModuleName = 'SingleModule';
+    $parentComponentName = 'ComponentWithArea';
+    $childComponentName = 'SingleComponent';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentModuleName, false, false);
+    // Params: ComponentName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentComponentName, false, false);
 
     $newParentData = [
       'custom' => 'parentData'
     ];
 
-    $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
-    $childModule = TestHelper::getCustomModule($childModuleName, ['name']);
-    $childModule['parentData'] = $newParentData;
+    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'dataFilter', 'areas']);
+    $childComponent = TestHelper::getCustomComponent($childComponentName, ['name']);
+    $childComponent['parentData'] = $newParentData;
 
-    $module['areas'] = [
+    $component['areas'] = [
       'area51' => [
-        $childModule
+        $childComponent
       ]
     ];
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    Filters::expectApplied('Flynt/modifyModuleData')
+    Filters::expectApplied('Flynt/modifyComponentData')
     ->with(['test' => 'result'], [], Mockery::type('array'))
     ->ordered()
     ->once()
     ->andReturn(['test' => 'result']);
 
-    Filters::expectApplied('Flynt/modifyModuleData')
+    Filters::expectApplied('Flynt/modifyComponentData')
     ->with([], $newParentData, Mockery::type('array'))
     ->ordered()
     ->once()
     ->andReturn($newParentData);
 
-    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => $parentModuleName,
+      'name' => $parentComponentName,
       'data' => [
         'test' => 'result',
       ],
       'areas' => [
         'area51' => [
           [
-            'name' => $childModuleName,
+            'name' => $childComponentName,
             'data' => [
               'custom' => 'parentData'
             ]
@@ -529,62 +529,62 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testDeeplyNestedModulesCreateValidConstructionPlan() {
-    $parentModuleName = 'ModuleWithArea';
-    $childModuleName = 'NestedModuleWithArea';
-    $grandChildModuleNameA = 'GrandChildA';
-    $grandChildModuleNameB = 'GrandChildB';
-    $grandChildModuleNameC = 'GrandChildC';
+  function testDeeplyNestedComponentsCreateValidConstructionPlan() {
+    $parentComponentName = 'ComponentWithArea';
+    $childComponentName = 'NestedComponentWithArea';
+    $grandChildComponentNameA = 'GrandChildA';
+    $grandChildComponentNameB = 'GrandChildB';
+    $grandChildComponentNameC = 'GrandChildC';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentModuleName, false, false);
+    // Params: ComponentName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentComponentName, false, false);
 
-    $module = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
+    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'dataFilter', 'areas']);
 
-    $module['areas'] = [
+    $component['areas'] = [
       'area51' => [
-        TestHelper::getCustomModule($childModuleName, ['name', 'areas'])
+        TestHelper::getCustomComponent($childComponentName, ['name', 'areas'])
       ]
     ];
 
-    $module['areas']['area51'][0]['areas'] = [
+    $component['areas']['area51'][0]['areas'] = [
       'district9' => [
-        TestHelper::getCustomModule($grandChildModuleNameA, ['name'])
+        TestHelper::getCustomComponent($grandChildComponentNameA, ['name'])
       ],
       'alderaan' => [
-        TestHelper::getCustomModule($grandChildModuleNameB, ['name']),
-        TestHelper::getCustomModule($grandChildModuleNameC, ['name'])
+        TestHelper::getCustomComponent($grandChildComponentNameB, ['name']),
+        TestHelper::getCustomComponent($grandChildComponentNameC, ['name'])
       ]
     ];
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => $parentModuleName,
+      'name' => $parentComponentName,
       'data' => [
         'test' => 'result',
       ],
       'areas' => [
         'area51' => [
           [
-            'name' => $childModuleName,
+            'name' => $childComponentName,
             'data' => [],
             'areas' => [
               'district9' => [
                 [
-                  'name' => $grandChildModuleNameA,
+                  'name' => $grandChildComponentNameA,
                   'data' => []
                 ]
               ],
               'alderaan' => [
                 [
-                  'name' => $grandChildModuleNameB,
+                  'name' => $grandChildComponentNameB,
                   'data' => []
                 ],
                 [
-                  'name' => $grandChildModuleNameC,
+                  'name' => $grandChildComponentNameC,
                   'data' => []
                 ]
               ]
@@ -599,34 +599,34 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testDynamicSubmodulesCanBeAddedWithAFilter() {
-    $moduleName = 'ModuleWithArea';
-    $dynamicModuleName = 'SingleModule';
+  function testDynamicSubcomponentsCanBeAddedWithAFilter() {
+    $componentName = 'ComponentWithArea';
+    $dynamicComponentName = 'SingleComponent';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($moduleName, false, false);
+    // Params: ComponentName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($componentName, false, false);
 
-    $module = TestHelper::getCustomModule($moduleName, ['name', 'dataFilter', 'areas']);
-    $dynamicModule = TestHelper::getCustomModule($dynamicModuleName, ['name']);
+    $component = TestHelper::getCustomComponent($componentName, ['name', 'dataFilter', 'areas']);
+    $dynamicComponent = TestHelper::getCustomComponent($dynamicComponentName, ['name']);
 
-    Filters::expectApplied("Flynt/dynamicSubmodules?name={$moduleName}")
+    Filters::expectApplied("Flynt/dynamicSubcomponents?name={$componentName}")
     ->with([], ['test' => 'result'], [])
     ->once()
-    ->andReturn(['area51' => [ $dynamicModule ]]);
+    ->andReturn(['area51' => [ $dynamicComponent ]]);
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($module, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => $moduleName,
+      'name' => $componentName,
       'data' => [
         'test' => 'result'
       ],
       'areas' => [
         'area51' => [
           [
-            'name' => $dynamicModuleName,
+            'name' => $dynamicComponentName,
             'data' => []
           ]
         ]
@@ -638,55 +638,55 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testDynamicSubmodulesReceiveParentData() {
-    $parentModuleName = 'ModuleWithArea';
-    $childModuleName = 'NestedModuleWithArea';
-    $childSubmoduleName = 'SingleModule';
-    $dynamicModuleName = 'DynamicModule';
+  function testDynamicSubcomponentsReceiveParentData() {
+    $parentComponentName = 'ComponentWithArea';
+    $childComponentName = 'NestedComponentWithArea';
+    $childSubcomponentName = 'SingleComponent';
+    $dynamicComponentName = 'DynamicComponent';
 
-    // Params: ModuleName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentModuleName, false, false);
+    // Params: ComponentName, hasFilterArgs, returnDuplicate
+    TestHelper::registerDataFilter($parentComponentName, false, false);
 
-    $parentModule = TestHelper::getCustomModule($parentModuleName, ['name', 'dataFilter', 'areas']);
-    $childModule = TestHelper::getCustomModule($childModuleName, ['name']);
-    $childSubmodule = TestHelper::getCustomModule($childSubmoduleName, ['name']);
-    $dynamicModule = TestHelper::getCustomModule($dynamicModuleName, ['name']);
+    $parentComponent = TestHelper::getCustomComponent($parentComponentName, ['name', 'dataFilter', 'areas']);
+    $childComponent = TestHelper::getCustomComponent($childComponentName, ['name']);
+    $childSubcomponent = TestHelper::getCustomComponent($childSubcomponentName, ['name']);
+    $dynamicComponent = TestHelper::getCustomComponent($dynamicComponentName, ['name']);
 
-    $childModule['areas'] = [
-      'childArea' => [ $childSubmodule ]
+    $childComponent['areas'] = [
+      'childArea' => [ $childSubcomponent ]
     ];
-    $parentModule['areas'] = [
-      'parentArea' => [ $childModule ]
+    $parentComponent['areas'] = [
+      'parentArea' => [ $childComponent ]
     ];
 
-    Filters::expectApplied("Flynt/dynamicSubmodules?name={$childSubmoduleName}")
+    Filters::expectApplied("Flynt/dynamicSubcomponents?name={$childSubcomponentName}")
     ->with([], [], ['test' => 'result'])
     ->once()
-    ->andReturn(['area51' => [ $dynamicModule ]]);
+    ->andReturn(['area51' => [ $dynamicComponent ]]);
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($parentModule, $this->moduleList);
+    $cp = BuildConstructionPlan::fromConfig($parentComponent, $this->componentList);
 
     $this->assertEquals($cp, [
-      'name' => $parentModuleName,
+      'name' => $parentComponentName,
       'data' => [
         'test' => 'result'
       ],
       'areas' => [
         'parentArea' => [
           [
-            'name' => $childModuleName,
+            'name' => $childComponentName,
             'data' => [],
             'areas' => [
               'childArea' => [
                 [
-                  'name' => $childSubmoduleName,
+                  'name' => $childSubcomponentName,
                   'data' => [],
                   'areas' => [
                     'area51' => [
                       [
-                        'name' => $dynamicModuleName,
+                        'name' => $dynamicComponentName,
                         'data' => []
                       ]
                     ]
@@ -704,63 +704,63 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testAppliesInitModuleConfigFilters() {
-    $moduleName = 'ModuleWithArea';
-    $childModuleName = 'SingleModule';
+  function testAppliesInitComponentConfigFilters() {
+    $componentName = 'ComponentWithArea';
+    $childComponentName = 'SingleComponent';
 
-    $moduleData = ['test' => 'result'];
+    $componentData = ['test' => 'result'];
 
-    $moduleConfig = TestHelper::getCustomModule($moduleName, ['name', 'areas']);
-    $childModuleConfig = TestHelper::getCustomModule($childModuleName, ['name']);
+    $componentConfig = TestHelper::getCustomComponent($componentName, ['name', 'areas']);
+    $childComponentConfig = TestHelper::getCustomComponent($childComponentName, ['name']);
 
-    $moduleConfig['areas']['area51'][0] = $childModuleConfig;
+    $componentConfig['areas']['area51'][0] = $childComponentConfig;
 
-    $moduleConfigFilterParam = $moduleConfig;
-    $childModuleConfigFilterParam = $childModuleConfig;
+    $componentConfigFilterParam = $componentConfig;
+    $childComponentConfigFilterParam = $childComponentConfig;
 
-    $moduleConfigFilterParam['data'] = [];
-    $childModuleConfigFilterParam['data'] = [];
+    $componentConfigFilterParam['data'] = [];
+    $childComponentConfigFilterParam['data'] = [];
 
-    $moduleConfigAfterInit = array_merge($moduleConfigFilterParam, ['data' => $moduleData]);
-    $childModuleConfigAfterInit = array_merge($childModuleConfigFilterParam, ['data' => $moduleData]);
+    $componentConfigAfterInit = array_merge($componentConfigFilterParam, ['data' => $componentData]);
+    $childComponentConfigAfterInit = array_merge($childComponentConfigFilterParam, ['data' => $componentData]);
 
-    Filters::expectApplied('Flynt/initModuleConfig')
-    ->with($moduleConfigFilterParam, null, [])
+    Filters::expectApplied('Flynt/initComponentConfig')
+    ->with($componentConfigFilterParam, null, [])
     ->ordered()
     ->once()
-    ->andReturn($moduleConfigAfterInit);
+    ->andReturn($componentConfigAfterInit);
 
-    Filters::expectApplied('Flynt/initModuleConfig')
-    ->with($childModuleConfigFilterParam, 'area51', $moduleData)
+    Filters::expectApplied('Flynt/initComponentConfig')
+    ->with($childComponentConfigFilterParam, 'area51', $componentData)
     ->ordered()
     ->once()
-    ->andReturn($childModuleConfigFilterParam);
+    ->andReturn($childComponentConfigFilterParam);
 
-    Filters::expectApplied("Flynt/initModuleConfig?name={$moduleName}")
-    ->with($moduleConfigAfterInit, null, [])
+    Filters::expectApplied("Flynt/initComponentConfig?name={$componentName}")
+    ->with($componentConfigAfterInit, null, [])
     ->once()
-    ->andReturn($moduleConfigAfterInit);
+    ->andReturn($componentConfigAfterInit);
 
-    Filters::expectApplied("Flynt/initModuleConfig?name={$childModuleName}")
-    ->with($childModuleConfigFilterParam, 'area51', $moduleData)
+    Filters::expectApplied("Flynt/initComponentConfig?name={$childComponentName}")
+    ->with($childComponentConfigFilterParam, 'area51', $componentData)
     ->once()
-    ->andReturn($childModuleConfigAfterInit);
+    ->andReturn($childComponentConfigAfterInit);
 
-    $this->mockModuleManager();
+    $this->mockComponentManager();
 
-    BuildConstructionPlan::fromConfig($moduleConfig);
+    BuildConstructionPlan::fromConfig($componentConfig);
   }
 
   // Helpers
-  function mockModuleManager() {
-    $moduleManagerMock = Mockery::mock('ModuleManager');
+  function mockComponentManager() {
+    $componentManagerMock = Mockery::mock('ComponentManager');
 
-    Mockery::mock('alias:Flynt\ModuleManager')
+    Mockery::mock('alias:Flynt\ComponentManager')
     ->shouldReceive('getInstance')
-    ->andReturn($moduleManagerMock);
+    ->andReturn($componentManagerMock);
 
-    $moduleManagerMock
+    $componentManagerMock
     ->shouldReceive('getAll')
-    ->andReturn($this->moduleList);
+    ->andReturn($this->componentList);
   }
 }
