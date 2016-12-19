@@ -2,7 +2,7 @@
 /**
  * Class BuildConstructionPlanTest
  *
- * @package Wp_Starter_Plugin
+ * @package Flynt_Core
  */
 
 /**
