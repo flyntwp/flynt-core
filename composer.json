@@ -13,6 +13,6 @@
     "squizlabs/php_codesniffer": "~2.0"
   },
   "autoload": {
-    "files": ["flynt-core-plugin.php"]
+    "files": ["flynt-core.php"]
   }
 }
