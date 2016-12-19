@@ -19,7 +19,6 @@ require_once __DIR__ . '/lib/WPStarter/Render.php';
 require_once __DIR__ . '/lib/WPStarter/Defaults.php';
 require_once __DIR__ . '/lib/WPStarter.php';
 
-#TODO: do not do this automatically. create Flynt\initDefaults()
 use WPStarter\Defaults;
 
 // Register default filters and actions. Does not actually run any plugin code.
