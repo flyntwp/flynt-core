@@ -61,8 +61,7 @@ class BuildConstructionPlan {
     }
     // check if this component is registered
     $componentManager = ComponentManager::getInstance();
-    # TODO: use ModuleManager#isRegistered, not array_key_exists
-    if (!array_key_exists($config['name'], $componentManager->getAll())) {
+    if (false === $componentManager->isRegistered($config['name'])) {
       trigger_error(
         "Component '{$config['name']}' could not be found in component list. Did you forget to register the component?",
         E_USER_WARNING
