@@ -14,6 +14,7 @@ class Defaults {
     add_filter('Flynt/configFileLoader', ['Flynt\Defaults', 'loadConfigFile'], 999, 3);
     add_filter('Flynt/renderComponent', ['Flynt\Defaults', 'renderComponent'], 999, 4);
     add_filter('Flynt/componentPath', ['Flynt\Defaults', 'setComponentPath'], 999, 2);
+    # TODO: combine into one action, use ModuleManager#getModuleFilePath and change call do_action after adding component
     add_action('Flynt/registerComponent', ['Flynt\Defaults', 'checkComponentFolder']);
     add_action('Flynt/registerComponent', ['Flynt\Defaults', 'loadFunctionsFile']);
   }
@@ -60,8 +61,10 @@ class Defaults {
   }
 
   // this action needs to be removed by the user if they want to overwrite this functionality
+  # TODO add $moduleName as second param
   public static function loadFunctionsFile($componentPath) {
     $filePath = $componentPath . '/functions.php';
+    # TODO add this: $filePath = $moduleManager->getModuleFilePath($moduleName, 'functions.php');
     if (file_exists($filePath)) {
       require_once $filePath;
     }

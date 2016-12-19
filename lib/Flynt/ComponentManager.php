@@ -40,6 +40,7 @@ class ComponentManager {
     $componentPath = trailingslashit(apply_filters('Flynt/componentPath', $componentPath, $componentName));
 
     do_action('Flynt/registerComponent', $componentPath, $componentName);
+    # TODO: out of consistency pass $componentName as well?
     do_action("Flynt/registerComponent?name={$componentName}", $componentPath);
 
     // add component to internal list (array)

@@ -19,6 +19,7 @@ class BuildConstructionPlan {
     $parentData = self::overwriteParentData($config, $parentData);
 
     // applies filters for component initialisation
+    # TODO: rename function and filters
     $config = self::initComponentConfig($config, $areaName, $parentData);
 
     // add data to component
@@ -60,6 +61,7 @@ class BuildConstructionPlan {
     }
     // check if this component is registered
     $componentManager = ComponentManager::getInstance();
+    # TODO: use ModuleManager#isRegistered, not array_key_exists
     if (!array_key_exists($config['name'], $componentManager->getAll())) {
       trigger_error(
         "Component '{$config['name']}' could not be found in component list. Did you forget to register the component?",

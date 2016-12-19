@@ -42,6 +42,7 @@ function registerComponent($componentName, $componentPath = null) {
 // @codingStandardsIgnoreLine
 function registerComponents($components = []) {
   $componentManager = ComponentManager::getInstance();
+  # TODO: use array_walk
   foreach ($components as $componentName => $componentPath) {
     if (is_int($componentName)) {
       $componentName = $componentPath;
