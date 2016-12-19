@@ -61,9 +61,10 @@ class Defaults {
   }
 
   // this action needs to be removed by the user if they want to overwrite this functionality
-  public static function loadFunctionsFile($modulePath, $moduleName) {
+  // TODO add $moduleName as second param
+  public static function loadFunctionsFile($modulePath) {
     $filePath = $modulePath . '/functions.php';
-    $filePath = $moduleManager->getModuleFilePath($moduleName, 'functions.php');
+    // TODO add this: $filePath = $moduleManager->getModuleFilePath($moduleName, 'functions.php');
     if (file_exists($filePath)) {
       require_once $filePath;
     }
