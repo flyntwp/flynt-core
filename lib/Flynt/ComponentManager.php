@@ -79,4 +79,8 @@ class ComponentManager {
   public function removeAll() {
     $this->components = [];
   }
+
+  public function isRegistered($componentName) {
+    return array_key_exists($componentName, $this->components);
+  }
 }

@@ -182,4 +182,16 @@ class ComponentManagerTest extends TestCase {
     $this->componentManager->removeAll();
     $this->assertEquals($this->componentManager->getAll(), []);
   }
+
+  function testComponentIsRegistered() {
+    $component = 'SingleComponent';
+
+    Filters::expectApplied('Flynt/componentPath')
+    ->andReturnUsing(['TestHelper', 'getComponentPath']);
+
+    $this->componentManager->registerComponent($component);
+
+    $this->assertTrue($this->componentManager->isRegistered($component));
+    $this->assertFalse($this->componentManager->isRegistered('test'));
+  }
 }
