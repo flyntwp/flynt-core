@@ -117,13 +117,19 @@ class ComponentManagerTest extends TestCase {
     $this->assertEquals($path, TestHelper::getComponentPath(null, $componentName) . '/' . $fileName);
   }
 
-  function testGetComponentFilePathShowsWarningOnUnregisteredComponentParam() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $path = $this->componentManager->getComponentFilePath('SomeComponentName');
+  function testGetReturnsComponentPath() {
+    $this->componentManager->registerComponent('SingleComponent', 'path');
+    $path = $this->componentManager->get('SingleComponent');
+    $this->assertEquals($path, 'path/');
   }
 
-  function testGetComponentFilePathReturnsFalseOnUnregisteredComponentParam() {
-    $path = @$this->componentManager->getComponentFilePath('SomeComponentName');
+  function testGetShowsWarningOnUnregisteredComponentParam() {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+    $path = $this->componentManager->get('SomeComponentName');
+  }
+
+  function testGetReturnsFalseOnUnregisteredComponentParam() {
+    $path = @$this->componentManager->get('SomeComponentName');
     $this->assertFalse($path);
   }
 
@@ -151,6 +157,24 @@ class ComponentManagerTest extends TestCase {
     $this->assertFalse($path);
   }
 
+  function testGetComponentDirPathReturnsCorrectPath() {
+    // mock default functionality for path on registerComponent
+    Filters::expectApplied('Flynt/componentPath')
+    ->andReturnUsing(['TestHelper', 'getComponentPath']);
+
+    $this->componentManager->registerComponent('SingleComponent');
+    $path = $this->componentManager->getComponentDirPath('SingleComponent');
+
+    // Could also check the string to be the same, but this is nice and short
+    $this->assertFileExists($path);
+  }
+
+  function testGetComponentDirPathReturnsFalseForIncorrectDir() {
+    $this->componentManager->registerComponent('SingleComponent', 'path');
+    $result = $this->componentManager->getComponentDirPath('SingleComponent');
+    $this->assertFalse($result);
+  }
+
   function testReturnsComponentList() {
     $componentA = 'SingleComponent';
     $componentB = 'ComponentWithArea';
@@ -168,6 +192,22 @@ class ComponentManagerTest extends TestCase {
       'SingleComponent' => TestHelper::getComponentsPath() . $componentA . '/',
       'ComponentWithArea' => TestHelper::getComponentsPath() . $componentB . '/'
     ]);
+  }
+
+  function testRemovesComponent() {
+    $component = 'SingleComponent';
+    $anotherComponent = 'AnotherComponent';
+
+    Filters::expectApplied('Flynt/componentPath')
+    ->andReturnUsing(['TestHelper', 'getComponentPath']);
+
+    $this->componentManager->registerComponent($component);
+    $this->componentManager->registerComponent($anotherComponent);
+
+    $this->componentManager->remove($component);
+
+    $this->assertFalse(@$this->componentManager->get($component));
+    $this->assertArrayHasKey($anotherComponent, $this->componentManager->getAll());
   }
 
   function testClearsComponentList() {
