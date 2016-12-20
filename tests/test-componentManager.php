@@ -91,7 +91,7 @@ class ComponentManagerTest extends TestCase {
     ->with($componentPath, $componentName);
 
     Actions::expectFired("Flynt/registerComponent?name={$componentName}")
-    ->with($componentPath);
+    ->with($componentPath, $componentName);
 
     $this->componentManager->registerComponent($componentName);
   }
