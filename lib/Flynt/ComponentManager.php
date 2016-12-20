@@ -31,7 +31,7 @@ class ComponentManager {
 
   public function registerComponent($componentName, $componentPath = null) {
     // check if component already registered
-    if (array_key_exists($componentName, $this->components)) {
+    if ($this->isRegistered($componentName)) {
       trigger_error("Component {$componentName} is already registered!", E_USER_WARNING);
       return;
     }
@@ -48,7 +48,7 @@ class ComponentManager {
 
   public function getComponentFilePath($componentName, $fileName = 'index.php') {
     // check if component exists / is registered
-    if (!array_key_exists($componentName, $this->components)) {
+    if (!$this->isRegistered($componentName)) {
       trigger_error("Cannot get component file: Component '{$componentName}' is not registered!", E_USER_WARNING);
       return false;
     }
