@@ -77,7 +77,8 @@ class ComponentManagerTest extends TestCase {
     Filters::expectApplied('Flynt/componentPath')
     ->never();
 
-    @$this->componentManager->registerComponent($componentName);
+    $result = @$this->componentManager->registerComponent($componentName);
+    $this->assertFalse($result);
   }
 
   function testDoesRegisterComponentAction() {
@@ -88,12 +89,13 @@ class ComponentManagerTest extends TestCase {
     ->andReturnUsing(['TestHelper', 'getComponentPath']);
 
     Actions::expectFired('Flynt/registerComponent')
-    ->with($componentPath, $componentName);
+    ->with($componentName);
 
     Actions::expectFired("Flynt/registerComponent?name={$componentName}")
-    ->with($componentPath, $componentName);
+    ->with($componentName);
 
-    $this->componentManager->registerComponent($componentName);
+    $result = $this->componentManager->registerComponent($componentName);
+    $this->assertTrue($result);
   }
 
   function testGetsComponentFilePath() {

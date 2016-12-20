@@ -33,19 +33,22 @@ class ComponentManager {
     // check if component already registered
     if ($this->isRegistered($componentName)) {
       trigger_error("Component {$componentName} is already registered!", E_USER_WARNING);
-      return;
+      return false;
     }
 
     // register component / require functions.php
     $componentPath = trailingslashit(apply_filters('Flynt/componentPath', $componentPath, $componentName));
 
-    do_action('Flynt/registerComponent', $componentPath, $componentName);
-    do_action("Flynt/registerComponent?name={$componentName}", $componentPath, $componentName);
-
     // add component to internal list (array)
-    return $this->add($componentName, $componentPath);
+    $this->add($componentName, $componentPath);
+
+    do_action('Flynt/registerComponent', $componentName);
+    do_action("Flynt/registerComponent?name={$componentName}", $componentName);
+
+    return true;
   }
 
+  // TODO create getComponentDirPath method for first part of this
   public function getComponentFilePath($componentName, $fileName = 'index.php') {
     // check if component exists / is registered
     if (!$this->isRegistered($componentName)) {
@@ -71,6 +74,7 @@ class ComponentManager {
     return true;
   }
 
+  // TODO add single `get` method
   public function getAll() {
     return $this->components;
   }
