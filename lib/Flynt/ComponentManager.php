@@ -31,44 +31,73 @@ class ComponentManager {
 
   public function registerComponent($componentName, $componentPath = null) {
     // check if component already registered
-    if (array_key_exists($componentName, $this->components)) {
+    if ($this->isRegistered($componentName)) {
       trigger_error("Component {$componentName} is already registered!", E_USER_WARNING);
-      return;
+      return false;
     }
 
     // register component / require functions.php
     $componentPath = trailingslashit(apply_filters('Flynt/componentPath', $componentPath, $componentName));
 
-    do_action('Flynt/registerComponent', $componentPath, $componentName);
-    do_action("Flynt/registerComponent?name={$componentName}", $componentPath);
-
     // add component to internal list (array)
-    return $this->add($componentName, $componentPath);
+    $this->add($componentName, $componentPath);
+
+    do_action('Flynt/registerComponent', $componentName);
+    do_action("Flynt/registerComponent?name={$componentName}", $componentName);
+
+    return true;
   }
 
   public function getComponentFilePath($componentName, $fileName = 'index.php') {
-    // check if component exists / is registered
-    if (!array_key_exists($componentName, $this->components)) {
-      trigger_error("Cannot get component file: Component '{$componentName}' is not registered!", E_USER_WARNING);
+    $componentDir = $this->getComponentDirPath($componentName);
+
+    if (false === $componentDir) {
       return false;
     }
 
-    // check if file exists (path in array already has a trailing slash)
-    $filePath = $this->components[$componentName] . $fileName;
+    // dir path already has a trailing slash
+    $filePath = $componentDir . $fileName;
+
     if (!is_file($filePath)) {
       trigger_error(
         "Cannot get component file: File '{$fileName}' could not be found at '{$filePath}'!",
         E_USER_WARNING
       );
+
       return false;
     }
 
     return $filePath;
   }
 
+  public function getComponentDirPath($componentName) {
+    $dirPath = $this->get($componentName);
+
+    // check if dir exists
+    if (!is_dir($dirPath)) {
+      return false;
+    }
+
+    return $dirPath;
+  }
+
   protected function add($name, $path) {
     $this->components[$name] = $path;
     return true;
+  }
+
+  public function get($componentName) {
+    // check if component exists / is registered
+    if (!$this->isRegistered($componentName)) {
+      trigger_error("Cannot get component: Component '{$componentName}' is not registered!", E_USER_WARNING);
+      return false;
+    }
+
+    return $this->components[$componentName];
+  }
+
+  public function remove($componentName) {
+    unset($this->components[$componentName]);
   }
 
   public function getAll() {
@@ -77,5 +106,9 @@ class ComponentManager {
 
   public function removeAll() {
     $this->components = [];
+  }
+
+  public function isRegistered($componentName) {
+    return array_key_exists($componentName, $this->components);
   }
 }

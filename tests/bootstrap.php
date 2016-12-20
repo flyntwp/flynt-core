@@ -2,7 +2,7 @@
 /**
  * PHPUnit bootstrap file
  *
- * @package Wp_Starter_Plugin
+ * @package Flynt_Core
  */
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';

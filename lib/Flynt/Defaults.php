@@ -14,7 +14,6 @@ class Defaults {
     add_filter('Flynt/configFileLoader', ['Flynt\Defaults', 'loadConfigFile'], 999, 3);
     add_filter('Flynt/renderComponent', ['Flynt\Defaults', 'renderComponent'], 999, 4);
     add_filter('Flynt/componentPath', ['Flynt\Defaults', 'setComponentPath'], 999, 2);
-    add_action('Flynt/registerComponent', ['Flynt\Defaults', 'checkComponentFolder']);
     add_action('Flynt/registerComponent', ['Flynt\Defaults', 'loadFunctionsFile']);
   }
 
@@ -53,16 +52,10 @@ class Defaults {
   }
 
   // this action needs to be removed by the user if they want to overwrite this functionality
-  public static function checkComponentFolder($componentPath) {
-    if (!is_dir($componentPath)) {
-      trigger_error("Register Component: Folder {$componentPath} not found!", E_USER_WARNING);
-    }
-  }
-
-  // this action needs to be removed by the user if they want to overwrite this functionality
-  public static function loadFunctionsFile($componentPath) {
-    $filePath = $componentPath . '/functions.php';
-    if (file_exists($filePath)) {
+  public static function loadFunctionsFile($componentName) {
+    $componentManager = ComponentManager::getInstance();
+    $filePath = $componentManager->getComponentFilePath($componentName, 'functions.php');
+    if (false !== $filePath) {
       require_once $filePath;
     }
   }

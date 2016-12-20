@@ -2,7 +2,7 @@
 /**
  * Class BuildConstructionPlanTest
  *
- * @package Wp_Starter_Plugin
+ * @package Flynt_Core
  */
 
 /**
@@ -91,14 +91,24 @@ class BuildConstructionPlanTest extends TestCase {
     $this->assertEquals($cp, []);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testShowWarningWhenComponentIsNotRegistered() {
     $this->expectException('PHPUnit_Framework_Error_Warning');
+    $this->mockComponentManager();
     BuildConstructionPlan::fromConfig([
       'name' => 'ThisComponentIsNotRegistered'
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testReturnsEmptyConstructionPlanWhenComponentIsNotRegistered() {
+    $this->mockComponentManager();
     $cp = @BuildConstructionPlan::fromConfig([
       'name' => 'ThisComponentIsNotRegistered'
     ]);
@@ -760,7 +770,11 @@ class BuildConstructionPlanTest extends TestCase {
     ->andReturn($componentManagerMock);
 
     $componentManagerMock
-    ->shouldReceive('getAll')
-    ->andReturn($this->componentList);
+    ->shouldReceive('isRegistered')
+    ->andReturnUsing([$this, 'componentIsInList']);
+  }
+
+  function componentIsInList($componentName) {
+    return array_key_exists($componentName, $this->componentList);
   }
 }

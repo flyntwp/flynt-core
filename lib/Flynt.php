@@ -42,7 +42,7 @@ function registerComponent($componentName, $componentPath = null) {
 // @codingStandardsIgnoreLine
 function registerComponents($components = []) {
   $componentManager = ComponentManager::getInstance();
-  foreach ($components as $componentName => $componentPath) {
+  array_walk($components, function ($componentPath, $componentName) use ($componentManager) {
     if (is_int($componentName)) {
       $componentName = $componentPath;
       $componentPath = null;
@@ -50,5 +50,5 @@ function registerComponents($components = []) {
       $componentPath = (isset($componentPath)) ? $componentPath : null;
     }
     $componentManager->registerComponent($componentName, $componentPath);
-  }
+  });
 }

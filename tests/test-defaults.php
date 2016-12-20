@@ -2,7 +2,7 @@
 /**
  * Class DefaultsTest
  *
- * @package Wp_Starter_Plugin
+ * @package Flynt_Core
  */
 
 /**
@@ -61,12 +61,6 @@ class DefaultsTest extends TestCase {
   function testAddsActionForRegisterComponent() {
     Actions::expectAdded('Flynt/registerComponent')
     ->once()
-    ->ordered()
-    ->with(['Flynt\Defaults', 'checkComponentFolder']);
-
-    Actions::expectAdded('Flynt/registerComponent')
-    ->once()
-    ->ordered()
     ->with(['Flynt\Defaults', 'loadFunctionsFile']);
 
     Defaults::init();
@@ -206,32 +200,41 @@ class DefaultsTest extends TestCase {
     $this->assertEquals($output, "<div>{$parentComponentName} result<div>{$childComponentName} result</div>\n</div>\n");
   }
 
-  function testShowsWarningWhenComponentFolderNotFound() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    Defaults::checkComponentFolder('not/a/real/path');
-  }
-
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function testLoadsFunctionsPhpOnRegisterComponent() {
     $componentName = 'SingleComponent';
+    $componentPath = TestHelper::getComponentPath(null, $componentName);
 
+    $this->mockComponentManager()
+    ->shouldReceive('getComponentFilePath')
+    ->with($componentName, 'functions.php')
+    ->andReturn($componentPath . '/functions.php');
+
+    // checking if filter in required component file is added
     Filters::expectAdded("Flynt/DataFilters/{$componentName}/foo")
     ->once();
 
-    Defaults::loadFunctionsFile(TestHelper::getComponentPath(null, $componentName));
+    Defaults::loadFunctionsFile($componentName);
   }
 
   /**
    * @runInSeparateProcess
+   * @preserveGlobalState disabled
    */
   function testDoesNotLoadFunctionsPhpOnRegisterComponentIfItDoesntExist() {
     // running this test separately to be able to see the error message
     $componentName = 'ComponentWithoutFunctionsPhp';
 
-    // make sure test file wasn't added by mistake
-    $this->assertFileNotExists(TestHelper::getComponentPath(null, $componentName) . '/index.php');
+    $this->mockComponentManager()
+    ->shouldReceive('getComponentFilePath')
+    ->with($componentName, 'functions.php')
+    ->andReturn(false);
 
     // this will throw an error if a file is required that doesn't exist
-    Defaults::loadFunctionsFile(TestHelper::getComponentPath(null, $componentName));
+    Defaults::loadFunctionsFile($componentName);
   }
 
   function testIsGettingDefaultComponentsDirectory() {

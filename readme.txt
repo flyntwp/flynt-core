@@ -1,9 +1,9 @@
-=== Wp Starter Plugin ===
+=== Flynt Core ===
 Contributors: (this should be a list of wordpress.org userid's)
 Donate link: http://example.com/
-Tags: comments, spam
+Tags: flynt
 Requires at least: 3.7
-Tested up to: 4.6
+Tested up to: 4.7
 Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
