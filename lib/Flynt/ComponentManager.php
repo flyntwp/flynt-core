@@ -58,16 +58,7 @@ class ComponentManager {
     // dir path already has a trailing slash
     $filePath = $componentDir . $fileName;
 
-    if (!is_file($filePath)) {
-      trigger_error(
-        "Cannot get component file: File '{$fileName}' could not be found at '{$filePath}'!",
-        E_USER_WARNING
-      );
-
-      return false;
-    }
-
-    return $filePath;
+    return is_file($filePath) ? $filePath : false;
   }
 
   public function getComponentDirPath($componentName) {

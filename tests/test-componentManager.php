@@ -133,18 +133,6 @@ class ComponentManagerTest extends TestCase {
     $this->assertFalse($path);
   }
 
-  function testGetComponentFilePathShowsWarningOnIncorrectFileName() {
-    $componentName = 'SingleComponent';
-
-    Filters::expectApplied('Flynt/componentPath')
-    ->andReturnUsing(['TestHelper', 'getComponentPath']);
-
-    $this->componentManager->registerComponent($componentName);
-
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $path = $this->componentManager->getComponentFilePath($componentName, 'doesNotExist.something');
-  }
-
   function testGetComponentFilePathReturnsFalseOnIncorrectFileName() {
     $componentName = 'SingleComponent';
 
