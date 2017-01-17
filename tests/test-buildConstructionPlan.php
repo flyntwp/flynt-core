@@ -710,57 +710,6 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
   }
 
-  /**
-   * @runInSeparateProcess
-   * @preserveGlobalState disabled
-   */
-  function testAppliesInitComponentConfigFilters() {
-    $componentName = 'ComponentWithArea';
-    $childComponentName = 'SingleComponent';
-
-    $componentData = ['test' => 'result'];
-
-    $componentConfig = TestHelper::getCustomComponent($componentName, ['name', 'areas']);
-    $childComponentConfig = TestHelper::getCustomComponent($childComponentName, ['name']);
-
-    $componentConfig['areas']['area51'][0] = $childComponentConfig;
-
-    $componentConfigFilterParam = $componentConfig;
-    $childComponentConfigFilterParam = $childComponentConfig;
-
-    $componentConfigFilterParam['data'] = [];
-    $childComponentConfigFilterParam['data'] = [];
-
-    $componentConfigAfterInit = array_merge($componentConfigFilterParam, ['data' => $componentData]);
-    $childComponentConfigAfterInit = array_merge($childComponentConfigFilterParam, ['data' => $componentData]);
-
-    Filters::expectApplied('Flynt/initComponentConfig')
-    ->with($componentConfigFilterParam, null, [])
-    ->ordered()
-    ->once()
-    ->andReturn($componentConfigAfterInit);
-
-    Filters::expectApplied('Flynt/initComponentConfig')
-    ->with($childComponentConfigFilterParam, 'area51', $componentData)
-    ->ordered()
-    ->once()
-    ->andReturn($childComponentConfigFilterParam);
-
-    Filters::expectApplied("Flynt/initComponentConfig?name={$componentName}")
-    ->with($componentConfigAfterInit, null, [])
-    ->once()
-    ->andReturn($componentConfigAfterInit);
-
-    Filters::expectApplied("Flynt/initComponentConfig?name={$childComponentName}")
-    ->with($childComponentConfigFilterParam, 'area51', $componentData)
-    ->once()
-    ->andReturn($childComponentConfigAfterInit);
-
-    $this->mockComponentManager();
-
-    BuildConstructionPlan::fromConfig($componentConfig);
-  }
-
   // Helpers
   function mockComponentManager() {
     $componentManagerMock = Mockery::mock('ComponentManager');

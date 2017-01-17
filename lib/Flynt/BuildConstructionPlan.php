@@ -18,10 +18,6 @@ class BuildConstructionPlan {
     // check for parent data overwrite
     $parentData = self::overwriteParentData($config, $parentData);
 
-    // applies filters for component initialisation
-    # TODO: rename function and filters
-    $config = self::initComponentConfig($config, $areaName, $parentData);
-
     // add data to component
     $config = self::applyDataFilter($config);
     $config = self::addCustomData($config);
@@ -76,21 +72,6 @@ class BuildConstructionPlan {
       unset($config['parentData']);
     }
     return $parentData;
-  }
-
-  protected static function initComponentConfig($config, $areaName, $parentData) {
-    $config = apply_filters(
-      'Flynt/initComponentConfig',
-      $config,
-      $areaName,
-      $parentData
-    );
-    return apply_filters(
-      "Flynt/initComponentConfig?name={$config['name']}",
-      $config,
-      $areaName,
-      $parentData
-    );
   }
 
   protected static function applyDataFilter($config) {
