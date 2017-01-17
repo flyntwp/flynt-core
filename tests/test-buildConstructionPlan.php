@@ -215,7 +215,7 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testModifyComponentDataFiltersAreApplied() {
+  function testaddComponentDataFiltersAreApplied() {
     // Made this more complex than necessary to also test parentData being passed
     $parentComponentName = 'ComponentWithArea';
     $childComponentName = 'SingleComponent';
@@ -257,19 +257,19 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
     unset($childComponentAsArg['customData']);
 
-    Filters::expectApplied('Flynt/modifyComponentData')
+    Filters::expectApplied('Flynt/addComponentData')
     ->with($parentData, [], $parentComponentAsArg)
     ->ordered()
     ->once()
     ->andReturn($parentData);
 
-    Filters::expectApplied('Flynt/modifyComponentData')
+    Filters::expectApplied('Flynt/addComponentData')
     ->with($childData, $parentData, $childComponentAsArg)
     ->ordered()
     ->once()
     ->andReturn($childData);
 
-    Filters::expectApplied("Flynt/modifyComponentData?name={$childComponentName}")
+    Filters::expectApplied("Flynt/addComponentData?name={$childComponentName}")
     ->with($childData, $parentData, $childComponentAsArg)
     ->once()
     ->andReturn($newChildData);
@@ -407,13 +407,13 @@ class BuildConstructionPlanTest extends TestCase {
 
     $this->mockComponentManager();
 
-    Filters::expectApplied('Flynt/modifyComponentData')
+    Filters::expectApplied('Flynt/addComponentData')
     ->with(['testParentData' => true], [], Mockery::type('array'))
     ->ordered()
     ->once()
     ->andReturn(['testParentData' => true]);
 
-    Filters::expectApplied('Flynt/modifyComponentData')
+    Filters::expectApplied('Flynt/addComponentData')
     ->with([], $newParentData, Mockery::type('array'))
     ->ordered()
     ->once()

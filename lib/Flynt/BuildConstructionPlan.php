@@ -21,7 +21,7 @@ class BuildConstructionPlan {
     // add data to component
     $config = self::addCustomData($config);
 
-    // apply modifyComponentData filters to be used in a functions.php of a component for example
+    // apply addComponentData filters to be used in a functions.php of a component for example
     $config = self::applyDataModifications($config, $parentData);
 
     // add subcomponents (dynamic + static) and return construction plan for the current component
@@ -84,13 +84,13 @@ class BuildConstructionPlan {
 
   protected static function applyDataModifications($config, $parentData) {
     $config['data'] = apply_filters(
-      'Flynt/modifyComponentData',
+      'Flynt/addComponentData',
       $config['data'],
       $parentData,
       $config
     );
     $config['data'] = apply_filters(
-      "Flynt/modifyComponentData?name={$config['name']}",
+      "Flynt/addComponentData?name={$config['name']}",
       $config['data'],
       $parentData,
       $config
