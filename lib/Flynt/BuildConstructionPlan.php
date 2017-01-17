@@ -19,7 +19,6 @@ class BuildConstructionPlan {
     $parentData = self::overwriteParentData($config, $parentData);
 
     // add data to component
-    $config = self::applyDataFilter($config);
     $config = self::addCustomData($config);
 
     // apply modifyComponentData filters to be used in a functions.php of a component for example
@@ -72,19 +71,6 @@ class BuildConstructionPlan {
       unset($config['parentData']);
     }
     return $parentData;
-  }
-
-  protected static function applyDataFilter($config) {
-    if (array_key_exists('dataFilter', $config)) {
-      $args = [ $config['data'] ];
-      if (array_key_exists('dataFilterArgs', $config)) {
-        $args = array_merge($args, $config['dataFilterArgs']);
-        unset($config['dataFilterArgs']);
-      }
-      $config['data'] = apply_filters_ref_array($config['dataFilter'], $args);
-      unset($config['dataFilter']);
-    }
-    return $config;
   }
 
   protected static function addCustomData($config) {
