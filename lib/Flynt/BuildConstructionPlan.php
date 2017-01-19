@@ -18,15 +18,10 @@ class BuildConstructionPlan {
     // check for parent data overwrite
     $parentData = self::overwriteParentData($config, $parentData);
 
-    // applies filters for component initialisation
-    # TODO: rename function and filters
-    $config = self::initComponentConfig($config, $areaName, $parentData);
-
     // add data to component
-    $config = self::applyDataFilter($config);
     $config = self::addCustomData($config);
 
-    // apply modifyComponentData filters to be used in a functions.php of a component for example
+    // apply addComponentData filters to be used in a functions.php of a component for example
     $config = self::applyDataModifications($config, $parentData);
 
     // add subcomponents (dynamic + static) and return construction plan for the current component
@@ -78,34 +73,6 @@ class BuildConstructionPlan {
     return $parentData;
   }
 
-  protected static function initComponentConfig($config, $areaName, $parentData) {
-    $config = apply_filters(
-      'Flynt/initComponentConfig',
-      $config,
-      $areaName,
-      $parentData
-    );
-    return apply_filters(
-      "Flynt/initComponentConfig?name={$config['name']}",
-      $config,
-      $areaName,
-      $parentData
-    );
-  }
-
-  protected static function applyDataFilter($config) {
-    if (array_key_exists('dataFilter', $config)) {
-      $args = [ $config['data'] ];
-      if (array_key_exists('dataFilterArgs', $config)) {
-        $args = array_merge($args, $config['dataFilterArgs']);
-        unset($config['dataFilterArgs']);
-      }
-      $config['data'] = apply_filters_ref_array($config['dataFilter'], $args);
-      unset($config['dataFilter']);
-    }
-    return $config;
-  }
-
   protected static function addCustomData($config) {
     if (array_key_exists('customData', $config)) {
       // custom data overwrites original data
@@ -117,13 +84,13 @@ class BuildConstructionPlan {
 
   protected static function applyDataModifications($config, $parentData) {
     $config['data'] = apply_filters(
-      'Flynt/modifyComponentData',
+      'Flynt/addComponentData',
       $config['data'],
       $parentData,
       $config
     );
     $config['data'] = apply_filters(
-      "Flynt/modifyComponentData?name={$config['name']}",
+      "Flynt/addComponentData?name={$config['name']}",
       $config['data'],
       $parentData,
       $config

@@ -6,11 +6,6 @@ class TestHelper {
   public static function getCompleteComponent($componentName = 'ComponentName') {
     return [
       'name' =>  $componentName,
-      'dataFilter' => 'Flynt/DataFilters/' . $componentName . '/foo',
-      'dataFilterArgs' => [
-        'post',
-        'page'
-      ],
       'customData' => [
         'test0' => 0,
         'test1' => 'string',
@@ -28,29 +23,6 @@ class TestHelper {
     return array_filter(self::getCompleteComponent($componentName), function ($key) use ($config) {
       return in_array($key, $config);
     }, ARRAY_FILTER_USE_KEY);
-  }
-
-  public static function registerDataFilter(
-    $componentName = 'Component',
-    $hasFilterArgs = false,
-    $returnDuplicate = false
-  ) {
-    $filterArgs = [[]];
-    $return = [ 'test' => 'result' ];
-
-    if ($hasFilterArgs) {
-      array_push($filterArgs, 'post', 'page');
-    }
-
-    if ($returnDuplicate) {
-      $return['duplicate'] = 'previousValue';
-    }
-
-    // expect apply_filters to be called with 'Flynt/DataFilters/ComponentName/foo'
-    $filterMock = Filters::expectApplied('Flynt/DataFilters/' . $componentName . '/foo')
-    ->once()
-    ->withArgs($filterArgs)
-    ->andReturn($return);
   }
 
   public static function getComponentIndexPath($componentName) {

@@ -188,54 +188,6 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testComponentDataIsFiltered() {
-    $componentName = 'SingleComponent';
-
-    // Params: ComponentName, hasFilterArgs = false, returnDuplicate = false
-    TestHelper::registerDataFilter($componentName);
-
-    $component = TestHelper::getCustomComponent($componentName, ['name', 'dataFilter', 'areas']);
-
-    $this->mockComponentManager();
-
-    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
-
-    $this->assertEquals($cp, [
-      'name' => $componentName,
-      'data' => [
-        'test' => 'result'
-      ]
-    ]);
-  }
-
-  /**
-   * @runInSeparateProcess
-   * @preserveGlobalState disabled
-   */
-  function testDataFilterArgumentsAreUsed() {
-    $componentName = 'SingleComponent';
-
-    // Params: ComponentName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($componentName, true, false);
-
-    $component = TestHelper::getCustomComponent($componentName, ['name', 'dataFilter', 'dataFilterArgs', 'areas']);
-
-    $this->mockComponentManager();
-
-    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
-
-    $this->assertEquals($cp, [
-      'name' => $componentName,
-      'data' => [
-        'test' => 'result'
-      ]
-    ]);
-  }
-
-  /**
-   * @runInSeparateProcess
-   * @preserveGlobalState disabled
-   */
   function testCustomDataIsAddedToComponent() {
     $componentName = 'SingleComponent';
 
@@ -263,48 +215,12 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testDataIsFilteredAndCustomDataIsAdded() {
-    $componentName = 'SingleComponent';
-
-    // Params: ComponentName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($componentName, false, true);
-
-    $component = TestHelper::getCustomComponent($componentName, ['name', 'dataFilter', 'customData', 'areas']);
-
-    $this->mockComponentManager();
-
-    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
-
-    $this->assertEquals($cp, [
-      'name' => $componentName,
-      'data' => [
-        'test' => 'result',
-        'test0' => 0,
-        'test1' => 'string',
-        'test2' => [
-          'something strange'
-        ],
-        'duplicate' => 'newValue'
-      ]
-    ]);
-  }
-
-  /**
-   * @runInSeparateProcess
-   * @preserveGlobalState disabled
-   */
-  function testModifyComponentDataFiltersAreApplied() {
+  function testaddComponentDataFiltersAreApplied() {
     // Made this more complex than necessary to also test parentData being passed
     $parentComponentName = 'ComponentWithArea';
     $childComponentName = 'SingleComponent';
 
-    // Params: ComponentName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentComponentName);
-
-    // Params: ComponentName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($childComponentName, true, true);
-
-    $parentComponent = TestHelper::getCustomComponent($parentComponentName, ['name', 'dataFilter', 'areas']);
+    $parentComponent = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
     $childComponent = TestHelper::getCompleteComponent($childComponentName);
 
     $parentComponent['areas'] = [
@@ -315,12 +231,9 @@ class BuildConstructionPlanTest extends TestCase {
 
     $this->mockComponentManager();
 
-    $parentData = [
-      'test' => 'result'
-    ];
+    $parentData = [];
 
     $childData = [
-      'test' => 'result',
       'test0' => 0,
       'test1' => 'string',
       'test2' => [
@@ -337,30 +250,26 @@ class BuildConstructionPlanTest extends TestCase {
     $parentComponentAsArg = array_merge($parentComponent, [
       'data' => $parentData
     ]);
-    unset($parentComponentAsArg['dataFilter']);
-    unset($parentComponentAsArg['dataFilterArgs']);
     unset($parentComponentAsArg['customData']);
 
     $childComponentAsArg = array_merge($childComponent, [
       'data' => $childData
     ]);
-    unset($childComponentAsArg['dataFilter']);
-    unset($childComponentAsArg['dataFilterArgs']);
     unset($childComponentAsArg['customData']);
 
-    Filters::expectApplied('Flynt/modifyComponentData')
+    Filters::expectApplied('Flynt/addComponentData')
     ->with($parentData, [], $parentComponentAsArg)
     ->ordered()
     ->once()
     ->andReturn($parentData);
 
-    Filters::expectApplied('Flynt/modifyComponentData')
+    Filters::expectApplied('Flynt/addComponentData')
     ->with($childData, $parentData, $childComponentAsArg)
     ->ordered()
     ->once()
     ->andReturn($childData);
 
-    Filters::expectApplied("Flynt/modifyComponentData?name={$childComponentName}")
+    Filters::expectApplied("Flynt/addComponentData?name={$childComponentName}")
     ->with($childData, $parentData, $childComponentAsArg)
     ->once()
     ->andReturn($newChildData);
@@ -369,9 +278,7 @@ class BuildConstructionPlanTest extends TestCase {
 
     $this->assertEquals($cp, [
       'name' => $parentComponentName,
-      'data' => [
-        'test' => 'result'
-      ],
+      'data' => [],
       'areas' => [
         'Area51' => [
           [
@@ -400,9 +307,6 @@ class BuildConstructionPlanTest extends TestCase {
     $parentComponentName = 'ComponentWithArea';
     $childComponentName = 'SingleComponent';
 
-    // Params: ComponentName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($childComponentName, true, true);
-
     $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
 
     $component['areas'] = [
@@ -423,7 +327,6 @@ class BuildConstructionPlanTest extends TestCase {
           [
             'name' => $childComponentName,
             'data' => [
-              'test' => 'result',
               'test0' => 0,
               'test1' => 'string',
               'test2' => [
@@ -445,10 +348,10 @@ class BuildConstructionPlanTest extends TestCase {
     $parentComponentName = 'ComponentWithArea';
     $childComponentName = 'SingleComponent';
 
-    // Params: ComponentName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentComponentName, false, false);
-
-    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'dataFilter', 'areas']);
+    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
+    $component['customData'] = [
+      'testParentData' => true
+    ];
 
     $component['areas'] = [
       'area51' => [
@@ -463,7 +366,7 @@ class BuildConstructionPlanTest extends TestCase {
     $this->assertEquals($cp, [
       'name' => $parentComponentName,
       'data' => [
-        'test' => 'result',
+        'testParentData' => true
       ],
       'areas' => [
         'area51' => [
@@ -484,16 +387,17 @@ class BuildConstructionPlanTest extends TestCase {
     $parentComponentName = 'ComponentWithArea';
     $childComponentName = 'SingleComponent';
 
-    // Params: ComponentName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentComponentName, false, false);
-
     $newParentData = [
       'custom' => 'parentData'
     ];
 
-    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'dataFilter', 'areas']);
+    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
     $childComponent = TestHelper::getCustomComponent($childComponentName, ['name']);
     $childComponent['parentData'] = $newParentData;
+
+    $component['customData'] = [
+      'testParentData' => true
+    ];
 
     $component['areas'] = [
       'area51' => [
@@ -503,13 +407,13 @@ class BuildConstructionPlanTest extends TestCase {
 
     $this->mockComponentManager();
 
-    Filters::expectApplied('Flynt/modifyComponentData')
-    ->with(['test' => 'result'], [], Mockery::type('array'))
+    Filters::expectApplied('Flynt/addComponentData')
+    ->with(['testParentData' => true], [], Mockery::type('array'))
     ->ordered()
     ->once()
-    ->andReturn(['test' => 'result']);
+    ->andReturn(['testParentData' => true]);
 
-    Filters::expectApplied('Flynt/modifyComponentData')
+    Filters::expectApplied('Flynt/addComponentData')
     ->with([], $newParentData, Mockery::type('array'))
     ->ordered()
     ->once()
@@ -520,7 +424,7 @@ class BuildConstructionPlanTest extends TestCase {
     $this->assertEquals($cp, [
       'name' => $parentComponentName,
       'data' => [
-        'test' => 'result',
+        'testParentData' => true
       ],
       'areas' => [
         'area51' => [
@@ -546,10 +450,7 @@ class BuildConstructionPlanTest extends TestCase {
     $grandChildComponentNameB = 'GrandChildB';
     $grandChildComponentNameC = 'GrandChildC';
 
-    // Params: ComponentName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentComponentName, false, false);
-
-    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'dataFilter', 'areas']);
+    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
 
     $component['areas'] = [
       'area51' => [
@@ -573,9 +474,7 @@ class BuildConstructionPlanTest extends TestCase {
 
     $this->assertEquals($cp, [
       'name' => $parentComponentName,
-      'data' => [
-        'test' => 'result',
-      ],
+      'data' => [],
       'areas' => [
         'area51' => [
           [
@@ -613,14 +512,11 @@ class BuildConstructionPlanTest extends TestCase {
     $componentName = 'ComponentWithArea';
     $dynamicComponentName = 'SingleComponent';
 
-    // Params: ComponentName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($componentName, false, false);
-
-    $component = TestHelper::getCustomComponent($componentName, ['name', 'dataFilter', 'areas']);
+    $component = TestHelper::getCustomComponent($componentName, ['name', 'areas']);
     $dynamicComponent = TestHelper::getCustomComponent($dynamicComponentName, ['name']);
 
     Filters::expectApplied("Flynt/dynamicSubcomponents?name={$componentName}")
-    ->with([], ['test' => 'result'], [])
+    ->with([], [], [])
     ->once()
     ->andReturn(['area51' => [ $dynamicComponent ]]);
 
@@ -630,9 +526,7 @@ class BuildConstructionPlanTest extends TestCase {
 
     $this->assertEquals($cp, [
       'name' => $componentName,
-      'data' => [
-        'test' => 'result'
-      ],
+      'data' => [],
       'areas' => [
         'area51' => [
           [
@@ -654,10 +548,7 @@ class BuildConstructionPlanTest extends TestCase {
     $childSubcomponentName = 'SingleComponent';
     $dynamicComponentName = 'DynamicComponent';
 
-    // Params: ComponentName, hasFilterArgs, returnDuplicate
-    TestHelper::registerDataFilter($parentComponentName, false, false);
-
-    $parentComponent = TestHelper::getCustomComponent($parentComponentName, ['name', 'dataFilter', 'areas']);
+    $parentComponent = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
     $childComponent = TestHelper::getCustomComponent($childComponentName, ['name']);
     $childSubcomponent = TestHelper::getCustomComponent($childSubcomponentName, ['name']);
     $dynamicComponent = TestHelper::getCustomComponent($dynamicComponentName, ['name']);
@@ -669,8 +560,12 @@ class BuildConstructionPlanTest extends TestCase {
       'parentArea' => [ $childComponent ]
     ];
 
+    $parentComponent['customData'] = [
+      'testParentData' => true
+    ];
+
     Filters::expectApplied("Flynt/dynamicSubcomponents?name={$childSubcomponentName}")
-    ->with([], [], ['test' => 'result'])
+    ->with([], [], ['testParentData' => true])
     ->once()
     ->andReturn(['area51' => [ $dynamicComponent ]]);
 
@@ -681,7 +576,7 @@ class BuildConstructionPlanTest extends TestCase {
     $this->assertEquals($cp, [
       'name' => $parentComponentName,
       'data' => [
-        'test' => 'result'
+        'testParentData' => true
       ],
       'areas' => [
         'parentArea' => [
@@ -708,57 +603,6 @@ class BuildConstructionPlanTest extends TestCase {
         ]
       ]
     ]);
-  }
-
-  /**
-   * @runInSeparateProcess
-   * @preserveGlobalState disabled
-   */
-  function testAppliesInitComponentConfigFilters() {
-    $componentName = 'ComponentWithArea';
-    $childComponentName = 'SingleComponent';
-
-    $componentData = ['test' => 'result'];
-
-    $componentConfig = TestHelper::getCustomComponent($componentName, ['name', 'areas']);
-    $childComponentConfig = TestHelper::getCustomComponent($childComponentName, ['name']);
-
-    $componentConfig['areas']['area51'][0] = $childComponentConfig;
-
-    $componentConfigFilterParam = $componentConfig;
-    $childComponentConfigFilterParam = $childComponentConfig;
-
-    $componentConfigFilterParam['data'] = [];
-    $childComponentConfigFilterParam['data'] = [];
-
-    $componentConfigAfterInit = array_merge($componentConfigFilterParam, ['data' => $componentData]);
-    $childComponentConfigAfterInit = array_merge($childComponentConfigFilterParam, ['data' => $componentData]);
-
-    Filters::expectApplied('Flynt/initComponentConfig')
-    ->with($componentConfigFilterParam, null, [])
-    ->ordered()
-    ->once()
-    ->andReturn($componentConfigAfterInit);
-
-    Filters::expectApplied('Flynt/initComponentConfig')
-    ->with($childComponentConfigFilterParam, 'area51', $componentData)
-    ->ordered()
-    ->once()
-    ->andReturn($childComponentConfigFilterParam);
-
-    Filters::expectApplied("Flynt/initComponentConfig?name={$componentName}")
-    ->with($componentConfigAfterInit, null, [])
-    ->once()
-    ->andReturn($componentConfigAfterInit);
-
-    Filters::expectApplied("Flynt/initComponentConfig?name={$childComponentName}")
-    ->with($childComponentConfigFilterParam, 'area51', $componentData)
-    ->once()
-    ->andReturn($childComponentConfigAfterInit);
-
-    $this->mockComponentManager();
-
-    BuildConstructionPlan::fromConfig($componentConfig);
   }
 
   // Helpers
