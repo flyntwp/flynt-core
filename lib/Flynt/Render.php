@@ -4,8 +4,6 @@ namespace Flynt;
 
 class Render {
   public static function fromConstructionPlan($constructionPlan) {
-    self::validateConstructionPlan($constructionPlan);
-
     $areaHtml = self::extractAreaHtml($constructionPlan);
 
     return self::applyRenderFilters($constructionPlan, $areaHtml);
@@ -14,6 +12,9 @@ class Render {
   protected static function validateConstructionPlan($constructionPlan) {
     if (empty($constructionPlan)) {
       trigger_error('Empty Construction Plan!', E_USER_WARNING);
+      return false;
+    } else {
+      return true;
     }
   }
 
@@ -30,6 +31,10 @@ class Render {
   }
 
   protected static function applyRenderFilters($constructionPlan, $areaHtml) {
+    if (self::validateConstructionPlan($constructionPlan) === false) {
+      return '';
+    }
+
     $componentData = $constructionPlan['data'];
     $componentName = $constructionPlan['name'];
 
