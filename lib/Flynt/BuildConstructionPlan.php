@@ -4,7 +4,18 @@ namespace Flynt;
 
 class BuildConstructionPlan {
   public static function fromConfig($config) {
-    return self::fromConfigRecursive($config);
+    // add caching via transients
+    // TODO add post save hook
+    // TODO add unit tests
+    // TODO refactor code (consider putting this into filter / use a theme feature instead)
+    $transientId = 'FlyntConstructionPlan_' . sanitize_url(get_permalink());
+
+    if (false === ($constructionPlan = get_transient($transientId))) {
+      $constructionPlan = self::fromConfigRecursive($config);
+      set_transient($transientId, $constructionPlan);
+    }
+
+    return $constructionPlan;
   }
 
   protected static function fromConfigRecursive($config, $areaName = null, $parentData = []) {
