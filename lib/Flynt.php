@@ -19,7 +19,6 @@ function echoHtmlFromConfig($config) {
 // @codingStandardsIgnoreLine
 function getHtmlFromConfig($config) {
   $cp = BuildConstructionPlan::fromConfig($config);
-  var_dump($cp);
   return Render::fromConstructionPlan($cp);
 }
 

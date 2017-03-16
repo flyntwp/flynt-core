@@ -4,9 +4,8 @@ namespace Flynt;
 
 class Render {
   public static function fromConstructionPlan($constructionPlan) {
-    $errorString = self::validateConstructionPlan($constructionPlan);
-    if (true !== $errorString && !empty($errorString)) {
-      return $errorString;
+    if (false === self::validateConstructionPlan($constructionPlan)) {
+      return '';
     }
 
     $areaHtml = self::extractAreaHtml($constructionPlan);
@@ -54,13 +53,13 @@ class Render {
     if (array_key_exists('areas', $constructionPlan)) {
       if (!is_array($constructionPlan['areas'])) {
         trigger_error('Construction Plan key "areas" is not an array!', E_USER_WARNING);
-        return $areaHtml;
+      } else {
+        $areaHtml = array_map(
+          'self::joinAreaComponents',
+          $constructionPlan['areas'],
+          array_keys($constructionPlan['areas'])
+        );
       }
-      $areaHtml = array_map(
-        'self::joinAreaComponents',
-        $constructionPlan['areas'],
-        array_keys($constructionPlan['areas'])
-      );
     }
     return $areaHtml;
   }
