@@ -20,13 +20,69 @@ class RenderTest extends TestCase {
     parent::setUp();
   }
 
-  function testShowWarningWhenConstructionPlanIsEmpty() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = Render::fromConstructionPlan([]);
+  // tested cases:
+  // - empty string
+  // - number
+  // - empty array
+  // - array of strings
+  // - invalid area (not an array)
+  // - missing params (data and name) in constructionPlan
+  public function badValues() {
+    return [
+      [''],
+      [5],
+      [[]],
+      [['']],
+      [[
+        'name' => 'test',
+        'data' => 'dataNotArray'
+      ]],
+      [[
+        'name' => [],
+        'data' => 'dataNotArray'
+      ]],
+      [[
+        'name' => 'test',
+        'data' => [],
+        'areas' => [
+          []
+        ]
+      ]],
+      [[
+        'name' => 'test',
+        'data' => [],
+        'areas' => [
+          'testArea' => [
+            'test'
+          ]
+        ]
+      ]],
+      [[
+        'name' => 'test',
+        'data' => [],
+        'areas' => [
+          'testArea' => [
+            'name' => 'test',
+            'data' => []
+          ]
+        ]
+      ]]
+    ];
   }
 
-  function testReturnEmptyStringWhenConstructionPlanIsEmpty() {
-    $cp = @Render::fromConstructionPlan([]);
+  /**
+   * @dataProvider badValues
+   */
+  function testShowWarningWhenConstructionPlanIsInvalid($badValue) {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+    $cp = Render::fromConstructionPlan($badValue);
+  }
+
+  /**
+   * @dataProvider badValues
+   */
+  function testReturnsEmptyStringWhenConstructionPlanIsInvalid($badValue) {
+    $cp = @Render::fromConstructionPlan($badValue);
     $this->assertEquals($cp, '');
   }
 

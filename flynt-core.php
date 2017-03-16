@@ -18,3 +18,36 @@ require_once __DIR__ . '/lib/Flynt/BuildConstructionPlan.php';
 require_once __DIR__ . '/lib/Flynt/Render.php';
 require_once __DIR__ . '/lib/Flynt/Defaults.php';
 require_once __DIR__ . '/lib/Flynt.php';
+
+add_filter('Flynt/renderComponent', function ($html, $componentName, $componentData, $areaHtml) {
+  ob_start();
+  echo "<pre>";
+  echo $componentName . "\n";
+  var_dump($componentData);
+  echo "areaHtml\n";
+  var_dump($areaHtml);
+  echo "</pre>";
+
+  $html = ob_get_clean();
+
+  return $html;
+}, 10, 4);
+
+// echo Flynt\Render::fromConstructionPlan('');
+// echo Flynt\Render::fromConstructionPlan(5);
+// echo Flynt\Render::fromConstructionPlan([]);
+// echo Flynt\Render::fromConstructionPlan([
+//   'name' => 'test',
+//   'data' => [
+//     'test' => 'test'
+//   ],
+//   'areas' => [
+//     'someArea' => [
+//       [
+//         'name' => 'test'
+//       ]
+//     ]
+//   ]
+// ]);
+//
+// die();
