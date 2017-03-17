@@ -54,17 +54,23 @@ class Render {
       if (!is_array($constructionPlan['areas'])) {
         trigger_error('Construction Plan key "areas" is not an array!', E_USER_WARNING);
       } else {
-        $areaHtml = array_map(
-          'self::joinAreaComponents',
-          $constructionPlan['areas'],
-          array_keys($constructionPlan['areas'])
+        $areas = $constructionPlan['areas'];
+        $areaHtml = array_reduce(
+          array_keys($areas),
+          function ($carry, $areaName) use ($areas) {
+            $carry[$areaName] = self::joinAreaComponents($areaName, $areas);
+            return $carry;
+          },
+          []
         );
       }
     }
     return $areaHtml;
   }
 
-  protected static function joinAreaComponents($components, $areaName) {
+  protected static function joinAreaComponents($areaName, $areas) {
+    $components = $areas[$areaName];
+
     // "areas" need to be an associative array
     if (is_int($areaName)) {
       trigger_error('Area name is not defined!', E_USER_WARNING);
