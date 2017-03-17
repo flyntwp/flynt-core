@@ -33,61 +33,69 @@ class BuildConstructionPlanTest extends TestCase {
     ];
   }
 
-  function testShowWarningOnEmptyConfig() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig([]);
+  function badValues() {
+    return [
+      [[]],
+      [[
+        'customData' => [
+          'whatever'
+        ]
+      ]],
+      [new StdClass()],
+      ['string'],
+      [0]
+    ];
   }
 
-  function testReturnsEmptyConstructionPlanOnEmptyConfig() {
-    $cp = @BuildConstructionPlan::fromConfig([]);
+  function badValuesComponentManager() {
+    return [
+      [[
+        'name' => 'ThisComponentIsNotRegistered'
+      ]],
+      [[
+        'name' => ''
+      ]],
+      [[
+        'name' => []
+      ]]
+    ];
+  }
+
+  /**
+   * @dataProvider badValues
+   */
+  function testShowWarningOnInvalidConfig($badValue) {
+    $this->expectException('PHPUnit_Framework_Error_Warning');
+    $cp = BuildConstructionPlan::fromConfig($badValue);
+  }
+
+  /**
+   * @dataProvider badValues
+   */
+  function testReturnsEmptyConstructionPlanOnInvalidConfig($badValue) {
+    $cp = @BuildConstructionPlan::fromConfig($badValue);
     $this->assertEquals($cp, []);
   }
 
-  function testShowWarningOnMissingNameInConfig() {
+  /**
+   * @dataProvider badValuesComponentManager
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testShowWarningOnInvalidConfigWithComponentManager($badValue) {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig([
-      'data' => [
-        'whatever'
-      ]
-    ]);
+    $this->mockComponentManager();
+    BuildConstructionPlan::fromConfig($badValue);
   }
 
-  function testReturnsEmptyConstructionPlanOnMissingNameInConfig() {
-    $cp = @BuildConstructionPlan::fromConfig([
-      'data' => [
-        'whatever'
-      ]
-    ]);
-    $this->assertEquals($cp, []);
-  }
-
-  function testShowWarningIfConfigIsAnObject() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig(new StdClass());
-  }
-
-  function testReturnsEmptyConstructionPlanIfConfigIsAnObject() {
-    $cp = @BuildConstructionPlan::fromConfig(new StdClass());
-    $this->assertEquals($cp, []);
-  }
-
-  function testShowWarningIfConfigIsAString() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig('string');
-  }
-
-  function testReturnsEmptyConstructionPlanIfConfigIsAString() {
-    $cp = @BuildConstructionPlan::fromConfig('string');
-    $this->assertEquals($cp, []);
-  }
-
-  function testShowWarningIfConfigIsANumber() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig(0);
-  }
-
-  function testReturnsEmptyConstructionPlanIfConfigIsANumber() {
-    $cp = @BuildConstructionPlan::fromConfig(0);
+  /**
+   * @dataProvider badValuesComponentManager
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testReturnsEmptyConstructionPlanOnInvalidConfigWithComponentManager($badValue) {
+    $this->mockComponentManager();
+    $cp = @BuildConstructionPlan::fromConfig($badValue);
     $this->assertEquals($cp, []);
   }
 
@@ -95,11 +103,16 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testShowWarningWhenComponentIsNotRegistered() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
+  function testInvalidCustomDataIsIgnored() {
+    $config = [
+      'name' => 'SingleComponent',
+      'customData' => 'string'
+    ];
     $this->mockComponentManager();
-    BuildConstructionPlan::fromConfig([
-      'name' => 'ThisComponentIsNotRegistered'
+    $cp = BuildConstructionPlan::fromConfig($config, $this->componentList);
+    $this->assertEquals($cp, [
+      'name' => 'SingleComponent',
+      'data' => []
     ]);
   }
 
@@ -107,12 +120,25 @@ class BuildConstructionPlanTest extends TestCase {
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testReturnsEmptyConstructionPlanWhenComponentIsNotRegistered() {
+  function testInvalidParentDataIsIgnored() {
+    $parentData = 'string';
+    $config = [
+      'name' => 'SingleComponent',
+      'parentData' => $parentData
+    ];
     $this->mockComponentManager();
-    $cp = @BuildConstructionPlan::fromConfig([
-      'name' => 'ThisComponentIsNotRegistered'
+    Filters::expectApplied('Flynt/addComponentData')
+      ->with([], [], [
+        'name' => 'SingleComponent',
+        'data' => []
+      ])
+      ->once()
+      ->andReturn([]);
+    $cp = BuildConstructionPlan::fromConfig($config, $this->componentList);
+    $this->assertEquals($cp, [
+      'name' => 'SingleComponent',
+      'data' => []
     ]);
-    $this->assertEquals($cp, []);
   }
 
   /**
@@ -601,6 +627,34 @@ class BuildConstructionPlanTest extends TestCase {
             ]
           ]
         ]
+      ]
+    ]);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testInvalidComponentsInAreasAreRemoved() {
+    $parentComponentName = 'ComponentWithArea';
+    $childComponentName = 'DoesNotExist';
+
+    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
+
+    $component['areas'] = [
+      'area51' => [
+        TestHelper::getCustomComponent($childComponentName, ['name'])
+      ]
+    ];
+
+    $this->mockComponentManager();
+
+    $cp = @BuildConstructionPlan::fromConfig($component, $this->componentList);
+    $this->assertEquals($cp, [
+      'name' => $parentComponentName,
+      'data' => [],
+      'areas' => [
+        'area51' => []
       ]
     ]);
   }
