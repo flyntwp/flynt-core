@@ -33,61 +33,33 @@ class BuildConstructionPlanTest extends TestCase {
     ];
   }
 
-  function testShowWarningOnEmptyConfig() {
+  function badValues() {
+    return [
+      [[]],
+      [[
+        'data' => [
+          'whatever'
+        ]
+      ]],
+      [new StdClass()],
+      ['string'],
+      [0]
+    ];
+  }
+
+  /**
+   * @dataProvider badValues
+   */
+  function testShowWarningOnInvalidConfig($badValue) {
     $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig([]);
+    $cp = BuildConstructionPlan::fromConfig($badValue);
   }
 
-  function testReturnsEmptyConstructionPlanOnEmptyConfig() {
-    $cp = @BuildConstructionPlan::fromConfig([]);
-    $this->assertEquals($cp, []);
-  }
-
-  function testShowWarningOnMissingNameInConfig() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig([
-      'data' => [
-        'whatever'
-      ]
-    ]);
-  }
-
-  function testReturnsEmptyConstructionPlanOnMissingNameInConfig() {
-    $cp = @BuildConstructionPlan::fromConfig([
-      'data' => [
-        'whatever'
-      ]
-    ]);
-    $this->assertEquals($cp, []);
-  }
-
-  function testShowWarningIfConfigIsAnObject() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig(new StdClass());
-  }
-
-  function testReturnsEmptyConstructionPlanIfConfigIsAnObject() {
-    $cp = @BuildConstructionPlan::fromConfig(new StdClass());
-    $this->assertEquals($cp, []);
-  }
-
-  function testShowWarningIfConfigIsAString() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig('string');
-  }
-
-  function testReturnsEmptyConstructionPlanIfConfigIsAString() {
-    $cp = @BuildConstructionPlan::fromConfig('string');
-    $this->assertEquals($cp, []);
-  }
-
-  function testShowWarningIfConfigIsANumber() {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig(0);
-  }
-
-  function testReturnsEmptyConstructionPlanIfConfigIsANumber() {
-    $cp = @BuildConstructionPlan::fromConfig(0);
+  /**
+   * @dataProvider badValues
+   */
+  function testReturnsEmptyConstructionPlanOnInvalidConfig($badValue) {
+    $cp = @BuildConstructionPlan::fromConfig($badValue);
     $this->assertEquals($cp, []);
   }
 
