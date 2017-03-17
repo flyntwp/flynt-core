@@ -47,6 +47,14 @@ class BuildConstructionPlanTest extends TestCase {
     ];
   }
 
+  function badValuesComponentManager() {
+    return [
+      [[
+        'name' => 'ThisComponentIsNotRegistered'
+      ]]
+    ];
+  }
+
   /**
    * @dataProvider badValues
    */
@@ -64,26 +72,24 @@ class BuildConstructionPlanTest extends TestCase {
   }
 
   /**
+   * @dataProvider badValuesComponentManager
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testShowWarningWhenComponentIsNotRegistered() {
+  function testShowWarningOnInvalidConfigWithComponentManager($badValue) {
     $this->expectException('PHPUnit_Framework_Error_Warning');
     $this->mockComponentManager();
-    BuildConstructionPlan::fromConfig([
-      'name' => 'ThisComponentIsNotRegistered'
-    ]);
+    BuildConstructionPlan::fromConfig($badValue);
   }
 
   /**
+   * @dataProvider badValuesComponentManager
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testReturnsEmptyConstructionPlanWhenComponentIsNotRegistered() {
+  function testReturnsEmptyConstructionPlanOnInvalidConfigWithComponentManager($badValue) {
     $this->mockComponentManager();
-    $cp = @BuildConstructionPlan::fromConfig([
-      'name' => 'ThisComponentIsNotRegistered'
-    ]);
+    $cp = @BuildConstructionPlan::fromConfig($badValue);
     $this->assertEquals($cp, []);
   }
 
