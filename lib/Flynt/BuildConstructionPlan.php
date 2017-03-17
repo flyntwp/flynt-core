@@ -117,15 +117,13 @@ class BuildConstructionPlan {
       $areaNames = array_keys($config['areas']);
       $config['areas'] = array_reduce($areaNames, function ($output, $areaName) use ($config, $parentData) {
         $components = $config['areas'][$areaName];
-        $output[$areaName] = self::mapAreaComponents($components, $config, $areaName, $parentData);
+        $output[$areaName] = array_filter(self::mapAreaComponents($components, $config, $areaName, $parentData));
         return $output;
       }, []);
     }
 
     // remove empty 'areas' key from config
-    // this can happen if:
-    // 1. there were no areas defined to begin with
-    // 2. there were areas defined, but no components in them
+    // this can happen if there were no areas defined to begin with
     if (empty($config['areas'])) {
       unset($config['areas']);
     }

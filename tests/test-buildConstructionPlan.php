@@ -631,6 +631,34 @@ class BuildConstructionPlanTest extends TestCase {
     ]);
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testInvalidComponentsInAreasAreRemoved() {
+    $parentComponentName = 'ComponentWithArea';
+    $childComponentName = 'DoesNotExist';
+
+    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
+
+    $component['areas'] = [
+      'area51' => [
+        TestHelper::getCustomComponent($childComponentName, ['name'])
+      ]
+    ];
+
+    $this->mockComponentManager();
+
+    $cp = @BuildConstructionPlan::fromConfig($component, $this->componentList);
+    $this->assertEquals($cp, [
+      'name' => $parentComponentName,
+      'data' => [],
+      'areas' => [
+        'area51' => []
+      ]
+    ]);
+  }
+
   // Helpers
   function mockComponentManager() {
     $componentManagerMock = Mockery::mock('ComponentManager');
