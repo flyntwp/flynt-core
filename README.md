@@ -33,6 +33,8 @@ To install via composer, run:
 composer require flyntwp/flynt-core
 ```
 
+Now activate the WordPress plugin and you're good to go.
+
 ## Usage
 
 The simplest way of using Flynt Core can be demonstrated with the following *Hello, world* example:
@@ -48,7 +50,10 @@ Flynt\echoHtmlFromConfig([
 ...and to your theme's `functions.php`:
 
 ```php
-add_filter('Flynt\renderComponent?name=HelloWorld', function () {
+$componentManager = Flynt\ComponentManager::getInstance();
+$componentManager->registerComponent('HelloWorld');
+
+add_filter('Flynt/renderComponent?name=HelloWorld', function () {
   return 'Hello, world!';
 });
 ```
