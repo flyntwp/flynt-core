@@ -67,7 +67,9 @@ class BuildConstructionPlan {
 
   protected static function overwriteParentData(&$config, $parentData) {
     if (array_key_exists('parentData', $config)) {
-      $parentData = $config['parentData'];
+      if (is_array($config['parentData'])) {
+        $parentData = $config['parentData'];
+      }
       unset($config['parentData']);
     }
     return $parentData;
@@ -75,8 +77,10 @@ class BuildConstructionPlan {
 
   protected static function addCustomData($config) {
     if (array_key_exists('customData', $config)) {
-      // custom data overwrites original data
-      $config['data'] = array_merge($config['data'], $config['customData']);
+      if (is_array($config['customData'])) {
+        // custom data overwrites original data
+        $config['data'] = array_merge($config['data'], $config['customData']);
+      }
       unset($config['customData']);
     }
     return $config;

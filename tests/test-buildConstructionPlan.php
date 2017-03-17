@@ -37,7 +37,7 @@ class BuildConstructionPlanTest extends TestCase {
     return [
       [[]],
       [[
-        'data' => [
+        'customData' => [
           'whatever'
         ]
       ]],
@@ -51,6 +51,12 @@ class BuildConstructionPlanTest extends TestCase {
     return [
       [[
         'name' => 'ThisComponentIsNotRegistered'
+      ]],
+      [[
+        'name' => ''
+      ]],
+      [[
+        'name' => []
       ]]
     ];
   }
@@ -91,6 +97,48 @@ class BuildConstructionPlanTest extends TestCase {
     $this->mockComponentManager();
     $cp = @BuildConstructionPlan::fromConfig($badValue);
     $this->assertEquals($cp, []);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testInvalidCustomDataIsIgnored() {
+    $config = [
+      'name' => 'SingleComponent',
+      'customData' => 'string'
+    ];
+    $this->mockComponentManager();
+    $cp = BuildConstructionPlan::fromConfig($config, $this->componentList);
+    $this->assertEquals($cp, [
+      'name' => 'SingleComponent',
+      'data' => []
+    ]);
+  }
+
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+  function testInvalidParentDataIsIgnored() {
+    $parentData = 'string';
+    $config = [
+      'name' => 'SingleComponent',
+      'parentData' => $parentData
+    ];
+    $this->mockComponentManager();
+    Filters::expectApplied('Flynt/addComponentData')
+      ->with([], [], [
+        'name' => 'SingleComponent',
+        'data' => []
+      ])
+      ->once()
+      ->andReturn([]);
+    $cp = BuildConstructionPlan::fromConfig($config, $this->componentList);
+    $this->assertEquals($cp, [
+      'name' => 'SingleComponent',
+      'data' => []
+    ]);
   }
 
   /**
