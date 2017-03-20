@@ -9,303 +9,321 @@
  * Build Construction Plan test case.
  */
 
+namespace Flynt\Tests;
+
 require_once dirname(__DIR__) . '/lib/Flynt/BuildConstructionPlan.php';
 
-use Flynt\TestCase;
+use Flynt\Tests\TestCase;
 use Flynt\BuildConstructionPlan;
 use Brain\Monkey\WP\Filters;
 
-class BuildConstructionPlanTest extends TestCase {
+class BuildConstructionPlanTest extends TestCase
+{
 
-  function setUp() {
-    parent::setUp();
+    public function setUp()
+    {
+        parent::setUp();
 
-    $this->componentList = [
-      'DynamicComponent' => '',
-      'SingleComponent' => '',
-      'ComponentWithArea' => '',
-      'NestedComponentWithArea' => '',
-      'ComponentInConfigFile' => '',
-      'ChildComponentInConfigFile' => '',
-      'GrandChildA' => '',
-      'GrandChildB' => '',
-      'GrandChildC' => ''
-    ];
-  }
+        $this->componentList = [
+        'DynamicComponent' => '',
+        'SingleComponent' => '',
+        'ComponentWithArea' => '',
+        'NestedComponentWithArea' => '',
+        'ComponentInConfigFile' => '',
+        'ChildComponentInConfigFile' => '',
+        'GrandChildA' => '',
+        'GrandChildB' => '',
+        'GrandChildC' => ''
+        ];
+    }
 
-  function badValues() {
-    return [
-      [[]],
-      [[
+    public function badValues()
+    {
+        return [
+        [[]],
+        [[
         'customData' => [
           'whatever'
         ]
-      ]],
-      [new StdClass()],
-      ['string'],
-      [0]
-    ];
-  }
+        ]],
+        [new StdClass()],
+        ['string'],
+        [0]
+        ];
+    }
 
-  function badValuesComponentManager() {
-    return [
-      [[
+    public function badValuesComponentManager()
+    {
+        return [
+        [[
         'name' => 'ThisComponentIsNotRegistered'
-      ]],
+        ]],
       [[
         'name' => ''
       ]],
-      [[
+        [[
         'name' => []
-      ]]
-    ];
-  }
+        ]]
+        ];
+    }
 
   /**
    * @dataProvider badValues
    */
-  function testShowWarningOnInvalidConfig($badValue) {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $cp = BuildConstructionPlan::fromConfig($badValue);
-  }
+    public function testShowWarningOnInvalidConfig($badValue)
+    {
+        $this->expectException('PHPUnit_Framework_Error_Warning');
+        $cp = BuildConstructionPlan::fromConfig($badValue);
+    }
 
   /**
    * @dataProvider badValues
    */
-  function testReturnsEmptyConstructionPlanOnInvalidConfig($badValue) {
-    $cp = @BuildConstructionPlan::fromConfig($badValue);
-    $this->assertEquals($cp, []);
-  }
+    public function testReturnsEmptyConstructionPlanOnInvalidConfig($badValue)
+    {
+        $cp = @BuildConstructionPlan::fromConfig($badValue);
+        $this->assertEquals($cp, []);
+    }
 
   /**
    * @dataProvider badValuesComponentManager
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testShowWarningOnInvalidConfigWithComponentManager($badValue) {
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-    $this->mockComponentManager();
-    BuildConstructionPlan::fromConfig($badValue);
-  }
+    public function testShowWarningOnInvalidConfigWithComponentManager($badValue)
+    {
+        $this->expectException('PHPUnit_Framework_Error_Warning');
+        $this->mockComponentManager();
+        BuildConstructionPlan::fromConfig($badValue);
+    }
 
   /**
    * @dataProvider badValuesComponentManager
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testReturnsEmptyConstructionPlanOnInvalidConfigWithComponentManager($badValue) {
-    $this->mockComponentManager();
-    $cp = @BuildConstructionPlan::fromConfig($badValue);
-    $this->assertEquals($cp, []);
-  }
+    public function testReturnsEmptyConstructionPlanOnInvalidConfigWithComponentManager($badValue)
+    {
+        $this->mockComponentManager();
+        $cp = @BuildConstructionPlan::fromConfig($badValue);
+        $this->assertEquals($cp, []);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testInvalidCustomDataIsIgnored() {
-    $config = [
-      'name' => 'SingleComponent',
-      'customData' => 'string'
-    ];
-    $this->mockComponentManager();
-    $cp = BuildConstructionPlan::fromConfig($config, $this->componentList);
-    $this->assertEquals($cp, [
-      'name' => 'SingleComponent',
-      'data' => []
-    ]);
-  }
-
-  /**
-   * @runInSeparateProcess
-   * @preserveGlobalState disabled
-   */
-  function testInvalidParentDataIsIgnored() {
-    $parentData = 'string';
-    $config = [
-      'name' => 'SingleComponent',
-      'parentData' => $parentData
-    ];
-    $this->mockComponentManager();
-    Filters::expectApplied('Flynt/addComponentData')
-      ->with([], [], [
+    public function testInvalidCustomDataIsIgnored()
+    {
+        $config = [
+        'name' => 'SingleComponent',
+        'customData' => 'string'
+        ];
+        $this->mockComponentManager();
+        $cp = BuildConstructionPlan::fromConfig($config, $this->componentList);
+        $this->assertEquals($cp, [
         'name' => 'SingleComponent',
         'data' => []
-      ])
-      ->once()
-      ->andReturn([]);
-    $cp = BuildConstructionPlan::fromConfig($config, $this->componentList);
-    $this->assertEquals($cp, [
-      'name' => 'SingleComponent',
-      'data' => []
-    ]);
-  }
+        ]);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testConfigCanBeLoadedFromFile() {
-    $fileName = 'exampleConfig.json';
-    $filePath = TestHelper::getConfigPath() . $fileName;
-
-    Filters::expectApplied('Flynt/configPath')
-    ->andReturn($filePath);
-
-    Filters::expectApplied('Flynt/configFileLoader')
-    ->once()
-    ->with(null, $fileName, $filePath)
-    ->andReturn([
-      'name' => 'SingleComponent'
-    ]);
-
-    $this->mockComponentManager();
-
-    $cp = BuildConstructionPlan::fromConfigFile($fileName);
-    $this->assertEquals($cp, [
-      'name' => 'SingleComponent',
-      'data' => []
-    ]);
-  }
-
-  function testShowWarningWhenConfigFileDoesntExist() {
-    $fileName = 'exceptionTest.json';
-
-    Filters::expectApplied('Flynt/configPath')
-    ->once()
-    ->with(null, $fileName)
-    ->andReturn('/not/a/real/config/file.json');
-
-    $this->expectException('PHPUnit_Framework_Error_Warning');
-
-    $cp = BuildConstructionPlan::fromConfigFile($fileName);
-  }
-
-  function testReturnsEmptyConstructionPlanWhenConfigFileDoesntExist() {
-    $fileName = 'exceptionTest.json';
-
-    Filters::expectApplied('Flynt/configPath')
-    ->once()
-    ->with(null, $fileName)
-    ->andReturn('/not/a/real/config/file.json');
-
-    $cp = @BuildConstructionPlan::fromConfigFile($fileName);
-    $this->assertEquals($cp, []);
-  }
+    public function testInvalidParentDataIsIgnored()
+    {
+        $parentData = 'string';
+        $config = [
+        'name' => 'SingleComponent',
+        'parentData' => $parentData
+        ];
+        $this->mockComponentManager();
+        Filters::expectApplied('Flynt/addComponentData')
+        ->with([], [], [
+        'name' => 'SingleComponent',
+        'data' => []
+        ])
+        ->once()
+        ->andReturn([]);
+        $cp = BuildConstructionPlan::fromConfig($config, $this->componentList);
+        $this->assertEquals($cp, [
+        'name' => 'SingleComponent',
+        'data' => []
+        ]);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testComponentWithoutDataIsValid() {
-    $component = TestHelper::getCustomComponent('SingleComponent', ['name', 'areas']);
+    public function testConfigCanBeLoadedFromFile()
+    {
+        $fileName = 'exampleConfig.json';
+        $filePath = TestHelper::getConfigPath() . $fileName;
 
-    $this->mockComponentManager();
+        Filters::expectApplied('Flynt/configPath')
+        ->andReturn($filePath);
 
-    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
+        Filters::expectApplied('Flynt/configFileLoader')
+        ->once()
+        ->with(null, $fileName, $filePath)
+        ->andReturn([
+        'name' => 'SingleComponent'
+        ]);
 
-    $this->assertEquals($cp, [
-      'name' => 'SingleComponent',
-      'data' => []
-    ]);
-  }
+        $this->mockComponentManager();
+
+        $cp = BuildConstructionPlan::fromConfigFile($fileName);
+        $this->assertEquals($cp, [
+        'name' => 'SingleComponent',
+        'data' => []
+        ]);
+    }
+
+    public function testShowWarningWhenConfigFileDoesntExist()
+    {
+        $fileName = 'exceptionTest.json';
+
+        Filters::expectApplied('Flynt/configPath')
+        ->once()
+        ->with(null, $fileName)
+        ->andReturn('/not/a/real/config/file.json');
+
+        $this->expectException('PHPUnit_Framework_Error_Warning');
+
+        $cp = BuildConstructionPlan::fromConfigFile($fileName);
+    }
+
+    public function testReturnsEmptyConstructionPlanWhenConfigFileDoesntExist()
+    {
+        $fileName = 'exceptionTest.json';
+
+        Filters::expectApplied('Flynt/configPath')
+        ->once()
+        ->with(null, $fileName)
+        ->andReturn('/not/a/real/config/file.json');
+
+        $cp = @BuildConstructionPlan::fromConfigFile($fileName);
+        $this->assertEquals($cp, []);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testCustomDataIsAddedToComponent() {
-    $componentName = 'SingleComponent';
+    public function testComponentWithoutDataIsValid()
+    {
+        $component = TestHelper::getCustomComponent('SingleComponent', ['name', 'areas']);
 
-    // this simulates add_filter with return data:
-    $component = TestHelper::getCustomComponent($componentName, ['name', 'customData', 'areas']);
+        $this->mockComponentManager();
 
-    $this->mockComponentManager();
+        $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
-    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
+        $this->assertEquals($cp, [
+        'name' => 'SingleComponent',
+        'data' => []
+        ]);
+    }
 
-    $this->assertEquals($cp, [
-      'name' => $componentName,
-      'data' => [
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
+    public function testCustomDataIsAddedToComponent()
+    {
+        $componentName = 'SingleComponent';
+
+        // this simulates add_filter with return data:
+        $component = TestHelper::getCustomComponent($componentName, ['name', 'customData', 'areas']);
+
+        $this->mockComponentManager();
+
+        $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
+
+        $this->assertEquals($cp, [
+        'name' => $componentName,
+        'data' => [
         'test0' => 0,
         'test1' => 'string',
         'test2' => [
           'something strange'
         ],
         'duplicate' => 'newValue'
-      ]
-    ]);
-  }
+        ]
+        ]);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testaddComponentDataFiltersAreApplied() {
-    // Made this more complex than necessary to also test parentData being passed
-    $parentComponentName = 'ComponentWithArea';
-    $childComponentName = 'SingleComponent';
+    public function testaddComponentDataFiltersAreApplied()
+    {
+        // Made this more complex than necessary to also test parentData being passed
+        $parentComponentName = 'ComponentWithArea';
+        $childComponentName = 'SingleComponent';
 
-    $parentComponent = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
-    $childComponent = TestHelper::getCompleteComponent($childComponentName);
+        $parentComponent = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
+        $childComponent = TestHelper::getCompleteComponent($childComponentName);
 
-    $parentComponent['areas'] = [
-      'Area51' => [
+        $parentComponent['areas'] = [
+        'Area51' => [
         $childComponent
-      ]
-    ];
+        ]
+        ];
 
-    $this->mockComponentManager();
+        $this->mockComponentManager();
 
-    $parentData = [];
+        $parentData = [];
 
-    $childData = [
-      'test0' => 0,
-      'test1' => 'string',
-      'test2' => [
+        $childData = [
+        'test0' => 0,
+        'test1' => 'string',
+        'test2' => [
         'something strange'
-      ],
-      'duplicate' => 'newValue'
-    ];
+        ],
+        'duplicate' => 'newValue'
+        ];
 
-    $newChildData = array_merge($childData, [
-      'test' => 'fromAddData',
-      'something' => 'else'
-    ]);
+        $newChildData = array_merge($childData, [
+        'test' => 'fromAddData',
+        'something' => 'else'
+        ]);
 
-    $parentComponentAsArg = array_merge($parentComponent, [
-      'data' => $parentData
-    ]);
-    unset($parentComponentAsArg['customData']);
+        $parentComponentAsArg = array_merge($parentComponent, [
+        'data' => $parentData
+        ]);
+        unset($parentComponentAsArg['customData']);
 
-    $childComponentAsArg = array_merge($childComponent, [
-      'data' => $childData
-    ]);
-    unset($childComponentAsArg['customData']);
+        $childComponentAsArg = array_merge($childComponent, [
+        'data' => $childData
+        ]);
+        unset($childComponentAsArg['customData']);
 
-    Filters::expectApplied('Flynt/addComponentData')
-    ->with($parentData, [], $parentComponentAsArg)
-    ->ordered()
-    ->once()
-    ->andReturn($parentData);
+        Filters::expectApplied('Flynt/addComponentData')
+        ->with($parentData, [], $parentComponentAsArg)
+        ->ordered()
+        ->once()
+        ->andReturn($parentData);
 
-    Filters::expectApplied('Flynt/addComponentData')
-    ->with($childData, $parentData, $childComponentAsArg)
-    ->ordered()
-    ->once()
-    ->andReturn($childData);
+        Filters::expectApplied('Flynt/addComponentData')
+        ->with($childData, $parentData, $childComponentAsArg)
+        ->ordered()
+        ->once()
+        ->andReturn($childData);
 
-    Filters::expectApplied("Flynt/addComponentData?name={$childComponentName}")
-    ->with($childData, $parentData, $childComponentAsArg)
-    ->once()
-    ->andReturn($newChildData);
+        Filters::expectApplied("Flynt/addComponentData?name={$childComponentName}")
+        ->with($childData, $parentData, $childComponentAsArg)
+        ->once()
+        ->andReturn($newChildData);
 
-    $cp = BuildConstructionPlan::fromConfig($parentComponent, $this->componentList);
+        $cp = BuildConstructionPlan::fromConfig($parentComponent, $this->componentList);
 
-    $this->assertEquals($cp, [
-      'name' => $parentComponentName,
-      'data' => [],
-      'areas' => [
+        $this->assertEquals($cp, [
+        'name' => $parentComponentName,
+        'data' => [],
+        'areas' => [
         'Area51' => [
           [
             'name' => $childComponentName,
@@ -321,34 +339,35 @@ class BuildConstructionPlanTest extends TestCase {
             ]
           ]
         ]
-      ]
-    ]);
-  }
+        ]
+        ]);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testNestedComponentIsAddedToArea() {
-    $parentComponentName = 'ComponentWithArea';
-    $childComponentName = 'SingleComponent';
+    public function testNestedComponentIsAddedToArea()
+    {
+        $parentComponentName = 'ComponentWithArea';
+        $childComponentName = 'SingleComponent';
 
-    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
+        $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
 
-    $component['areas'] = [
-      'Area51' => [
+        $component['areas'] = [
+        'Area51' => [
         TestHelper::getCompleteComponent($childComponentName)
-      ]
-    ];
+        ]
+        ];
 
-    $this->mockComponentManager();
+        $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
+        $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
-    $this->assertEquals($cp, [
-      'name' => $parentComponentName,
-      'data' => [],
-      'areas' => [
+        $this->assertEquals($cp, [
+        'name' => $parentComponentName,
+        'data' => [],
+        'areas' => [
         'Area51' => [
           [
             'name' => $childComponentName,
@@ -362,97 +381,99 @@ class BuildConstructionPlanTest extends TestCase {
             ]
           ]
         ]
-      ]
-    ]);
-  }
+        ]
+        ]);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testParentComponentDataIsNotAddedToChildComponent() {
-    $parentComponentName = 'ComponentWithArea';
-    $childComponentName = 'SingleComponent';
+    public function testParentComponentDataIsNotAddedToChildComponent()
+    {
+        $parentComponentName = 'ComponentWithArea';
+        $childComponentName = 'SingleComponent';
 
-    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
-    $component['customData'] = [
-      'testParentData' => true
-    ];
-
-    $component['areas'] = [
-      'area51' => [
-        TestHelper::getCustomComponent($childComponentName, ['name'])
-      ]
-    ];
-
-    $this->mockComponentManager();
-
-    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
-
-    $this->assertEquals($cp, [
-      'name' => $parentComponentName,
-      'data' => [
+        $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
+        $component['customData'] = [
         'testParentData' => true
-      ],
-      'areas' => [
+        ];
+
+        $component['areas'] = [
+        'area51' => [
+        TestHelper::getCustomComponent($childComponentName, ['name'])
+        ]
+        ];
+
+        $this->mockComponentManager();
+
+        $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
+
+        $this->assertEquals($cp, [
+        'name' => $parentComponentName,
+        'data' => [
+        'testParentData' => true
+        ],
+        'areas' => [
         'area51' => [
           [
             'name' => $childComponentName,
             'data' => []
           ]
         ]
-      ]
-    ]);
-  }
+        ]
+        ]);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testParentDataIsOverwritten() {
-    $parentComponentName = 'ComponentWithArea';
-    $childComponentName = 'SingleComponent';
+    public function testParentDataIsOverwritten()
+    {
+        $parentComponentName = 'ComponentWithArea';
+        $childComponentName = 'SingleComponent';
 
-    $newParentData = [
-      'custom' => 'parentData'
-    ];
+        $newParentData = [
+        'custom' => 'parentData'
+        ];
 
-    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
-    $childComponent = TestHelper::getCustomComponent($childComponentName, ['name']);
-    $childComponent['parentData'] = $newParentData;
+        $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
+        $childComponent = TestHelper::getCustomComponent($childComponentName, ['name']);
+        $childComponent['parentData'] = $newParentData;
 
-    $component['customData'] = [
-      'testParentData' => true
-    ];
-
-    $component['areas'] = [
-      'area51' => [
-        $childComponent
-      ]
-    ];
-
-    $this->mockComponentManager();
-
-    Filters::expectApplied('Flynt/addComponentData')
-    ->with(['testParentData' => true], [], Mockery::type('array'))
-    ->ordered()
-    ->once()
-    ->andReturn(['testParentData' => true]);
-
-    Filters::expectApplied('Flynt/addComponentData')
-    ->with([], $newParentData, Mockery::type('array'))
-    ->ordered()
-    ->once()
-    ->andReturn($newParentData);
-
-    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
-
-    $this->assertEquals($cp, [
-      'name' => $parentComponentName,
-      'data' => [
+        $component['customData'] = [
         'testParentData' => true
-      ],
-      'areas' => [
+        ];
+
+        $component['areas'] = [
+        'area51' => [
+        $childComponent
+        ]
+        ];
+
+        $this->mockComponentManager();
+
+        Filters::expectApplied('Flynt/addComponentData')
+        ->with(['testParentData' => true], [], Mockery::type('array'))
+        ->ordered()
+        ->once()
+        ->andReturn(['testParentData' => true]);
+
+        Filters::expectApplied('Flynt/addComponentData')
+        ->with([], $newParentData, Mockery::type('array'))
+        ->ordered()
+        ->once()
+        ->andReturn($newParentData);
+
+        $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
+
+        $this->assertEquals($cp, [
+        'name' => $parentComponentName,
+        'data' => [
+        'testParentData' => true
+        ],
+        'areas' => [
         'area51' => [
           [
             'name' => $childComponentName,
@@ -461,47 +482,48 @@ class BuildConstructionPlanTest extends TestCase {
             ]
           ]
         ]
-      ]
-    ]);
-  }
+        ]
+        ]);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testDeeplyNestedComponentsCreateValidConstructionPlan() {
-    $parentComponentName = 'ComponentWithArea';
-    $childComponentName = 'NestedComponentWithArea';
-    $grandChildComponentNameA = 'GrandChildA';
-    $grandChildComponentNameB = 'GrandChildB';
-    $grandChildComponentNameC = 'GrandChildC';
+    public function testDeeplyNestedComponentsCreateValidConstructionPlan()
+    {
+        $parentComponentName = 'ComponentWithArea';
+        $childComponentName = 'NestedComponentWithArea';
+        $grandChildComponentNameA = 'GrandChildA';
+        $grandChildComponentNameB = 'GrandChildB';
+        $grandChildComponentNameC = 'GrandChildC';
 
-    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
+        $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
 
-    $component['areas'] = [
-      'area51' => [
+        $component['areas'] = [
+        'area51' => [
         TestHelper::getCustomComponent($childComponentName, ['name', 'areas'])
-      ]
-    ];
+        ]
+        ];
 
-    $component['areas']['area51'][0]['areas'] = [
-      'district9' => [
+        $component['areas']['area51'][0]['areas'] = [
+        'district9' => [
         TestHelper::getCustomComponent($grandChildComponentNameA, ['name'])
-      ],
-      'alderaan' => [
+        ],
+        'alderaan' => [
         TestHelper::getCustomComponent($grandChildComponentNameB, ['name']),
         TestHelper::getCustomComponent($grandChildComponentNameC, ['name'])
-      ]
-    ];
+        ]
+        ];
 
-    $this->mockComponentManager();
+        $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
+        $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
-    $this->assertEquals($cp, [
-      'name' => $parentComponentName,
-      'data' => [],
-      'areas' => [
+        $this->assertEquals($cp, [
+        'name' => $parentComponentName,
+        'data' => [],
+        'areas' => [
         'area51' => [
           [
             'name' => $childComponentName,
@@ -526,85 +548,87 @@ class BuildConstructionPlanTest extends TestCase {
             ]
           ]
         ]
-      ]
-    ]);
-  }
+        ]
+        ]);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testDynamicSubcomponentsCanBeAddedWithAFilter() {
-    $componentName = 'ComponentWithArea';
-    $dynamicComponentName = 'SingleComponent';
+    public function testDynamicSubcomponentsCanBeAddedWithAFilter()
+    {
+        $componentName = 'ComponentWithArea';
+        $dynamicComponentName = 'SingleComponent';
 
-    $component = TestHelper::getCustomComponent($componentName, ['name', 'areas']);
-    $dynamicComponent = TestHelper::getCustomComponent($dynamicComponentName, ['name']);
+        $component = TestHelper::getCustomComponent($componentName, ['name', 'areas']);
+        $dynamicComponent = TestHelper::getCustomComponent($dynamicComponentName, ['name']);
 
-    Filters::expectApplied("Flynt/dynamicSubcomponents?name={$componentName}")
-    ->with([], [], [])
-    ->once()
-    ->andReturn(['area51' => [ $dynamicComponent ]]);
+        Filters::expectApplied("Flynt/dynamicSubcomponents?name={$componentName}")
+        ->with([], [], [])
+        ->once()
+        ->andReturn(['area51' => [ $dynamicComponent ]]);
 
-    $this->mockComponentManager();
+        $this->mockComponentManager();
 
-    $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
+        $cp = BuildConstructionPlan::fromConfig($component, $this->componentList);
 
-    $this->assertEquals($cp, [
-      'name' => $componentName,
-      'data' => [],
-      'areas' => [
+        $this->assertEquals($cp, [
+        'name' => $componentName,
+        'data' => [],
+        'areas' => [
         'area51' => [
           [
             'name' => $dynamicComponentName,
             'data' => []
           ]
         ]
-      ]
-    ]);
-  }
+        ]
+        ]);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testDynamicSubcomponentsReceiveParentData() {
-    $parentComponentName = 'ComponentWithArea';
-    $childComponentName = 'NestedComponentWithArea';
-    $childSubcomponentName = 'SingleComponent';
-    $dynamicComponentName = 'DynamicComponent';
+    public function testDynamicSubcomponentsReceiveParentData()
+    {
+        $parentComponentName = 'ComponentWithArea';
+        $childComponentName = 'NestedComponentWithArea';
+        $childSubcomponentName = 'SingleComponent';
+        $dynamicComponentName = 'DynamicComponent';
 
-    $parentComponent = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
-    $childComponent = TestHelper::getCustomComponent($childComponentName, ['name']);
-    $childSubcomponent = TestHelper::getCustomComponent($childSubcomponentName, ['name']);
-    $dynamicComponent = TestHelper::getCustomComponent($dynamicComponentName, ['name']);
+        $parentComponent = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
+        $childComponent = TestHelper::getCustomComponent($childComponentName, ['name']);
+        $childSubcomponent = TestHelper::getCustomComponent($childSubcomponentName, ['name']);
+        $dynamicComponent = TestHelper::getCustomComponent($dynamicComponentName, ['name']);
 
-    $childComponent['areas'] = [
-      'childArea' => [ $childSubcomponent ]
-    ];
-    $parentComponent['areas'] = [
-      'parentArea' => [ $childComponent ]
-    ];
+        $childComponent['areas'] = [
+        'childArea' => [ $childSubcomponent ]
+        ];
+        $parentComponent['areas'] = [
+        'parentArea' => [ $childComponent ]
+        ];
 
-    $parentComponent['customData'] = [
-      'testParentData' => true
-    ];
-
-    Filters::expectApplied("Flynt/dynamicSubcomponents?name={$childSubcomponentName}")
-    ->with([], [], ['testParentData' => true])
-    ->once()
-    ->andReturn(['area51' => [ $dynamicComponent ]]);
-
-    $this->mockComponentManager();
-
-    $cp = BuildConstructionPlan::fromConfig($parentComponent, $this->componentList);
-
-    $this->assertEquals($cp, [
-      'name' => $parentComponentName,
-      'data' => [
+        $parentComponent['customData'] = [
         'testParentData' => true
-      ],
-      'areas' => [
+        ];
+
+        Filters::expectApplied("Flynt/dynamicSubcomponents?name={$childSubcomponentName}")
+        ->with([], [], ['testParentData' => true])
+        ->once()
+        ->andReturn(['area51' => [ $dynamicComponent ]]);
+
+        $this->mockComponentManager();
+
+        $cp = BuildConstructionPlan::fromConfig($parentComponent, $this->componentList);
+
+        $this->assertEquals($cp, [
+        'name' => $parentComponentName,
+        'data' => [
+        'testParentData' => true
+        ],
+        'areas' => [
         'parentArea' => [
           [
             'name' => $childComponentName,
@@ -627,52 +651,55 @@ class BuildConstructionPlanTest extends TestCase {
             ]
           ]
         ]
-      ]
-    ]);
-  }
+        ]
+        ]);
+    }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function testInvalidComponentsInAreasAreRemoved() {
-    $parentComponentName = 'ComponentWithArea';
-    $childComponentName = 'DoesNotExist';
+    public function testInvalidComponentsInAreasAreRemoved()
+    {
+        $parentComponentName = 'ComponentWithArea';
+        $childComponentName = 'DoesNotExist';
 
-    $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
+        $component = TestHelper::getCustomComponent($parentComponentName, ['name', 'areas']);
 
-    $component['areas'] = [
-      'area51' => [
+        $component['areas'] = [
+        'area51' => [
         TestHelper::getCustomComponent($childComponentName, ['name'])
-      ]
-    ];
+        ]
+        ];
 
-    $this->mockComponentManager();
+        $this->mockComponentManager();
 
-    $cp = @BuildConstructionPlan::fromConfig($component, $this->componentList);
-    $this->assertEquals($cp, [
-      'name' => $parentComponentName,
-      'data' => [],
-      'areas' => [
+        $cp = @BuildConstructionPlan::fromConfig($component, $this->componentList);
+        $this->assertEquals($cp, [
+        'name' => $parentComponentName,
+        'data' => [],
+        'areas' => [
         'area51' => []
-      ]
-    ]);
-  }
+        ]
+        ]);
+    }
 
   // Helpers
-  function mockComponentManager() {
-    $componentManagerMock = Mockery::mock('ComponentManager');
+    public function mockComponentManager()
+    {
+        $componentManagerMock = Mockery::mock('ComponentManager');
 
-    Mockery::mock('alias:Flynt\ComponentManager')
-    ->shouldReceive('getInstance')
-    ->andReturn($componentManagerMock);
+        Mockery::mock('alias:Flynt\ComponentManager')
+        ->shouldReceive('getInstance')
+        ->andReturn($componentManagerMock);
 
-    $componentManagerMock
-    ->shouldReceive('isRegistered')
-    ->andReturnUsing([$this, 'componentIsInList']);
-  }
+        $componentManagerMock
+        ->shouldReceive('isRegistered')
+        ->andReturnUsing([$this, 'componentIsInList']);
+    }
 
-  function componentIsInList($componentName) {
-    return array_key_exists($componentName, $this->componentList);
-  }
+    public function componentIsInList($componentName)
+    {
+        return array_key_exists($componentName, $this->componentList);
+    }
 }
