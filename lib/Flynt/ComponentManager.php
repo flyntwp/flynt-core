@@ -1,105 +1,118 @@
 <?php
 namespace Flynt;
 
-class ComponentManager {
+class ComponentManager
+{
 
-  protected $components = [];
-  protected static $instance = null;
+    protected $components = [];
+    protected static $instance = null;
 
-  public static function getInstance() {
-    if (null === self::$instance) {
-      self::$instance = new self;
+    public static function getInstance()
+    {
+        if (null === self::$instance) {
+            self::$instance = new self;
+        }
+        return self::$instance;
     }
-    return self::$instance;
-  }
 
   /**
    * clone
    *
    * Prevent cloning with 'protected' keyword
   **/
-  protected function __clone() {
-  }
+    protected function __clone()
+    {
+    }
 
   /**
    * constructor
    *
    * Prevent instantiation with 'protected' keyword
   **/
-  protected function __construct() {
-  }
-
-  public function registerComponent($componentName, $componentPath = null) {
-    // check if component already registered
-    if ($this->isRegistered($componentName)) {
-      trigger_error("Component {$componentName} is already registered!", E_USER_WARNING);
-      return false;
+    protected function __construct()
+    {
     }
 
-    // register component / require functions.php
-    $componentPath = trailingslashit(apply_filters('Flynt/componentPath', $componentPath, $componentName));
+    public function registerComponent($componentName, $componentPath = null)
+    {
+        // check if component already registered
+        if ($this->isRegistered($componentName)) {
+            trigger_error("Component {$componentName} is already registered!", E_USER_WARNING);
+            return false;
+        }
 
-    // add component to internal list (array)
-    $this->add($componentName, $componentPath);
+        // register component / require functions.php
+        $componentPath = trailingslashit(apply_filters('Flynt/componentPath', $componentPath, $componentName));
 
-    do_action('Flynt/registerComponent', $componentName);
-    do_action("Flynt/registerComponent?name={$componentName}", $componentName);
+        // add component to internal list (array)
+        $this->add($componentName, $componentPath);
 
-    return true;
-  }
+        do_action('Flynt/registerComponent', $componentName);
+        do_action("Flynt/registerComponent?name={$componentName}", $componentName);
 
-  public function getComponentFilePath($componentName, $fileName = 'index.php') {
-    $componentDir = $this->getComponentDirPath($componentName);
-
-    if (false === $componentDir) {
-      return false;
+        return true;
     }
 
-    // dir path already has a trailing slash
-    $filePath = $componentDir . $fileName;
+    public function getComponentFilePath($componentName, $fileName = 'index.php')
+    {
+        $componentDir = $this->getComponentDirPath($componentName);
 
-    return is_file($filePath) ? $filePath : false;
-  }
+        if (false === $componentDir) {
+            return false;
+        }
 
-  public function getComponentDirPath($componentName) {
-    $dirPath = $this->get($componentName);
+        // dir path already has a trailing slash
+        $filePath = $componentDir . $fileName;
 
-    // check if dir exists
-    if (!is_dir($dirPath)) {
-      return false;
+        return is_file($filePath) ? $filePath : false;
     }
 
-    return $dirPath;
-  }
+    public function getComponentDirPath($componentName)
+    {
+        $dirPath = $this->get($componentName);
 
-  protected function add($name, $path) {
-    $this->components[$name] = $path;
-    return true;
-  }
+        // check if dir exists
+        if (!is_dir($dirPath)) {
+            return false;
+        }
 
-  public function get($componentName) {
-    // check if component exists / is registered
-    if (!$this->isRegistered($componentName)) {
-      trigger_error("Cannot get component: Component '{$componentName}' is not registered!", E_USER_WARNING);
-      return false;
+        return $dirPath;
     }
 
-    return $this->components[$componentName];
-  }
+    protected function add($name, $path)
+    {
+        $this->components[$name] = $path;
+        return true;
+    }
 
-  public function remove($componentName) {
-    unset($this->components[$componentName]);
-  }
+    public function get($componentName)
+    {
+        // check if component exists / is registered
+        if (!$this->isRegistered($componentName)) {
+            trigger_error("Cannot get component: Component '{$componentName}' is not registered!", E_USER_WARNING);
+            return false;
+        }
 
-  public function getAll() {
-    return $this->components;
-  }
+        return $this->components[$componentName];
+    }
 
-  public function removeAll() {
-    $this->components = [];
-  }
+    public function remove($componentName)
+    {
+        unset($this->components[$componentName]);
+    }
 
-  public function isRegistered($componentName) {
-    return array_key_exists($componentName, $this->components);
-  }
+    public function getAll()
+    {
+        return $this->components;
+    }
+
+    public function removeAll()
+    {
+        $this->components = [];
+    }
+
+    public function isRegistered($componentName)
+    {
+        return array_key_exists($componentName, $this->components);
+    }
 }
