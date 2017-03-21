@@ -36,6 +36,7 @@ class Render
             trigger_error('Empty Construction Plan array!', E_USER_WARNING);
             return false;
         }
+        return true;
     }
 
     protected static function validateConstructionPlanName($constructionPlan)
@@ -47,6 +48,7 @@ class Render
             trigger_error('Construction Plan key "name" is not a string!', E_USER_WARNING);
             return false;
         }
+        return true;
     }
 
     protected static function validateConstructionPlanData($constructionPlan)
@@ -58,6 +60,7 @@ class Render
             trigger_error('Construction Plan key "data" is not an array!', E_USER_WARNING);
             return false;
         }
+        return true;
     }
 
     protected static function extractAreaHtml($constructionPlan)
