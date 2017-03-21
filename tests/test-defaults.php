@@ -13,10 +13,12 @@ namespace Flynt\Tests;
 
 require_once dirname(__DIR__) . '/lib/Flynt/Defaults.php';
 
-use Flynt\Tests\TestCase;
-use Flynt\Defaults;
+use Mockery;
 use Brain\Monkey\WP\Filters;
 use Brain\Monkey\WP\Actions;
+use Flynt\Tests\TestCase;
+use Flynt\Tests\TestHelper;
+use Flynt\Defaults;
 
 class DefaultsTest extends TestCase
 {
@@ -203,7 +205,7 @@ class DefaultsTest extends TestCase
         ->shouldReceive('getComponentFilePath')
         ->times(2)
         ->with(Mockery::type('string'))
-        ->andReturnUsing(['TestHelper', 'getComponentIndexPath']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'getComponentIndexPath']);
 
         Mockery::mock('alias:Flynt\Helpers')
         ->shouldReceive('extractNestedDataFromArray')

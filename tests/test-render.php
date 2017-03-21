@@ -13,9 +13,10 @@ namespace Flynt\Tests;
 
 require_once dirname(__DIR__) . '/lib/Flynt/Render.php';
 
+use Mockery;
+use Brain\Monkey\WP\Filters;
 use Flynt\Tests\TestCase;
 use Flynt\Render;
-use Brain\Monkey\WP\Filters;
 
 class RenderTest extends TestCase
 {

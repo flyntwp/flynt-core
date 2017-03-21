@@ -15,10 +15,10 @@ class TestCase extends Framework\TestCase
         Monkey::setUpWP();
 
         Functions::expect('get_template_directory')
-        ->andReturnUsing(['TestHelper', 'getTemplateDirectory']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'getTemplateDirectory']);
 
         Functions::expect('trailingslashit')
-        ->andReturnUsing(['TestHelper', 'trailingSlashIt']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'trailingSlashIt']);
     }
 
     protected function tearDown()

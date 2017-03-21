@@ -13,9 +13,11 @@ namespace Flynt\Tests;
 
 require_once dirname(__DIR__) . '/lib/Flynt/BuildConstructionPlan.php';
 
+use StdClass;
+use Mockery;
+use Brain\Monkey\WP\Filters;
 use Flynt\Tests\TestCase;
 use Flynt\BuildConstructionPlan;
-use Brain\Monkey\WP\Filters;
 
 class BuildConstructionPlanTest extends TestCase
 {

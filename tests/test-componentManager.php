@@ -13,10 +13,12 @@ namespace Flynt\Tests;
 
 require_once dirname(__DIR__) . '/lib/Flynt/ComponentManager.php';
 
-use Flynt\Tests\TestCase;
-use Flynt\ComponentManager;
+use Error;
 use Brain\Monkey\WP\Filters;
 use Brain\Monkey\WP\Actions;
+use Flynt\Tests\TestCase;
+use Flynt\Tests\TestHelper;
+use Flynt\ComponentManager;
 
 class ComponentManagerTest extends TestCase
 {
@@ -33,16 +35,20 @@ class ComponentManagerTest extends TestCase
         $this->assertInstanceOf(ComponentManager::class, ComponentManager::getInstance());
     }
 
+
     public function testPreventsCloning()
     {
-        $this->expectException(Error::class);
-        clone($this->componentManager);
+        $reflection = new \ReflectionClass('\Flynt\ComponentManager');
+        $cloneFn = $reflection->getMethod('__clone');
+        $this->assertFalse($cloneFn->isPublic());
     }
+
 
     public function testPreventsManualInstantiation()
     {
-        $this->expectException(Error::class);
-        new ComponentManager();
+        $reflection = new \ReflectionClass('\Flynt\ComponentManager');
+        $constructor = $reflection->getConstructor();
+        $this->assertFalse($constructor->isPublic());
     }
 
     public function testRegisterComponentUsesOptionalPathParameter()
@@ -63,7 +69,7 @@ class ComponentManagerTest extends TestCase
         $componentName = 'SingleComponent';
 
         Filters::expectApplied('Flynt/componentPath')
-        ->andReturnUsing(['TestHelper', 'getComponentPath']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'getComponentPath']);
 
         $this->componentManager->registerComponent($componentName);
         $components = $this->componentManager->getAll();
@@ -98,7 +104,7 @@ class ComponentManagerTest extends TestCase
         $componentPath = TestHelper::getComponentsPath() . $componentName . '/';
 
         Filters::expectApplied('Flynt/componentPath')
-        ->andReturnUsing(['TestHelper', 'getComponentPath']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'getComponentPath']);
 
         Actions::expectFired('Flynt/registerComponent')
         ->with($componentName);
@@ -116,7 +122,7 @@ class ComponentManagerTest extends TestCase
 
         // mock default functionality for path on registerComponent
         Filters::expectApplied('Flynt/componentPath')
-        ->andReturnUsing(['TestHelper', 'getComponentPath']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'getComponentPath']);
 
         $this->componentManager->registerComponent($componentName);
 
@@ -154,7 +160,7 @@ class ComponentManagerTest extends TestCase
         $componentName = 'SingleComponent';
 
         Filters::expectApplied('Flynt/componentPath')
-        ->andReturnUsing(['TestHelper', 'getComponentPath']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'getComponentPath']);
 
         $this->componentManager->registerComponent($componentName);
 
@@ -166,7 +172,7 @@ class ComponentManagerTest extends TestCase
     {
         // mock default functionality for path on registerComponent
         Filters::expectApplied('Flynt/componentPath')
-        ->andReturnUsing(['TestHelper', 'getComponentPath']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'getComponentPath']);
 
         $this->componentManager->registerComponent('SingleComponent');
         $path = $this->componentManager->getComponentDirPath('SingleComponent');
@@ -188,7 +194,7 @@ class ComponentManagerTest extends TestCase
         $componentB = 'ComponentWithArea';
 
         Filters::expectApplied('Flynt/componentPath')
-        ->andReturnUsing(['TestHelper', 'getComponentPath']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'getComponentPath']);
 
         $this->componentManager->registerComponent($componentA);
         $this->assertEquals($this->componentManager->getAll(), [
@@ -208,7 +214,7 @@ class ComponentManagerTest extends TestCase
         $anotherComponent = 'AnotherComponent';
 
         Filters::expectApplied('Flynt/componentPath')
-        ->andReturnUsing(['TestHelper', 'getComponentPath']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'getComponentPath']);
 
         $this->componentManager->registerComponent($component);
         $this->componentManager->registerComponent($anotherComponent);
@@ -224,7 +230,7 @@ class ComponentManagerTest extends TestCase
         $component = 'SingleComponent';
 
         Filters::expectApplied('Flynt/componentPath')
-        ->andReturnUsing(['TestHelper', 'getComponentPath']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'getComponentPath']);
 
         $this->componentManager->registerComponent($component);
         $this->assertEquals($this->componentManager->getAll(), [
@@ -240,7 +246,7 @@ class ComponentManagerTest extends TestCase
         $component = 'SingleComponent';
 
         Filters::expectApplied('Flynt/componentPath')
-        ->andReturnUsing(['TestHelper', 'getComponentPath']);
+        ->andReturnUsing(['\\Flynt\\Tests\\TestHelper', 'getComponentPath']);
 
         $this->componentManager->registerComponent($component);
 

@@ -14,9 +14,10 @@ namespace Flynt\Tests;
 
 require_once dirname(__DIR__) . '/lib/Flynt.php';
 
-use Flynt\Tests\TestCase;
+use Mockery;
 use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
+use Flynt\Tests\TestCase;
 use function Flynt\echoHtmlFromConfig;
 use function Flynt\echoHtmlFromConfigFile;
 use function Flynt\getHtmlFromConfig;
