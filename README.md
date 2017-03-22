@@ -2,7 +2,7 @@
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 [![Build Status](https://travis-ci.org/flyntwp/flynt-core.svg?branch=master)](https://travis-ci.org/flyntwp/flynt-core)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/flyntwp/flynt-core/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/flyntwp/flynt-core/?branch=master)
+[![Code Quality](https://img.shields.io/scrutinizer/g/flyntwp/flynt-core.svg)](https://scrutinizer-ci.com/g/flyntwp/flynt-core/?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/flyntwp/flynt-core/badge.svg)](https://coveralls.io/github/flyntwp/flynt-core)
 
 > The core building block of the [Flynt Framework](https://flyntwp.com).
