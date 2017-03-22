@@ -17,11 +17,9 @@ class Render
 
     protected static function validateConstructionPlan($constructionPlan)
     {
-        $valid = true;
-        $valid = self::validateConstructionPlanIsNonEmptyArray($constructionPlan);
-        $valid = self::validateConstructionPlanName($constructionPlan);
-        $valid = self::validateConstructionPlanData($constructionPlan);
-        return $valid;
+        return self::validateConstructionPlanIsNonEmptyArray($constructionPlan)
+        && self::validateConstructionPlanName($constructionPlan)
+        && self::validateConstructionPlanData($constructionPlan);
     }
 
     protected static function validateConstructionPlanIsNonEmptyArray($constructionPlan)
@@ -35,8 +33,9 @@ class Render
         } elseif (empty($constructionPlan)) {
             trigger_error('Empty Construction Plan array!', E_USER_WARNING);
             return false;
+        } else {
+            return true;
         }
-        return true;
     }
 
     protected static function validateConstructionPlanName($constructionPlan)
@@ -47,8 +46,9 @@ class Render
         } elseif (!is_string($constructionPlan['name'])) {
             trigger_error('Construction Plan key "name" is not a string!', E_USER_WARNING);
             return false;
+        } else {
+            return true;
         }
-        return true;
     }
 
     protected static function validateConstructionPlanData($constructionPlan)
@@ -59,8 +59,9 @@ class Render
         } elseif (!is_array($constructionPlan['data'])) {
             trigger_error('Construction Plan key "data" is not an array!', E_USER_WARNING);
             return false;
+        } else {
+            return true;
         }
-        return true;
     }
 
     protected static function extractAreaHtml($constructionPlan)
