@@ -17,38 +17,51 @@ class Render
 
     protected static function validateConstructionPlan($constructionPlan)
     {
-        $valid = true;
+        return self::validateConstructionPlanIsNonEmptyArray($constructionPlan)
+        && self::validateConstructionPlanName($constructionPlan)
+        && self::validateConstructionPlanData($constructionPlan);
+    }
 
+    protected static function validateConstructionPlanIsNonEmptyArray($constructionPlan)
+    {
         if (!is_array($constructionPlan)) {
             trigger_error(
                 'Construction Plan is not an array! ' . ucfirst(gettype($constructionPlan)) . ' given.',
                 E_USER_WARNING
             );
-            $valid = false;
+            return false;
         } elseif (empty($constructionPlan)) {
             trigger_error('Empty Construction Plan array!', E_USER_WARNING);
-            $valid = false;
+            return false;
         } else {
-            // Check required keys for construction plan
-
-            if (!isset($constructionPlan['name'])) {
-                trigger_error('Construction Plan is missing key: "name"', E_USER_WARNING);
-                $valid = false;
-            } elseif (!is_string($constructionPlan['name'])) {
-                trigger_error('Construction Plan key "name" is not a string!', E_USER_WARNING);
-                $valid = false;
-            }
-
-            if (!isset($constructionPlan['data'])) {
-                trigger_error('Construction Plan is missing key: "data"', E_USER_WARNING);
-                $valid = false;
-            } elseif (!is_array($constructionPlan['data'])) {
-                trigger_error('Construction Plan key "data" is not an array!', E_USER_WARNING);
-                $valid = false;
-            }
+            return true;
         }
+    }
 
-        return $valid;
+    protected static function validateConstructionPlanName($constructionPlan)
+    {
+        if (!isset($constructionPlan['name'])) {
+            trigger_error('Construction Plan is missing key: "name"', E_USER_WARNING);
+            return false;
+        } elseif (!is_string($constructionPlan['name'])) {
+            trigger_error('Construction Plan key "name" is not a string!', E_USER_WARNING);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    protected static function validateConstructionPlanData($constructionPlan)
+    {
+        if (!isset($constructionPlan['data'])) {
+            trigger_error('Construction Plan is missing key: "data"', E_USER_WARNING);
+            return false;
+        } elseif (!is_array($constructionPlan['data'])) {
+            trigger_error('Construction Plan key "data" is not an array!', E_USER_WARNING);
+            return false;
+        } else {
+            return true;
+        }
     }
 
     protected static function extractAreaHtml($constructionPlan)

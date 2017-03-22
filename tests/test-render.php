@@ -40,6 +40,12 @@ class RenderTest extends TestCase
         [[]],
         [['']],
         [[
+        'name' => 'test'
+        ]],
+        [[
+        'data' => []
+        ]],
+        [[
         'name' => 'test',
         'data' => 'dataNotArray'
         ]],
