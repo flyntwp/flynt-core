@@ -6,18 +6,35 @@ class Helpers
 {
     public static function extractNestedDataFromArray($args = [])
     {
+        if (count($args) < 2) {
+            return self::returnEmptyStringOrFirstArgument($args);
+        }
+        $key = array_pop($args);
+        $data = self::returnFirstArgumentOrNestedData($args);
+        return self::accessArrayOrObject($key, $data);
+    }
+
+    protected static function returnEmptyStringOrFirstArgument($args = [])
+    {
         if (count($args) === 0) {
             return '';
         }
         if (count($args) === 1) {
             return $args[0];
         }
-        $key = array_pop($args);
+    }
+
+    protected static function returnFirstArgumentOrNestedData($args = [])
+    {
         if (count($args) > 1) {
-            $data = self::extractNestedDataFromArray($args);
+            return self::extractNestedDataFromArray($args);
         } else {
-            $data = $args[0];
+            return $args[0];
         }
+    }
+
+    protected static function accessArrayOrObject($key, $data)
+    {
         $output = '';
         if (is_array($key) || is_object($key)) {
             $output = $key;
