@@ -9,7 +9,7 @@ class BuildConstructionPlan
         return self::fromConfigRecursive($config);
     }
 
-    protected static function fromConfigRecursive($config, $areaName = null, $parentData = [])
+    protected static function fromConfigRecursive($config, $parentData = [])
     {
         // Check configuration for errors
         if (false === self::validateConfig($config)) {
@@ -144,7 +144,7 @@ class BuildConstructionPlan
     {
         return array_map(function ($component) use ($config, $areaName, $parentData) {
             $data = empty($config['data']) ? $parentData : $config['data'];
-            return self::fromConfigRecursive($component, $areaName, $data);
+            return self::fromConfigRecursive($component, $data);
         }, $components);
     }
 }
