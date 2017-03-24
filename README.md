@@ -91,11 +91,11 @@ add_filter('Flynt/componentPath', ['Flynt\Defaults', 'setComponentPath'], 999, 2
 // Set the component path to `./Components`.
 add_action('Flynt/registerComponent', ['Flynt\Defaults', 'loadFunctionsFile']);
 
-// Render `./Components/{$componentName}/index.php` and make view helper functions `$data` and `$area` available.
+// Render `./Components/{$componentName}/index.php` and make view helper functions `$data` and `$area` available (see explanation below).
 add_filter('Flynt/renderComponent', ['Flynt\Defaults', 'renderComponent'], 999, 4);
 ```
 
-Here, it is important to note that:
+With the 'Flynt/renderComponent' filter added above you can now use the following helper functions in your template files:
 - `$data` is used to access the component's data in the view template.
 - `$area` is used to include the HTML of an area's components into the components template itself.
 
