@@ -4,7 +4,7 @@
  * Plugin URI:      https://github.com/flyntwp/flynt-core
  * Description:     Adds the Core Functionality for the Flynt Framework.
  * Author:          bleech GmbH
- * Author URI:      http://bleech.de
+ * Author URI:      https://bleech.de
  * Text Domain:     flynt-core
  * Domain Path:     /languages
  * Version:         1.0.0
