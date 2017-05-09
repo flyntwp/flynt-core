@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name:     Flynt Core
- * Plugin URI:      https://github.com/bleech/wp-starter-plugin
+ * Plugin URI:      https://github.com/flyntwp/flynt-core
  * Description:     Adds the Core Functionality for the Flynt Framework.
  * Author:          bleech GmbH
- * Author URI:      http://bleech.de
+ * Author URI:      https://bleech.de
  * Text Domain:     flynt-core
  * Domain Path:     /languages
- * Version:         0.1.0
+ * Version:         1.0.0
  *
  * @package         Flynt_Core_Plugin
  */
