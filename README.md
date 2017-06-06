@@ -79,16 +79,16 @@ This will:
 This also adds the following hooks:
 
 ```php
-// Load config files from the `./config` directory.
+// Set the config path to './config'.
 add_filter('Flynt/configPath', ['Flynt\Defaults', 'setConfigPath'], 999, 2);
 
 // Parse `.json` config files.
 add_filter('Flynt/configFileLoader', ['Flynt\Defaults', 'loadConfigFile'], 999, 3);
 
-// Load config files from the `./config` directory.
+// Set the component path to `./Components`.
 add_filter('Flynt/componentPath', ['Flynt\Defaults', 'setComponentPath'], 999, 2);
 
-// Set the component path to `./Components`.
+// Load ./Components/{$componentName}/function.php from every registered component.
 add_action('Flynt/registerComponent', ['Flynt\Defaults', 'loadFunctionsFile']);
 
 // Render `./Components/{$componentName}/index.php` and make view helper functions `$data` and `$area` available (see explanation below).
