@@ -7,7 +7,7 @@
 
 > The core building block of the [Flynt Framework](https://flyntwp.com).
 
-The Flynt Core Plugin provides a small public interface, combined with several WordPress hooks, to achieve the main principles of the [Flynt Framework](https://flyntwp.com).
+The Flynt Core WordPress plugin provides a small public interface, combined with several WordPress hooks, to achieve the main principles of the [Flynt Framework](https://flyntwp.com).
 
 ## Table of Contents
 
