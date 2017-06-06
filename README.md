@@ -88,7 +88,7 @@ add_filter('Flynt/configFileLoader', ['Flynt\Defaults', 'loadConfigFile'], 999, 
 // Set the component path to `./Components`.
 add_filter('Flynt/componentPath', ['Flynt\Defaults', 'setComponentPath'], 999, 2);
 
-// Load ./Components/{$componentName}/function.php from every registered component.
+// Load ./Components/{$componentName}/functions.php from every registered component.
 add_action('Flynt/registerComponent', ['Flynt\Defaults', 'loadFunctionsFile']);
 
 // Render `./Components/{$componentName}/index.php` and make view helper functions `$data` and `$area` available (see explanation below).
