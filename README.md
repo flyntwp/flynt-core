@@ -99,9 +99,7 @@ With the 'Flynt/renderComponent' filter added above you can now use the followin
 - `$data` is used to access the component's data in the view template.
 - `$area` is used to include the HTML of an area's components into the components template itself.
 
-**More documentation coming soon.**
-
-<!-- TODO: add link to documentation for more information -->
+[You can read the full documentation here.](https://docs.flyntwp.com/guide/core/)
 
 ## Maintainers
 
@@ -114,9 +112,9 @@ The main people in charge of this repo are:
 
 ## Contribute
 
-To contribute, please use github [issues](https://github.com/flyntwp/flynt-core/issues). Pull requests are accepted.
+To contribute, please use GitHub [issues](https://github.com/flyntwp/flynt-core/issues). Pull requests are accepted. Please also take a moment to read the [Contributing Guidelines](https://github.com/flyntwp/guidelines/blob/master/CONTRIBUTING.md) and [Code of Conduct](https://github.com/flyntwp/guidelines/blob/master/CODE_OF_CONDUCT.md).
 
-Small note: If editing the README, please conform to the [standard-readme](https://github.com/RichardLitt/standard-readme) specification.
+If editing the README, please conform to the [standard-readme](https://github.com/RichardLitt/standard-readme) specification.
 
 ## License
 
