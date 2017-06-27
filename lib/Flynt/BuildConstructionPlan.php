@@ -4,6 +4,15 @@ namespace Flynt;
 
 class BuildConstructionPlan
 {
+    /**
+     * Generates a construction plan from config array.
+     *
+     * Goes through the config array and calls all necessary functions to generate a valid construction plan.
+     * This construction plan can then be passed to the Render class, which in turn goes through it and calls the necessary filters to generate the rendered (HTML) output.
+     *
+     * @param array $config
+     * @return array A valid construction plan.
+     */
     public static function fromConfig($config)
     {
         return self::fromConfigRecursive($config);
@@ -31,6 +40,15 @@ class BuildConstructionPlan
         return self::addSubcomponents($config, $parentData);
     }
 
+    /**
+     * Generates a construction plan from a config saved in a file.
+     *
+     * Loads the config from a file using the functions provided to the `Flynt/configFileLoader` filter and passes the loaded config array to the `fromConfig` function.
+     * The path provided to this function can be further modified by the `Flynt/configPath` filter.
+     *
+     * @param string $configFileName
+     * @return array A valid construction plan.
+     */
     public static function fromConfigFile($configFileName)
     {
         $configFilePath = apply_filters('Flynt/configPath', null, $configFileName);
