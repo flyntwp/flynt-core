@@ -14,6 +14,7 @@ namespace Flynt\Tests;
 require_once dirname(__DIR__) . '/lib/Flynt/Render.php';
 
 use Mockery;
+use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
 use Flynt\Tests\TestCase;
 use Flynt\Render;
@@ -155,5 +156,22 @@ class RenderTest extends TestCase
 
         $html = Render::fromConstructionPlan($cp);
         $this->assertEquals($html, $shouldBeHtml);
+    }
+
+    public function testDoesBeforeAndAfterActions()
+    {
+        $constructionPlan = [
+            'name' => 'test'
+        ];
+
+        Actions::expectFired('Flynt/beforeRenderConstructionPlan')
+        ->once()
+        ->with($constructionPlan);
+
+        Actions::expectFired('Flynt/afterRenderConstructionPlan')
+        ->once()
+        ->with($constructionPlan);
+
+        @Render::fromConstructionPlan($constructionPlan);
     }
 }
