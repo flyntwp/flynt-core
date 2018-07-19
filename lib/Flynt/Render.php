@@ -6,6 +6,17 @@ class Render
 {
     public static function fromConstructionPlan($constructionPlan)
     {
+        do_action('Flynt/beforeRenderConstructionPlan', $constructionPlan);
+
+        $html = self::recursivelyRenderFromConstructionPlan($constructionPlan);
+
+        do_action('Flynt/afterRenderConstructionPlan', $constructionPlan);
+
+        return $html;
+    }
+
+    protected static function recursivelyRenderFromConstructionPlan($constructionPlan)
+    {
         if (false === self::validateConstructionPlan($constructionPlan)) {
             return '';
         }
@@ -98,7 +109,7 @@ class Render
             trigger_error("Area \"{$areaName}\" is not an array!", E_USER_WARNING);
             return '';
         }
-        return implode('', array_map('self::fromConstructionPlan', $components));
+        return implode('', array_map('self::recursivelyRenderFromConstructionPlan', $components));
     }
 
     protected static function applyRenderFilters($constructionPlan, $areaHtml)

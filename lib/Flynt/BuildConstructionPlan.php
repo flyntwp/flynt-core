@@ -6,7 +6,13 @@ class BuildConstructionPlan
 {
     public static function fromConfig($config)
     {
-        return self::fromConfigRecursive($config);
+        do_action('Flynt/beforeBuildConstructionPlan', $config);
+
+        $constructionPlan = self::fromConfigRecursive($config);
+
+        do_action('Flynt/afterBuildConstructionPlan', $constructionPlan);
+
+        return $constructionPlan;
     }
 
     protected static function fromConfigRecursive($config, $parentData = [])

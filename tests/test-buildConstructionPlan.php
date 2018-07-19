@@ -15,6 +15,7 @@ require_once dirname(__DIR__) . '/lib/Flynt/BuildConstructionPlan.php';
 
 use StdClass;
 use Mockery;
+use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
 use Flynt\Tests\TestCase;
 use Flynt\BuildConstructionPlan;
@@ -684,6 +685,25 @@ class BuildConstructionPlanTest extends TestCase
         'area51' => []
         ]
         ]);
+    }
+
+    public function testDoesBeforeAndAfterActions()
+    {
+        $config = [
+            'name' => 'test'
+        ];
+
+        $expectedConstructionPlan = [];
+
+        Actions::expectFired('Flynt/beforeBuildConstructionPlan')
+        ->once()
+        ->with($config);
+
+        Actions::expectFired('Flynt/afterBuildConstructionPlan')
+        ->once()
+        ->with($expectedConstructionPlan);
+
+        $cp = @BuildConstructionPlan::fromConfig($config);
     }
 
   // Helpers
