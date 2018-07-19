@@ -41,7 +41,7 @@ before_script:
   - composer install
 
 install:
-  - if [[ $TEST_VERSION == true ]]; then travis_retry composer require satooshi/php-coveralls:dev-master $COMPOSER_FLAGS --no-interaction --no-scripts --no-progress ; fi
+  - if [[ $TEST_VERSION == true ]]; then travis_retry composer require php-coveralls/php-coveralls:^2.1.0 $COMPOSER_FLAGS --no-interaction --no-scripts --no-progress ; fi
 
 script:
   - vendor/bin/phpcs -s --standard=phpcs.ruleset.xml .
