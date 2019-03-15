@@ -9,6 +9,8 @@
 
 The Flynt Core WordPress plugin provides a small public interface, combined with several WordPress hooks, to achieve the main principles of the [Flynt Framework](https://flyntwp.com).
 
+**:warning: DEPRECATED. This repository is no longer in active development. For the latest version of Flynt please use the [new Flynt repository](https://github.com/flyntwp/flynt). :warning:**
+
 ## Table of Contents
 
 - [Background](#background)
